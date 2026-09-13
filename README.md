@@ -44,3 +44,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\运行-tenkaassist本地.p
 - `部署-构建.ps1`：TKFM 完整构建流程（subst 虚拟盘 → npm install → nuxt generate → 解除虚拟盘）
 - `静态服务器.js`：零依赖 Node 静态服务器，用法 `node 静态服务器.js [目标目录] [端口] [--no-spa]`，默认伺服 TKFM dist、3000 端口、带 SPA 回退；目标目录传相对路径时相对本脚本解析，传绝对路径直接使用
 - `运行-tenkaassist本地.ps1`：以 5500 端口 + `--no-spa` 伺服 `../tenkaassist`（端口与作者在 common.js 注释里留的本地调试端口一致）
+
+## 模拟器逆向研究目录
+
+- `逆向-模拟器/`：tenkaassist 模拟器 `calculator.v3.js`（javascript-obfuscator 混淆）的 webcrack 反混淆产物 `deobfuscated.js` 与《逆向分析文档.md》（伤害管线、乘区公式、buff 体系、237 角色技能定义、黑名单技术根源），仅供本地研究
+- `明文考古-模拟器/`：从 tenkaassist git 历史提取的 2024-07 明文版计算器源码（`calculator copy.js`@3983492、`calculator_test.js`@59a302b、`damageCalc.js`@957c128），作为反混淆对照材料
+- 版权边界：tenkaassist 仓库无 LICENSE，代码版权归 inittt；本仓库已设为 private，以上产物仅限个人研究学习，不得公开传播或用于任何发布
