@@ -1,11 +1,16 @@
-// 极简静态文件服务器：把 TKFM-Data-Room/dist 目录通过 http://localhost:3000 暴露出来，用于本地浏览器实测
-// 支持目录 index.html 解析与 SPA 回退（找不到文件时返回根 index.html），满足 nuxt generate 产物的路由需求
+// 极简静态文件服务器：默认把 TKFM-Data-Room/dist 目录通过 http://localhost:3000 暴露出来，用于本地浏览器实测
+// 支持命令行参数：node 静态服务器.js [目标目录(相对本脚本或绝对)] [端口] [--no-spa]
+//   --no-spa 关闭 SPA 回退，未命中路径返回 404，适用于 tenkaassist 这类多页面站点（回退会把 404 掩盖成首页）
+// 默认带 SPA 回退（找不到文件时返回根 index.html），满足 nuxt generate 产物的前端路由需求
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const 站点目录 = path.resolve(__dirname, '..', 'TKFM-Data-Room', 'dist');
-const 端口 = 3000;
+const 参数 = process.argv.slice(2);
+const 无回退 = 参数.includes('--no-spa');
+const 位置参数 = 参数.filter(a => !a.startsWith('--'));
+const 站点目录 = path.resolve(__dirname, 位置参数[0] ?? path.join('..', 'TKFM-Data-Room', 'dist'));
+const 端口 = 位置参数[1] ? +位置参数[1] : 3000;
 
 const 类型表 = {
     '.html': 'text/html; charset=utf-8',
@@ -33,6 +38,12 @@ http.createServer((请求, 响应) => {
         文件 = path.join(文件, 'index.html');
     }
     if (!fs.existsSync(文件)) {
+        if (无回退) {
+            // 多页面站点：如实报 404，避免把缺失资源掩盖成首页
+            响应.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+            响应.end('404 Not Found: ' + 路径);
+            return;
+        }
         // SPA 回退：任何未命中的路径都交给前端路由处理
         文件 = path.join(站点目录, 'index.html');
     }
