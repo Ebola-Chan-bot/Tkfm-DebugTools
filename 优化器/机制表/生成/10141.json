@@ -1,0 +1,545 @@
+{
+ "id": 10141,
+ "机动性": [
+  120,
+  6,
+  139.8,
+  6,
+  159.6,
+  6,
+  180,
+  6,
+  199.8,
+  6
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<이성치>",
+  "<이성치>감소X"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 80,
+      "name": "백발백중이다냥!1",
+      "turn": 6
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 20,
+        "name": "백발백중이다냥!2",
+        "turn": 6
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 90,
+      "name": "백발백중이다냥!1",
+      "turn": 6
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 25,
+        "name": "백발백중이다냥!2",
+        "turn": 6
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 100,
+      "name": "백발백중이다냥!1",
+      "turn": 6
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 30,
+        "name": "백발백중이다냥!2",
+        "turn": 6
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultafter": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 60,
+      "name": "백발백중이다냥!1",
+      "turn": 6
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 10,
+        "name": "백발백중이다냥!2",
+        "turn": 6
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 70,
+      "name": "백발백중이다냥!1",
+      "turn": 6
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 15,
+        "name": "백발백중이다냥!2",
+        "turn": 6
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": 6
+   },
+   {
+    "nbf": [
+     "self",
+     "<이성치>",
+     0,
+     "야옹이 요원 탐험 중",
+     50,
+     50
+    ]
+   },
+   {
+    "setSlot": [
+     "stack",
+     50
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "심연 직시3",
+    "on": true
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "심연과의 동행",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "진실 조사1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 50,
+    "name": "진실 조사2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공발동*",
+    "size": 100,
+    "name": "진실 조사3",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "풍"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       30,
+       "진실 조사4",
+       6,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "buff": [
+     "self",
+     "발효증",
+     30,
+     "심연 직시1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "가뎀증",
+     20,
+     "심연 직시2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공발동*",
+     100,
+     "심연 직시3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     65,
+     "심연 직시4",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     65,
+     "심연 직시5",
+     "always",
+     false
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "궁발동*",
+    "size": 100,
+    "name": "이성치-바보 시저1",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "on",
+     "기본",
+     "심연 직시1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "on",
+     "기본",
+     "심연 직시2",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "on",
+     "기본",
+     "심연 직시4",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "on",
+     "기본",
+     "심연 직시5",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "<이성치>감소X",
+     0,
+     "이성치-바보 시저2",
+     4,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "발효증",
+    "size": 30,
+    "name": "발동+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": {
+       "isLeader": -6,
+       "else": -3
+      }
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<이성치>",
+       0,
+       "야옹이 요원 탐험 중",
+       50,
+       50
+      ]
+     },
+     {
+      "setSlot": [
+       "stack",
+       50
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "nest比较",
+     "type": "<이성치>",
+     "cmp": "<",
+     "fix": 1
+    },
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<이성치>",
+       0,
+       "야옹이 요원 탐험 중",
+       50,
+       50
+      ]
+     },
+     {
+      "setSlot": [
+       "stack",
+       50
+      ]
+     }
+    ],
+    "elif": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": ">",
+       "fix": 1
+      },
+      "then": [
+       {
+        "if": {
+         "not": {
+          "kind": "有回合buff",
+          "type": "<이성치>감소X"
+         }
+        },
+        "then": [
+         {
+          "nbf": [
+           "self",
+           "<이성치>",
+           0,
+           "야옹이 요원 탐험 중",
+           -10,
+           50
+          ]
+         },
+         {
+          "addSlot": [
+           "stack",
+           -10
+          ]
+         },
+         {
+          "clampSlot": [
+           "stack",
+           0,
+           null
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "심연 직시1",
+    "on": {
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 50
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "심연 직시2",
+    "on": {
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 40
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "심연 직시3",
+    "on": {
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 30
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "심연 직시4",
+    "on": {
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 20
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "심연 직시5",
+    "on": {
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 10
+    }
+   }
+  ]
+ }
+}

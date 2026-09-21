@@ -1,0 +1,1115 @@
+{
+ "id": 10173,
+ "机动性": [
+  265,
+  3,
+  298.20000000000005,
+  3,
+  331.09999999999997,
+  3,
+  364,
+  3,
+  396.90000000000003,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [
+  "<고속 장전>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "bossDefOff": true
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 36,
+      "name": "선수필승이다!2",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 18,
+      "name": "선수필승이다!3",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 50,
+      "name": "선수필승이다!4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 42,
+      "name": "선수필승이다!2",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 21,
+      "name": "선수필승이다!3",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 55,
+      "name": "선수필승이다!4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 48,
+      "name": "선수필승이다!2",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 24,
+      "name": "선수필승이다!3",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 60,
+      "name": "선수필승이다!4",
+      "turn": 1
+     },
+     {
+      "buff": [
+       "self",
+       "행동",
+       "self",
+       "<고속 장전>",
+       0,
+       "생존 게임 노장",
+       3,
+       6,
+       2,
+       "발동",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 54,
+      "name": "선수필승이다!2",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 27,
+      "name": "선수필승이다!3",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 65,
+      "name": "선수필승이다!4",
+      "turn": 1
+     },
+     {
+      "buff": [
+       "self",
+       "행동",
+       "self",
+       "<고속 장전>",
+       0,
+       "생존 게임 노장",
+       3,
+       6,
+       2,
+       "발동",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 60,
+      "name": "선수필승이다!2",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "선수필승이다!3",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 70,
+      "name": "선수필승이다!4",
+      "turn": 1
+     },
+     {
+      "buff": [
+       "self",
+       "행동",
+       "self",
+       "<고속 장전>",
+       0,
+       "생존 게임 노장",
+       3,
+       6,
+       2,
+       "발동",
+       false
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "temp": [
+     "v__0x883beb",
+     {
+      "bossField": "def"
+     }
+    ]
+   },
+   {
+    "ultLogic": {
+     "星级": 4
+    }
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "생존 게임 노장",
+    "on": true
+   },
+   {
+    "if": {
+     "kind": "temp真值",
+     "var": "v__0x883beb"
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "deleteBuff": [
+         "$i",
+         "기본",
+         "바로 지금이다! 가랏!"
+        ]
+       },
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 20,
+        "name": "바로 지금이다! 가랏!",
+        "turn": 4
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "temp": [
+     "v__0x22d2d9",
+     {
+      "getNest": "<고속 장전>"
+     }
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>1",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 1
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>2",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 2
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>3",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 3
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>4",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 4
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>5",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 5
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>6",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": "==",
+     "fix": 6
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "바로 지금이다! 가랏!1",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 1
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "바로 지금이다! 가랏!2",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 2
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "바로 지금이다! 가랏!3",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 3
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "하운드의 정신적 상징1",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 4
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "하운드의 정신적 상징2",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 5
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "하운드의 정신적 상징3",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": "==",
+     "fix": 6
+    }
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "temp": [
+     "v__0x22d2d9",
+     {
+      "getNest": "<고속 장전>"
+     }
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>1",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 1
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>2",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 2
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>3",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 3
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>4",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 4
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>5",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 5
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>6",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": "==",
+     "fix": 6
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "바로 지금이다! 가랏!1",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 1
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "바로 지금이다! 가랏!2",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 2
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "바로 지금이다! 가랏!3",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 3
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "하운드의 정신적 상징1",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 4
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "하운드의 정신적 상징2",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 5
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "하운드의 정신적 상징3",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": "==",
+     "fix": 6
+    }
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "하운드 소대 여름 집합1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "가뎀증",
+    "size": 40,
+    "name": "하운드 소대 여름 집합2",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "궁뎀증",
+    "size": 30,
+    "name": "하운드 소대 여름 집합3",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "발효증",
+    "size": 60,
+    "name": "하운드 소대 여름 집합4",
+    "turn": "always"
+   },
+   {
+    "nbf": [
+     "boss",
+     "받뎀증",
+     30,
+     "하운드 소대 여름 집합5",
+     1,
+     1
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공발동*",
+      "size": 60,
+      "name": "<엄호 공격>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "$i",
+      "type": "궁추가*",
+      "size": 120,
+      "name": "<엄호 공격>2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜"
+     ],
+     "排除self": true
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "가뎀증",
+      "size": -500,
+      "name": "<물러서!>",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "방",
+     "self",
+     "<고속 장전>",
+     0,
+     "생존 게임 노장",
+     3,
+     6,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "피격",
+     "self",
+     "<고속 장전>",
+     0,
+     "생존 게임 노장",
+     3,
+     6,
+     "always"
+    ]
+   },
+   {
+    "inject": {
+     "方法": "hit",
+     "目标": "self",
+     "模式": "追加",
+     "后置": [
+      {
+       "temp": [
+        "v__0x22d2d9",
+        {
+         "getNest": "<고속 장전>"
+        }
+       ]
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "<전력 사격>1",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": ">=",
+        "fix": 1
+       }
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "<전력 사격>2",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": ">=",
+        "fix": 2
+       }
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "<전력 사격>3",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": ">=",
+        "fix": 3
+       }
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "<전력 사격>4",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": ">=",
+        "fix": 4
+       }
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "<전력 사격>5",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": ">=",
+        "fix": 5
+       }
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "<전력 사격>6",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": "==",
+        "fix": 6
+       }
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "바로 지금이다! 가랏!1",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": ">=",
+        "fix": 1
+       }
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "바로 지금이다! 가랏!2",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": ">=",
+        "fix": 2
+       }
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "바로 지금이다! 가랏!3",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": ">=",
+        "fix": 3
+       }
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "하운드의 정신적 상징1",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": ">=",
+        "fix": 4
+       }
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "하운드의 정신적 상징2",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": ">=",
+        "fix": 5
+       }
+      },
+      {
+       "setBuffOn": "self",
+       "div": "기본",
+       "name": "하운드의 정신적 상징3",
+       "on": {
+        "temp": "v__0x22d2d9",
+        "cmp": "==",
+        "fix": 6
+       }
+      }
+     ]
+    }
+   },
+   {
+    "buff": [
+     "self",
+     "궁발동*",
+     50,
+     "<전력 사격>1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁발동*",
+     50,
+     "<전력 사격>2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁발동*",
+     50,
+     "<전력 사격>3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁발동*",
+     50,
+     "<전력 사격>4",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁발동*",
+     50,
+     "<전력 사격>5",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁발동*",
+     50,
+     "<전력 사격>6",
+     "always",
+     false
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "anbf": [
+       "self",
+       "행동",
+       "self",
+       "<고속 장전>",
+       0,
+       "생존 게임 노장",
+       -6,
+       6,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     50,
+     "바로 지금이다! 가랏!1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "발효증",
+     20,
+     "바로 지금이다! 가랏!2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "발효증",
+     20,
+     "바로 지금이다! 가랏!3",
+     "always",
+     false
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "방",
+     "all",
+     "제거",
+     "기본",
+     "하운드의 정신적 상징",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "방",
+     "all",
+     "공퍼증",
+     50,
+     "하운드의 정신적 상징",
+     2,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "발효증",
+     20,
+     "하운드의 정신적 상징1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "발효증",
+     20,
+     "하운드의 정신적 상징2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁뎀증",
+     30,
+     "하운드의 정신적 상징3",
+     "always",
+     false
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "defense": [
+   {
+    "actDefense": true
+   },
+   {
+    "temp": [
+     "v__0x22d2d9",
+     {
+      "getNest": "<고속 장전>"
+     }
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>1",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 1
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>2",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 2
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>3",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 3
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>4",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 4
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>5",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 5
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<전력 사격>6",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": "==",
+     "fix": 6
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "바로 지금이다! 가랏!1",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 1
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "바로 지금이다! 가랏!2",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 2
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "바로 지금이다! 가랏!3",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 3
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "하운드의 정신적 상징1",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 4
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "하운드의 정신적 상징2",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": ">=",
+     "fix": 5
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "하운드의 정신적 상징3",
+    "on": {
+     "temp": "v__0x22d2d9",
+     "cmp": "==",
+     "fix": 6
+    }
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 3,
+       "余": 0
+      },
+      "then": [
+       {
+        "anbf": [
+         "self",
+         "행동",
+         "self",
+         "<고속 장전>",
+         0,
+         "생존 게임 노장",
+         -6,
+         6,
+         1
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,843 @@
+{
+ "id": 10181,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<포만감>",
+  "<격렬한 운동>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "deleteBuff": [
+       "$i",
+       "기본",
+       "오늘 저녁은 쇼가야키!5"
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<포만감>",
+       0,
+       "오늘 저녁은 쇼가야키!1",
+       2,
+       5
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       2
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       5
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 12,
+      "name": "오늘 저녁은 쇼가야키!2",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "all",
+       "가뎀증",
+       3,
+       "오늘 저녁은 쇼가야키!3",
+       1,
+       2
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "궁추가*",
+      "size": 75,
+      "name": "오늘 저녁은 쇼가야키!4",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "평추가*",
+      "size": 37.5,
+      "name": "오늘 저녁은 쇼가야키!5",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<포만감>",
+       0,
+       "오늘 저녁은 쇼가야키!1",
+       2,
+       5
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       2
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       5
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 14,
+      "name": "오늘 저녁은 쇼가야키!2",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "all",
+       "가뎀증",
+       3.5,
+       "오늘 저녁은 쇼가야키!3",
+       1,
+       2
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "궁추가*",
+      "size": 87.5,
+      "name": "오늘 저녁은 쇼가야키!4",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "평추가*",
+      "size": 43.8,
+      "name": "오늘 저녁은 쇼가야키!5",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<포만감>",
+       0,
+       "오늘 저녁은 쇼가야키!1",
+       2,
+       5
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       2
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       5
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 16,
+      "name": "오늘 저녁은 쇼가야키!2",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "all",
+       "가뎀증",
+       4,
+       "오늘 저녁은 쇼가야키!3",
+       1,
+       2
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "궁추가*",
+      "size": 100,
+      "name": "오늘 저녁은 쇼가야키!4",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "평추가*",
+      "size": 50,
+      "name": "오늘 저녁은 쇼가야키!5",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<포만감>",
+       0,
+       "오늘 저녁은 쇼가야키!1",
+       2,
+       5
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       2
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       5
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 18,
+      "name": "오늘 저녁은 쇼가야키!2",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "all",
+       "가뎀증",
+       4.5,
+       "오늘 저녁은 쇼가야키!3",
+       1,
+       2
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "궁추가*",
+      "size": 112.5,
+      "name": "오늘 저녁은 쇼가야키!4",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "평추가*",
+      "size": 56.3,
+      "name": "오늘 저녁은 쇼가야키!5",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<포만감>",
+       0,
+       "오늘 저녁은 쇼가야키!1",
+       2,
+       5
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       2
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       5
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "오늘 저녁은 쇼가야키!2",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "all",
+       "가뎀증",
+       5,
+       "오늘 저녁은 쇼가야키!3",
+       1,
+       2
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "궁추가*",
+      "size": 125,
+      "name": "오늘 저녁은 쇼가야키!4",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "평추가*",
+      "size": 62.5,
+      "name": "오늘 저녁은 쇼가야키!5",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "if": {
+     "kind": "slot集合",
+     "slot": "stack",
+     "in": [
+      2,
+      3
+     ]
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "기본",
+      "name": "기억 속의 맛4",
+      "on": true
+     }
+    ],
+    "elif": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "기억 속의 맛4",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ultLogic": null
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "기억 속의 맛4",
+      "on": false
+     }
+    ]
+   },
+   {
+    "addSlot": [
+     "stack",
+     1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     5
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "발동",
+    "name": "기억 속의 맛3",
+    "on": true
+   }
+  ],
+  "attack": [
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 3
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "기억 속의 맛4",
+      "on": true
+     }
+    ]
+   },
+   {
+    "atkLogic": null
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 3
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "기억 속의 맛4",
+      "on": false
+     }
+    ]
+   },
+   {
+    "addSlot": [
+     "stack",
+     1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     5
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 3
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "기억 속의 맛3",
+      "on": true
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpMe": [
+     "self",
+     60
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "hpUpMe": [
+       "$i",
+       30
+      ]
+     }
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "방",
+     "all",
+     "아머",
+     {
+      "hpExpr": {
+       "base": "self",
+       "N": 10
+      }
+     },
+     "<꿈 탈출>",
+     1,
+     "always"
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "공격",
+     "self",
+     "<포만감>",
+     0,
+     "오늘 저녁은 쇼가야키!1",
+     1,
+     5,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공격",
+     "self",
+     "on",
+     "기본",
+     "기억 속의 맛4",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "all",
+     "아머",
+     {
+      "hpExpr": {
+       "base": "self",
+       "N": 20
+      }
+     },
+     "기억 속의 맛3",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "가뎀증",
+     30,
+     "기억 속의 맛4",
+     "always",
+     false
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "피격",
+     "self",
+     "<격렬한 운동>",
+     0,
+     "스포츠 만능",
+     1,
+     1,
+     "always"
+    ]
+   },
+   {
+    "tbf": "all",
+    "type": "일뎀증",
+    "size": 70,
+    "name": "잠자는 숲 속의 검사2",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "궁뎀증",
+    "size": 35,
+    "name": "잠자는 숲 속의 검사3",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "받아증",
+    "size": 30,
+    "name": "잠자는 숲 속의 검사4",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -4
+     },
+     {
+      "nbf": [
+       "self",
+       "<포만감>",
+       0,
+       "오늘 저녁은 쇼가야키!1",
+       2,
+       5
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       2
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       5
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "nest比较",
+       "type": "<격렬한 운동>",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "for": {
+         "kind": "全队"
+        },
+        "body": [
+         {
+          "deleteBuff": [
+           "$i",
+           "기본",
+           "<소화 촉진>1"
+          ]
+         }
+        ]
+       },
+       {
+        "tbf": "all",
+        "type": "공퍼증",
+        "size": 30,
+        "name": "<소화 촉진>1",
+        "turn": 2
+       },
+       {
+        "nbf": [
+         "self",
+         "<포만감>",
+         0,
+         "오늘 저녁은 쇼가야키!1",
+         -1,
+         5
+        ]
+       },
+       {
+        "nbf": [
+         "self",
+         "<격렬한 운동>",
+         0,
+         "스포츠 만능",
+         -1,
+         1
+        ]
+       },
+       {
+        "if": {
+         "kind": "slot比较",
+         "slot": "stack",
+         "cmp": "==",
+         "fix": 3
+        },
+        "then": [
+         {
+          "setBuffOn": "self",
+          "div": "발동",
+          "name": "기억 속의 맛3",
+          "on": false
+         }
+        ],
+        "elif": [
+         {
+          "if": {
+           "kind": "slot比较",
+           "slot": "stack",
+           "cmp": "==",
+           "fix": 4
+          },
+          "then": [
+           {
+            "setBuffOn": "self",
+            "div": "기본",
+            "name": "기억 속의 맛4",
+            "on": false
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "addSlot": [
+         "stack",
+         -1
+        ]
+       },
+       {
+        "clampSlot": [
+         "stack",
+         0,
+         null
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "turnover": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "hp比例",
+         "cmp": ">",
+         "fix": 0.5
+        },
+        "then": [
+         {
+          "if": {
+           "kind": "排除上层栈",
+           "cmp": "==",
+           "上层": 0
+          },
+          "then": [
+           {
+            "continue": 1
+           }
+          ]
+         },
+         {
+          "tbf": "all",
+          "type": "공퍼증",
+          "size": 12.5,
+          "name": "<최우수 조연>1",
+          "turn": 2
+         },
+         {
+          "tbf": "all",
+          "type": "가뎀증",
+          "size": 7,
+          "name": "<최우수 조연>2",
+          "turn": 2
+         },
+         {
+          "tbf": "all",
+          "type": "일뎀증",
+          "size": 20,
+          "name": "<최우수 조연>3",
+          "turn": 2
+         },
+         {
+          "tbf": "all",
+          "type": "궁뎀증",
+          "size": 10,
+          "name": "<최우수 조연>4",
+          "turn": 2
+         },
+         {
+          "tbf": "boss",
+          "type": "받뎀증",
+          "size": 5,
+          "name": "<최우수 조연>5",
+          "turn": 2
+         },
+         {
+          "tbf": "all",
+          "type": "받속뎀",
+          "size": 7,
+          "name": "<최우수 조연>6",
+          "turn": 2
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

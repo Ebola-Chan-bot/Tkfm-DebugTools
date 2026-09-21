@@ -1,0 +1,326 @@
+{
+ "id": 10088,
+ "机动性": [
+  265,
+  3,
+  298,
+  3,
+  331,
+  3,
+  364,
+  3,
+  397,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 18,
+      "name": "아나스티의 특제 칵테일",
+      "turn": 7
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 18,
+      "name": "아나스티의 특제 칵테일",
+      "turn": 7
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 20,
+      "name": "아나스티의 특제 칵테일",
+      "turn": 7
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 20,
+      "name": "아나스티의 특제 칵테일",
+      "turn": 7
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 20,
+      "name": "아나스티의 특제 칵테일",
+      "turn": 7
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "가뎀증",
+     35,
+     "열정적인 쌍성 점장",
+     1,
+     "always"
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 15,
+      "name": "술1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 20,
+      "name": "술2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 30,
+      "name": "술3",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "디"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 15,
+      "name": "미인1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "디"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 20,
+      "name": "미인2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "디"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 30,
+      "name": "미인3",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "탱"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 50,
+      "name": "기도",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "if": {
+       "kind": "循环名",
+       "cmp": "==",
+       "name": "신파랑"
+      },
+      "then": [
+       {
+        "tbf": "all",
+        "type": "가뎀증",
+        "size": 20,
+        "name": "예쁜 동생",
+        "turn": "always"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "궁뎀증",
+     25,
+     "기세등등",
+     1,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "디"
+     ],
+     "排除self": true
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "궁발동*",
+       77,
+       "추가 주문",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격 데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 7
+    },
+    "then": [
+     {
+      "nbf": [
+       "all",
+       "가뎀증",
+       30,
+       "칠석의 기원",
+       1,
+       1
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,298 @@
+{
+ "id": 10125,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 200,
+      "name": "장난은 안치지만 사탕 내 놔1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        25
+       ]
+      },
+      "name": "장난은 안치지만 사탕 내 놔2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 200,
+      "name": "장난은 안치지만 사탕 내 놔1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "장난은 안치지만 사탕 내 놔2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 250,
+      "name": "장난은 안치지만 사탕 내 놔1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        35
+       ]
+      },
+      "name": "장난은 안치지만 사탕 내 놔2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 250,
+      "name": "장난은 안치지만 사탕 내 놔1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        40
+       ]
+      },
+      "name": "장난은 안치지만 사탕 내 놔2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 300,
+      "name": "장난은 안치지만 사탕 내 놔1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        45
+       ]
+      },
+      "name": "장난은 안치지만 사탕 내 놔2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        25
+       ]
+      },
+      "name": "장난은 안치지만 사탕 내 놔3",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "용기의 힘",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "할로윈 코스프레 파티1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "가뎀증",
+    "size": 50,
+    "name": "할로윈 코스프레 파티2",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "궁뎀증",
+    "size": 70,
+    "name": "할로윈 코스프레 파티3",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "궁추가*",
+    "size": 250,
+    "name": "호박을 자르는데 어찌 성검을 쓰겠는가",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "궁추가*",
+      "size": 100,
+      "name": "할로윈에 입을 옷",
+      "turn": 50
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 3,
+       "余": 0
+      },
+      "then": [
+       {
+        "for": {
+         "kind": "role",
+         "mask": [
+          "딜",
+          "디"
+         ]
+        },
+        "body": [
+         {
+          "atbf": [
+           "self",
+           "궁",
+           "$i",
+           "공고증",
+           {
+            "atkRef": [
+             "myCurAtk",
+             "+selfId",
+             25
+            ]
+           },
+           "즉석 호박파이",
+           1,
+           1
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

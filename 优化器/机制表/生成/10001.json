@@ -1,0 +1,241 @@
+{
+ "id": 10001,
+ "机动性": [
+  393,
+  4,
+  448,
+  4,
+  503,
+  4,
+  503,
+  4,
+  503,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 25,
+      "name": "맹렬한 불길1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 5,
+      "name": "맹렬한 불길2",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 25,
+      "name": "맹렬한 불길1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 5,
+      "name": "맹렬한 불길2",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 25,
+      "name": "맹렬한 불길1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 10,
+      "name": "맹렬한 불길2",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 35,
+      "name": "맹렬한 불길1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 10,
+      "name": "맹렬한 불길2",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 35,
+      "name": "맹렬한 불길1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 10,
+      "name": "맹렬한 불길2",
+      "turn": 3
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "cdChange": "self",
+    "值": -1
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "마왕 바알의 꿍꿍이1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "가뎀증",
+    "size": 20,
+    "name": "마왕 바알의 꿍꿍이2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 125,
+    "name": "마왕 바알의 꿍꿍이3",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 25,
+    "name": "마왕 바알의 꿍꿍이4",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 25,
+    "name": "마왕의 육체1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 15,
+    "name": "마왕의 육체2",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "공퍼증",
+     15,
+     "알 수 없는 성격",
+     1,
+     2,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "화"
+     ]
+    },
+    "body": [
+     {
+      "anbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       10,
+       "바알의 장난",
+       1,
+       2,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 10,
+    "name": "일반 공격 데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -1
+     }
+    ]
+   }
+  ]
+ }
+}

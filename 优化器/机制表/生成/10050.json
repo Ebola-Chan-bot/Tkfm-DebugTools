@@ -1,0 +1,212 @@
+{
+ "id": 10050,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultimate": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "setHpDmg": {
+       "字段": "ult",
+       "目标": "self",
+       "expr": {
+        "base": "self",
+        "N": 89
+       }
+      }
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "setHpDmg": {
+       "字段": "ult",
+       "目标": "self",
+       "expr": {
+        "base": "self",
+        "N": 107
+       }
+      }
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "setHpDmg": {
+       "字段": "ult",
+       "目标": "self",
+       "expr": {
+        "base": "self",
+        "N": 125
+       }
+      }
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "setHpDmg": {
+       "字段": "ult",
+       "目标": "self",
+       "expr": {
+        "base": "self",
+        "N": 143
+       }
+      }
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "setHpDmg": {
+       "字段": "ult",
+       "目标": "self",
+       "expr": {
+        "base": "self",
+        "N": 161
+       }
+      }
+     }
+    ]
+   },
+   {
+    "ultLogic": null
+   }
+  ],
+  "attack": [
+   {
+    "setHpDmg": {
+     "字段": "atk",
+     "目标": "self",
+     "expr": {
+      "base": "self",
+      "N": 50
+     }
+    }
+   },
+   {
+    "atkLogic": null
+   }
+  ],
+  "leader": [
+   {
+    "hpUpMe": [
+     "self",
+     100
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 125,
+    "name": "마왕의 꼭대기1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 100,
+    "name": "마왕의 꼭대기2",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "마왕의 꼭대기5",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "가뎀증",
+    "size": 20,
+    "name": "마왕의 꼭대기6",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "atbf": [
+       "$i",
+       "방",
+       "all",
+       "받속뎀",
+       6,
+       "굴복하라",
+       2,
+       "always"
+      ]
+     },
+     {
+      "atbf": [
+       "$i",
+       "궁",
+       "all",
+       "받속뎀",
+       6,
+       "굴복하라",
+       2,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "가뎀증",
+     20,
+     "마주한 공포",
+     1,
+     2,
+     "always"
+    ]
+   },
+   {
+    "tbf": "boss",
+    "type": "받뎀증",
+    "size": 20,
+    "name": "시저라는 이름1",
+    "turn": 50
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "피해+",
+    "turn": "always"
+   }
+  ]
+ }
+}

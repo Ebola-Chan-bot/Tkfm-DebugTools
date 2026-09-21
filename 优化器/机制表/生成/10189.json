@@ -1,0 +1,867 @@
+{
+ "id": 10189,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<지옥의 화염>",
+  "<저주 같은 사랑>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "종언-잔혹의 발톱1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 50,
+      "name": "종언-잔혹의 발톱2",
+      "turn": 2
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 18,
+        "name": "종언-잔혹의 발톱3",
+        "turn": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 115,
+      "name": "종언-잔혹의 발톱1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 65,
+      "name": "종언-잔혹의 발톱2",
+      "turn": 2
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 21,
+        "name": "종언-잔혹의 발톱3",
+        "turn": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 130,
+      "name": "종언-잔혹의 발톱1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 80,
+      "name": "종언-잔혹의 발톱2",
+      "turn": 2
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 24,
+        "name": "종언-잔혹의 발톱3",
+        "turn": 2
+       }
+      ]
+     },
+     {
+      "anbf": [
+       "self",
+       "평",
+       "self",
+       "<지옥의 화염>",
+       0,
+       "만물 멸절",
+       1,
+       6,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 145,
+      "name": "종언-잔혹의 발톱1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 95,
+      "name": "종언-잔혹의 발톱2",
+      "turn": 2
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 27,
+        "name": "종언-잔혹의 발톱3",
+        "turn": 2
+       }
+      ]
+     },
+     {
+      "anbf": [
+       "self",
+       "평",
+       "self",
+       "<지옥의 화염>",
+       0,
+       "만물 멸절",
+       2,
+       6,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 160,
+      "name": "종언-잔혹의 발톱1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 110,
+      "name": "종언-잔혹의 발톱2",
+      "turn": 2
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 30,
+        "name": "종언-잔혹의 발톱3",
+        "turn": 2
+       }
+      ]
+     },
+     {
+      "anbf": [
+       "self",
+       "평",
+       "self",
+       "<지옥의 화염>",
+       0,
+       "만물 멸절",
+       3,
+       6,
+       2
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "만물 멸절1",
+    "on": false
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "만물 멸절2",
+    "on": false
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "만물 멸절3",
+    "on": false
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "만물 멸절4",
+    "on": false
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "만물 멸절5",
+    "on": false
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "만물 멸절6",
+    "on": false
+   }
+  ],
+  "atkafter": [
+   {
+    "nbf": [
+     "self",
+     "일뎀증",
+     5,
+     "타오르지 않는 증오2",
+     1,
+     10
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "hit": "self"
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 50
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": -500,
+      "name": "욕망을 상실한 마왕1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "<화염의 만연>1",
+      "turn": "always"
+     },
+     {
+      "inject": {
+       "方法": "ultimate",
+       "目标": "$i",
+       "模式": "环绕",
+       "前置": [
+        {
+         "atbf": [
+          "$i",
+          "평",
+          "boss",
+          "받뎀증",
+          5,
+          "<화염의 만연>2",
+          1,
+          2
+         ]
+        },
+        {
+         "atbf": [
+          "$i",
+          "평",
+          "boss",
+          "받일뎀",
+          10,
+          "<화염의 만연>3",
+          1,
+          2
+         ]
+        }
+       ],
+       "后置": [
+        {
+         "atbf": [
+          {
+           "comp": 0
+          },
+          "궁",
+          {
+           "comp": 0
+          },
+          "공퍼증",
+          35,
+          "<타오르는 전투 욕구>1",
+          2,
+          1
+         ]
+        },
+        {
+         "atbf": [
+          {
+           "comp": 0
+          },
+          "궁",
+          {
+           "comp": 0
+          },
+          "가뎀증",
+          10.5,
+          "<타오르는 전투 욕구>2",
+          2,
+          1
+         ]
+        },
+        {
+         "atbf": [
+          {
+           "comp": 0
+          },
+          "궁",
+          {
+           "comp": 0
+          },
+          "일뎀증",
+          30,
+          "<타오르는 전투 욕구>3",
+          2,
+          1
+         ]
+        },
+        {
+         "atbf": [
+          {
+           "comp": 0
+          },
+          "궁",
+          {
+           "comp": 0
+          },
+          "평추가*",
+          52.5,
+          "<타오르는 전투 욕구>4",
+          2,
+          1
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 45,
+    "name": "타오르지 않는 증오1",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "피격",
+     "self",
+     "<지옥의 화염>",
+     0,
+     "만물 멸절",
+     1,
+     6,
+     "always"
+    ]
+   },
+   {
+    "inject": {
+     "方法": "hit",
+     "目标": "self",
+     "模式": "追加",
+     "后置": [
+      {
+       "temp": [
+        "v__0x5afd67",
+        {
+         "getNest": "<지옥의 화염>"
+        }
+       ]
+      },
+      {
+       "setBuffOnAll": "self",
+       "div": "발동",
+       "name": "만물 멸절1",
+       "on": {
+        "temp": "v__0x5afd67",
+        "cmp": ">=",
+        "fix": 1
+       }
+      },
+      {
+       "setBuffOnAll": "self",
+       "div": "발동",
+       "name": "만물 멸절2",
+       "on": {
+        "temp": "v__0x5afd67",
+        "cmp": ">=",
+        "fix": 2
+       }
+      },
+      {
+       "setBuffOnAll": "self",
+       "div": "발동",
+       "name": "만물 멸절3",
+       "on": {
+        "temp": "v__0x5afd67",
+        "cmp": ">=",
+        "fix": 3
+       }
+      },
+      {
+       "setBuffOnAll": "self",
+       "div": "발동",
+       "name": "만물 멸절4",
+       "on": {
+        "temp": "v__0x5afd67",
+        "cmp": ">=",
+        "fix": 4
+       }
+      },
+      {
+       "setBuffOnAll": "self",
+       "div": "발동",
+       "name": "만물 멸절5",
+       "on": {
+        "temp": "v__0x5afd67",
+        "cmp": ">=",
+        "fix": 5
+       }
+      },
+      {
+       "setBuffOnAll": "self",
+       "div": "발동",
+       "name": "만물 멸절6",
+       "on": {
+        "temp": "v__0x5afd67",
+        "cmp": ">=",
+        "fix": 6
+       }
+      }
+     ]
+    }
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "가뎀증",
+     5,
+     "만물 멸절1",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "평추가*",
+     52.5,
+     "만물 멸절1",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "가뎀증",
+     5,
+     "만물 멸절2",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "평추가*",
+     52.5,
+     "만물 멸절2",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "가뎀증",
+     5,
+     "만물 멸절3",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "평추가*",
+     52.5,
+     "만물 멸절3",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "가뎀증",
+     5,
+     "만물 멸절4",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "평추가*",
+     52.5,
+     "만물 멸절4",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "가뎀증",
+     5,
+     "만물 멸절5",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "평추가*",
+     52.5,
+     "만물 멸절5",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "가뎀증",
+     5,
+     "만물 멸절6",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "평추가*",
+     52.5,
+     "만물 멸절6",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "<지옥의 화염>",
+     0,
+     "만물 멸절",
+     -6,
+     6,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "anbf": [
+       "$i",
+       "피격",
+       "self",
+       "<저주 같은 사랑>",
+       0,
+       "되찾을 수 없는 욕망",
+       1,
+       10,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     30,
+     "되찾을 수 없는 욕망1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "방뎀증",
+     100,
+     "되찾을 수 없는 욕망2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "가뎀증",
+     30,
+     "되찾을 수 없는 욕망3",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "inject": {
+       "方法": "hit",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "if": {
+          "kind": "slot比较",
+          "slot": "stack",
+          "cmp": "==",
+          "fix": 1
+         },
+         "then": [
+          {
+           "setBuffOn": "self",
+           "div": "기본",
+           "name": "되찾을 수 없는 욕망1",
+           "on": true
+          }
+         ],
+         "elif": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": "==",
+            "fix": 5
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "기본",
+             "name": "되찾을 수 없는 욕망2",
+             "on": true
+            }
+           ],
+           "elif": [
+            {
+             "if": {
+              "kind": "slot比较",
+              "slot": "stack",
+              "cmp": "==",
+              "fix": 9
+             },
+             "then": [
+              {
+               "setBuffOn": "self",
+               "div": "발동",
+               "name": "되찾을 수 없는 욕망3",
+               "on": true
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "addSlot": [
+          "stack",
+          1
+         ]
+        },
+        {
+         "clampSlot": [
+          "stack",
+          null,
+          10
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ]
+ }
+}

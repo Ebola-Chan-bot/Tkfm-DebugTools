@@ -1,0 +1,225 @@
+{
+ "id": 10131,
+ "机动性": [
+  265,
+  3,
+  298,
+  3,
+  331,
+  3,
+  364,
+  3,
+  397,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "받캐뎀",
+      "size": 50,
+      "name": "시간을 초월한 희망",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "받캐뎀",
+      "size": 62.5,
+      "name": "시간을 초월한 희망",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "받캐뎀",
+      "size": 75,
+      "name": "시간을 초월한 희망",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "받캐뎀",
+      "size": 87.5,
+      "name": "시간을 초월한 희망",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "받캐뎀",
+      "size": 100,
+      "name": "시간을 초월한 희망",
+      "turn": 3
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 25
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 90,
+    "name": "시간을 다스리는 자1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "가뎀증",
+      "size": 40,
+      "name": "시간을 다스리는 자2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 90,
+    "name": "시간을 다스리는 자3",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "nbf": [
+     "self",
+     "가뎀증",
+     4,
+     "부서진 창공",
+     1,
+     5
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 20,
+    "name": "시공간 지배1",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "받캐뎀",
+     10,
+     "시공간 지배2",
+     4,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "평발동*",
+    "size": 70,
+    "name": "찬란한 세월1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁발동*",
+    "size": 70,
+    "name": "찬란한 세월2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격 데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 3,
+       "余": 0
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "가뎀증",
+         4,
+         "부서진 창공",
+         2,
+         5
+        ]
+       },
+       {
+        "if": {
+         "kind": "回合",
+         "cmp": "<=",
+         "fix": 7
+        },
+        "then": [
+         {
+          "setBuffSizeUp": "self",
+          "div": "발동",
+          "name": "시공간 지배2",
+          "up": 20
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

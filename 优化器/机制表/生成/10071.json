@@ -1,0 +1,317 @@
+{
+ "id": 10071,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 180,
+      "name": "저주 멸살의 눈1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 60,
+      "name": "저주 멸살의 눈2",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 80,
+      "name": "저주 멸살의 눈4",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 180,
+      "name": "저주 멸살의 눈1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 80,
+      "name": "저주 멸살의 눈2",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 100,
+      "name": "저주 멸살의 눈4",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 200,
+      "name": "저주 멸살의 눈1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 80,
+      "name": "저주 멸살의 눈2",
+      "turn": 2
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         5,
+         "저주 멸살의 눈3",
+         1,
+         2
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 100,
+      "name": "저주 멸살의 눈4",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 200,
+      "name": "저주 멸살의 눈1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 100,
+      "name": "저주 멸살의 눈2",
+      "turn": 2
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         5,
+         "저주 멸살의 눈3",
+         1,
+         2
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 110,
+      "name": "저주 멸살의 눈4",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 240,
+      "name": "저주 멸살의 눈1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 100,
+      "name": "저주 멸살의 눈2",
+      "turn": 2
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         5,
+         "저주 멸살의 눈3",
+         1,
+         2
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 130,
+      "name": "저주 멸살의 눈4",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 60,
+    "name": "금지구역의 수호자1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "일뎀증",
+    "size": 60,
+    "name": "금지구역의 수호자2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 50,
+    "name": "금지구역의 수호자3",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "boss",
+     "받뎀증",
+     5,
+     "금지구역의 수호자4",
+     1,
+     8,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "평추가*",
+     150,
+     "금지구역의 수호자5",
+     2,
+     "always"
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "전율의 사냥",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "평추가*",
+     70,
+     "2연발",
+     2,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 6
+    },
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받일뎀",
+      "size": 100,
+      "name": "쇠약의 저주",
+      "turn": 50
+     }
+    ]
+   }
+  ]
+ }
+}

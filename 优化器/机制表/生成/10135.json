@@ -1,0 +1,555 @@
+{
+ "id": 10135,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<위대한 나가퀸>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 10,
+      "name": "돈이 곧 힘!1",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 15,
+      "name": "돈이 곧 힘!1",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "돈이 곧 힘!1",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 25,
+      "name": "돈이 곧 힘!1",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 30,
+      "name": "돈이 곧 힘!1",
+      "turn": 2
+     }
+    ]
+   }
+  ],
+  "ultafter": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 80,
+      "name": "돈이 곧 힘!2",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 100,
+      "name": "돈이 곧 힘!2",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 120,
+      "name": "돈이 곧 힘!2",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 140,
+      "name": "돈이 곧 힘!2",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 160,
+      "name": "돈이 곧 힘!2",
+      "turn": 2
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "슈퍼 리치 메스미나 님1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "평추가*",
+    "size": 50,
+    "name": "슈퍼 리치 메스미나 님2",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "가뎀증",
+      "size": -100,
+      "name": "슈퍼 리치 메스미나 님3",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "nbf": [
+     "self",
+     "<위대한 나가퀸>",
+     0,
+     "아이돌 매니저의 상담 시간1",
+     4,
+     4
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     {
+      "comp": 2
+     },
+     "공격",
+     "self",
+     "<위대한 나가퀸>",
+     0,
+     "아이돌 매니저의 상담 시간1",
+     1,
+     4,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     {
+      "comp": 2
+     },
+     "공격",
+     "self",
+     "공고증",
+     {
+      "atkComp": {
+       "compN": 2,
+       "常数": 10
+      }
+     },
+     "아이돌 매니저의 상담 시간2",
+     1,
+     "always"
+    ]
+   },
+   {
+    "tbf": {
+     "comp": 2
+    },
+    "type": "가뎀증",
+    "size": -100,
+    "name": "아이돌 매니저의 상담 시간3",
+    "turn": "always"
+   },
+   {
+    "buff": [
+     "self",
+     "일뎀증",
+     75,
+     "아무것도 안 하는 게 최고야!1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     100,
+     "아무것도 안 하는 게 최고야!2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     100,
+     "아무것도 안 하는 게 최고야!3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁뎀증",
+     60,
+     "아무것도 안 하는 게 최고야!4",
+     "always",
+     false
+    ]
+   },
+   {
+    "inject": {
+     "方法": "attack",
+     "目标": {
+      "comp": 2
+     },
+     "模式": "追加",
+     "后置": [
+      {
+       "if": {
+        "not": {
+         "kind": "队长",
+         "cmp": "==",
+         "val": true
+        }
+       },
+       "then": [
+        {
+         "if": {
+          "kind": "slot比较",
+          "slot": "stack",
+          "cmp": "==",
+          "fix": 0
+         },
+         "then": [
+          {
+           "setBuffOn": "self",
+           "div": "기본",
+           "name": "아무것도 안 하는 게 최고야!1",
+           "on": true
+          }
+         ],
+         "elif": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": "==",
+            "fix": 1
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "기본",
+             "name": "아무것도 안 하는 게 최고야!2",
+             "on": true
+            }
+           ],
+           "elif": [
+            {
+             "if": {
+              "kind": "slot比较",
+              "slot": "stack",
+              "cmp": "==",
+              "fix": 2
+             },
+             "then": [
+              {
+               "setBuffOn": "self",
+               "div": "기본",
+               "name": "아무것도 안 하는 게 최고야!3",
+               "on": true
+              }
+             ],
+             "elif": [
+              {
+               "if": {
+                "kind": "slot比较",
+                "slot": "stack",
+                "cmp": "==",
+                "fix": 3
+               },
+               "then": [
+                {
+                 "setBuffOn": "self",
+                 "div": "기본",
+                 "name": "아무것도 안 하는 게 최고야!4",
+                 "on": true
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "addSlot": [
+          "stack",
+          1
+         ]
+        },
+        {
+         "clampSlot": [
+          "stack",
+          null,
+          4
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "inject": {
+     "方法": "ultimate",
+     "目标": {
+      "comp": 2
+     },
+     "模式": "追加",
+     "后置": [
+      {
+       "if": {
+        "not": {
+         "kind": "队长",
+         "cmp": "==",
+         "val": true
+        }
+       },
+       "then": [
+        {
+         "if": {
+          "kind": "slot比较",
+          "slot": "stack",
+          "cmp": "==",
+          "fix": 0
+         },
+         "then": [
+          {
+           "setBuffOn": "self",
+           "div": "기본",
+           "name": "아무것도 안 하는 게 최고야!1",
+           "on": true
+          }
+         ],
+         "elif": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": "==",
+            "fix": 1
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "기본",
+             "name": "아무것도 안 하는 게 최고야!2",
+             "on": true
+            }
+           ],
+           "elif": [
+            {
+             "if": {
+              "kind": "slot比较",
+              "slot": "stack",
+              "cmp": "==",
+              "fix": 2
+             },
+             "then": [
+              {
+               "setBuffOn": "self",
+               "div": "기본",
+               "name": "아무것도 안 하는 게 최고야!3",
+               "on": true
+              }
+             ],
+             "elif": [
+              {
+               "if": {
+                "kind": "slot比较",
+                "slot": "stack",
+                "cmp": "==",
+                "fix": 3
+               },
+               "then": [
+                {
+                 "setBuffOn": "self",
+                 "div": "기본",
+                 "name": "아무것도 안 하는 게 최고야!4",
+                 "on": true
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "addSlot": [
+          "stack",
+          1
+         ]
+        },
+        {
+         "clampSlot": [
+          "stack",
+          null,
+          4
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "atbf": [
+     {
+      "comp": 2
+     },
+     "궁",
+     "self",
+     "가뎀증",
+     40,
+     "럭셔리의 기쁨",
+     2,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "피해+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "setSlot": [
+         "stack",
+         4
+        ]
+       },
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "아무것도 안 하는 게 최고야!1",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "아무것도 안 하는 게 최고야!2",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "아무것도 안 하는 게 최고야!3",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "아무것도 안 하는 게 최고야!4",
+        "on": true
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

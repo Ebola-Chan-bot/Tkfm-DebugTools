@@ -1,0 +1,276 @@
+{
+ "id": 10114,
+ "机动性": [
+  388,
+  4,
+  445,
+  4,
+  503,
+  4,
+  560,
+  4,
+  618,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "전력 해방! 별빛 분쇄 스매쉬!",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁뎀증",
+      "size": 40,
+      "name": "전력 해방! 별빛 분쇄 스매쉬!",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁뎀증",
+      "size": 50,
+      "name": "전력 해방! 별빛 분쇄 스매쉬!",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁뎀증",
+      "size": 60,
+      "name": "전력 해방! 별빛 분쇄 스매쉬!",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁뎀증",
+      "size": 70,
+      "name": "전력 해방! 별빛 분쇄 스매쉬!",
+      "turn": 2
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 30
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "암"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 40,
+      "name": "<원초의 마법소녀>1",
+      "turn": "always"
+     },
+     {
+      "anbf": [
+       "all",
+       "행동",
+       "boss",
+       "받뎀증",
+       2.5,
+       "<원초의 마법소녀>2",
+       1,
+       12,
+       "always"
+      ]
+     },
+     {
+      "anbf": [
+       "all",
+       "행동",
+       "boss",
+       "받발뎀",
+       5,
+       "<원초의 마법소녀>3",
+       1,
+       12,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "광"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "<성월의 축복>1",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암",
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "all",
+         "궁",
+         "$i",
+         "받속뎀",
+         17.5,
+         "<성월의 축복>2",
+         1,
+         2,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": {
+     "comp": 0
+    },
+    "type": "공퍼증",
+    "size": 80,
+    "name": "<힘 증폭>1",
+    "turn": "always"
+   },
+   {
+    "tbf": {
+     "comp": 0
+    },
+    "type": "일뎀증",
+    "size": 60,
+    "name": "<힘 증폭>2",
+    "turn": "always"
+   },
+   {
+    "tbf": {
+     "comp": 0
+    },
+    "type": "궁뎀증",
+    "size": 40,
+    "name": "<힘 증폭>3",
+    "turn": "always"
+   },
+   {
+    "tbf": {
+     "comp": 0
+    },
+    "type": "궁발동*",
+    "size": 150,
+    "name": "<힘 증폭>4",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "다가오지 마!1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 20,
+    "name": "다가오지 마!2",
+    "turn": "always"
+   },
+   {
+    "tbf": {
+     "comp": 4
+    },
+    "type": "궁뎀증",
+    "size": 40,
+    "name": "<다시 찾은 광명>1",
+    "turn": "always"
+   },
+   {
+    "tbf": {
+     "comp": 4
+    },
+    "type": "가뎀증",
+    "size": 40,
+    "name": "<다시 찾은 광명>2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "발뎀증",
+    "size": 100,
+    "name": "마법소녀의 힘의 근원1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁발동*",
+    "size": 180,
+    "name": "마법소녀의 힘의 근원2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ]
+ }
+}

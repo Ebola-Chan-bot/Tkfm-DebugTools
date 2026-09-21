@@ -1,0 +1,276 @@
+{
+ "id": 10063,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        15
+       ]
+      },
+      "name": "메이드 분신술1",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "공퍼증",
+      "size": 20,
+      "name": "메이드 분신술2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        20
+       ]
+      },
+      "name": "메이드 분신술1",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "공퍼증",
+      "size": 25,
+      "name": "메이드 분신술2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "메이드 분신술1",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "공퍼증",
+      "size": 30,
+      "name": "메이드 분신술2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "메이드 분신술1",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "공퍼증",
+      "size": 45,
+      "name": "메이드 분신술2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "메이드 분신술1",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "공퍼증",
+      "size": 60,
+      "name": "메이드 분신술2",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   },
+   {
+    "cdChange": {
+     "comp": 4
+    },
+    "值": -4
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "all",
+    "type": "공고증",
+    "size": {
+     "atkRef": [
+      "myCurAtk",
+      "+selfId",
+      30
+     ]
+    },
+    "name": "엄격한 지도",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "빈틈없는 메이드장1",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "평",
+     "self",
+     "공퍼증",
+     10,
+     "메이드 비기 - 고속요리술",
+     1,
+     4,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     {
+      "comp": 4
+     },
+     "공퍼증",
+     40,
+     "메이드 비기 - 순간환복술",
+     2,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "가뎀증",
+     30,
+     "메이드 비기 - 무결청소술",
+     1,
+     "always"
+    ]
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": ">",
+       "fix": 1
+      },
+      "then": [
+       {
+        "tbf": "all",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          30
+         ]
+        },
+        "name": "빈틈없는 메이드장2",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

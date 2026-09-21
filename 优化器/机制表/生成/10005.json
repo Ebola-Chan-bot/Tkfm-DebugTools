@@ -1,0 +1,171 @@
+{
+ "id": 10005,
+ "机动性": [
+  631,
+  6,
+  736,
+  6,
+  840,
+  6,
+  945,
+  6,
+  1050,
+  6
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "bossDefOff": true
+   }
+  ],
+  "ultafter": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 60,
+      "name": "활공 찢기",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 70,
+      "name": "활공 찢기",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 80,
+      "name": "활공 찢기",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 90,
+      "name": "활공 찢기",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 100,
+      "name": "활공 찢기",
+      "turn": 3
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 125,
+    "name": "난쟁이왕의 기세1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 100,
+    "name": "난쟁이왕의 기세2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 35,
+    "name": "난쟁이왕의 기세3",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "행동",
+     "self",
+     "공퍼증",
+     15,
+     "에너지 세이브",
+     1,
+     4,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "행동",
+     "self",
+     "가뎀증",
+     5,
+     "정신통일",
+     1,
+     4,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 50,
+    "name": "파룡의 환광1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "anbf": [
+       "self",
+       "행동",
+       "$i",
+       "받속뎀",
+       6,
+       "파룡의 환광2",
+       1,
+       4,
+       "always"
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

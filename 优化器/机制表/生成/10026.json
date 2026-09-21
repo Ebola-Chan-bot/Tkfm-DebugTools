@@ -1,0 +1,217 @@
+{
+ "id": 10026,
+ "机动性": [
+  0,
+  6,
+  0,
+  6,
+  0,
+  6,
+  0,
+  6,
+  0,
+  6
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "cdChange": "$i",
+      "值": -1
+     }
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 10,
+      "name": "두근반짝",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 12.5,
+      "name": "두근반짝",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 15,
+      "name": "두근반짝",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 20,
+      "name": "두근반짝",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 20,
+      "name": "두근반짝",
+      "turn": 6
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "all",
+    "type": "공고증",
+    "size": {
+     "atkRef": [
+      "myCurAtk",
+      "+selfId",
+      30
+     ]
+    },
+    "name": "열창",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 30
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 60,
+    "name": "반짝 아이돌 스타 노엘리1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "받아증",
+    "size": -75,
+    "name": "반짝 아이돌 스타 노엘리2",
+    "turn": "always"
+   },
+   {
+    "addCd": -3
+   },
+   {
+    "addCurCd": -3
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "all",
+     "궁뎀증",
+     10,
+     "반짝 아이돌 스타 노엘리3",
+     1,
+     4,
+     "always"
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "받아증",
+    "size": 30,
+    "name": "두 손을 들어요1",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "공격",
+     "all",
+     "받아증",
+     12.5,
+     "두 손을 들어요2",
+     2,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "all",
+     "공퍼증",
+     30,
+     "함께 노래해요",
+     1,
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       30
+      ]
+     },
+     "팬들을 사랑해1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "아머",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       100
+      ]
+     },
+     "팬들을 사랑해2",
+     4,
+     "always"
+    ]
+   }
+  ]
+ }
+}

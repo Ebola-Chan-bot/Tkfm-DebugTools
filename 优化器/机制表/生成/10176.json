@@ -1,0 +1,111 @@
+{
+ "id": 10176,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  165,
+  3,
+  211,
+  3,
+  257,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": "default",
+    "then": [
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       20,
+       "다양성과 평등과 포용의 캐넌",
+       1,
+       2
+      ]
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "<콩코드 공격용 장갑>1",
+    "turn": 1
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 100,
+    "name": "<콩코드 공격용 장갑>2",
+    "turn": 1
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 50,
+    "name": "<콩코드 공격용 장갑>3",
+    "turn": 1
+   },
+   {
+    "tbf": "self",
+    "type": "평추가*",
+    "size": 100,
+    "name": "<콩코드 공격용 장갑>4",
+    "turn": 1
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 70,
+    "name": "성형 후 컴백1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 70,
+    "name": "성형 후 컴백2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 30,
+    "name": "성형 후 컴백3",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 20,
+    "name": "성형 후 컴백4",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "평추가*",
+    "size": 50,
+    "name": "성형 후 컴백5",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ]
+ }
+}

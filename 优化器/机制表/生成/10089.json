@@ -1,0 +1,452 @@
+{
+ "id": 10089,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 40,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "언니는 내가 지켜!1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화",
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 14,
+        "name": "언니는 내가 지켜!2",
+        "turn": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 45,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "언니는 내가 지켜!1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화",
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 18,
+        "name": "언니는 내가 지켜!2",
+        "turn": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 50,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "언니는 내가 지켜!1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화",
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 22,
+        "name": "언니는 내가 지켜!2",
+        "turn": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 55,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "언니는 내가 지켜!1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화",
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 26,
+        "name": "언니는 내가 지켜!2",
+        "turn": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 60,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "언니는 내가 지켜!1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화",
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 30,
+        "name": "언니는 내가 지켜!2",
+        "turn": 2
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "heal": "self"
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "if": {
+       "kind": "循环id",
+       "cmp": "==",
+       "val": 10088
+      },
+      "then": [
+       {
+        "heal": "$i"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "throwRef": "c"
+   },
+   {
+    "hpUpMe": [
+     "self",
+     40
+    ]
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "최고급 클럽 매니저1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "받아증",
+    "size": 30,
+    "name": "최고급 클럽 매니저2",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "if": {
+       "kind": "循环id",
+       "cmp": "==",
+       "val": 10088
+      },
+      "then": [
+       {
+        "tbf": "$i",
+        "type": "받아증",
+        "size": 30,
+        "name": "최고급 클럽 매니저3",
+        "turn": "always"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "평",
+     "all",
+     "아머",
+     {
+      "hpExpr": {
+       "base": "self",
+       "N": 10
+      }
+     },
+     "꿈의 직장1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "if": {
+       "kind": "循环id",
+       "cmp": "==",
+       "val": 10088
+      },
+      "then": [
+       {
+        "atbf": [
+         "self",
+         "평",
+         "$i",
+         "아머",
+         {
+          "hpExpr": {
+           "base": "self",
+           "N": 10
+          }
+         },
+         "꿈의 직장2",
+         1,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "화",
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화",
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         {
+          "$i上": 1
+         },
+         "공격",
+         "$i",
+         "받속뎀",
+         1.5,
+         "<뒤엉킨 운명>1",
+         1,
+         7,
+         "always"
+        ]
+       }
+      ]
+     },
+     {
+      "anbf": [
+       "$i",
+       "공격",
+       "$i",
+       "가뎀증",
+       1.5,
+       "<뒤엉킨 운명>2",
+       1,
+       7,
+       "always"
+      ]
+     },
+     {
+      "anbf": [
+       "$i",
+       "공격",
+       "$i",
+       "궁뎀증",
+       1.5,
+       "<뒤엉킨 운명>3",
+       1,
+       7,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "화",
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "if": {
+       "kind": "存在id",
+       "id": 10088
+      },
+      "then": [
+       {
+        "anbf": [
+         "$i",
+         "공격",
+         "$i",
+         "가뎀증",
+         1.5,
+         "<뒤엉킨 운명-구속>1",
+         1,
+         7,
+         "always"
+        ]
+       },
+       {
+        "anbf": [
+         "$i",
+         "공격",
+         "$i",
+         "궁뎀증",
+         1.5,
+         "<뒤엉킨 운명-구속>2",
+         1,
+         7,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

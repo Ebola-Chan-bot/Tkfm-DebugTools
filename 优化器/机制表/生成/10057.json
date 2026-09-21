@@ -1,0 +1,356 @@
+{
+ "id": 10057,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "아머",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        {
+         "armor乘子": {
+          "act": "궁",
+          "mode": "추가",
+          "K": 165
+         }
+        }
+       ]
+      },
+      "name": "종극의 암흑 화염 저승길의 섬멸진?1",
+      "turn": 2
+     },
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "종극의 암흑 화염 저승길의 섬멸진?2",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "아머",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        {
+         "armor乘子": {
+          "act": "궁",
+          "mode": "추가",
+          "K": 188
+         }
+        }
+       ]
+      },
+      "name": "종극의 암흑 화염 저승길의 섬멸진?1",
+      "turn": 2
+     },
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "종극의 암흑 화염 저승길의 섬멸진?2",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "아머",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        {
+         "armor乘子": {
+          "act": "궁",
+          "mode": "추가",
+          "K": 188
+         }
+        }
+       ]
+      },
+      "name": "종극의 암흑 화염 저승길의 섬멸진?1",
+      "turn": 2
+     },
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "종극의 암흑 화염 저승길의 섬멸진?2",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "아머",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        {
+         "armor乘子": {
+          "act": "궁",
+          "mode": "추가",
+          "K": 211
+         }
+        }
+       ]
+      },
+      "name": "종극의 암흑 화염 저승길의 섬멸진?1",
+      "turn": 2
+     },
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "종극의 암흑 화염 저승길의 섬멸진?2",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "아머",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        {
+         "armor乘子": {
+          "act": "궁",
+          "mode": "추가",
+          "K": 211
+         }
+        }
+       ]
+      },
+      "name": "종극의 암흑 화염 저승길의 섬멸진?1",
+      "turn": 2
+     },
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        40
+       ]
+      },
+      "name": "종극의 암흑 화염 저승길의 섬멸진?2",
+      "turn": 2
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "all",
+    "type": "아머",
+    "size": {
+     "atkRef": [
+      "myCurAtk",
+      "+selfId",
+      {
+       "armor乘子": {
+        "act": "평",
+        "mode": "추가",
+        "K": 50
+       }
+      }
+     ]
+    },
+    "name": "암흑의 저승 결계",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "tbf": {
+     "comp": 0
+    },
+    "type": "공퍼증",
+    "size": 33,
+    "name": "저승 심연의 켈베로스!1",
+    "turn": "always"
+   },
+   {
+    "tbf": {
+     "comp": 0
+    },
+    "type": "궁뎀증",
+    "size": 15,
+    "name": "저승 심연의 켈베로스!2",
+    "turn": "always"
+   },
+   {
+    "tbf": {
+     "comp": 2
+    },
+    "type": "공퍼증",
+    "size": 33,
+    "name": "저승 심연의 켈베로스!1",
+    "turn": "always"
+   },
+   {
+    "tbf": {
+     "comp": 2
+    },
+    "type": "궁뎀증",
+    "size": 15,
+    "name": "저승 심연의 켈베로스!2",
+    "turn": "always"
+   },
+   {
+    "tbf": {
+     "comp": 4
+    },
+    "type": "공퍼증",
+    "size": 33,
+    "name": "저승 심연의 켈베로스!1",
+    "turn": "always"
+   },
+   {
+    "tbf": {
+     "comp": 4
+    },
+    "type": "궁뎀증",
+    "size": 15,
+    "name": "저승 심연의 켈베로스!2",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 25,
+    "name": "지옥의 발톱!",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 10,
+    "name": "일반 공격 데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 6,
+       "余": 0
+      },
+      "then": [
+       {
+        "tbf": {
+         "comp": 0
+        },
+        "type": "궁뎀증",
+        "size": 50,
+        "name": "명계의 서의 계시",
+        "turn": 2
+       },
+       {
+        "tbf": {
+         "comp": 2
+        },
+        "type": "궁뎀증",
+        "size": 50,
+        "name": "명계의 서의 계시",
+        "turn": 2
+       },
+       {
+        "tbf": {
+         "comp": 4
+        },
+        "type": "궁뎀증",
+        "size": 50,
+        "name": "명계의 서의 계시",
+        "turn": 2
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

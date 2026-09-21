@@ -1,0 +1,147 @@
+{
+ "id": 10034,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultafter": [
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "$i异源self",
+        "N": 15,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "블러드 컷팅",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "화",
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "가뎀증",
+      "size": 50,
+      "name": "뒤엉킨 운명 - 레드1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 30,
+    "name": "뒤엉킨 운명 - 레드2",
+    "turn": 50
+   },
+   {
+    "if": {
+     "kind": "find真值",
+     "槽": 0
+    },
+    "then": [
+     {
+      "tbf": {
+       "find": 0
+      },
+      "type": "일뎀증",
+      "size": 30,
+      "name": "뒤엉킨 운명 - 레드2",
+      "turn": 50
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 30,
+    "name": "붉은 재단",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 30,
+    "name": "블러드 커터1",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "find真值",
+     "槽": 0
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "블러드 커터2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "일뎀증",
+     50,
+     "영감 폭발",
+     4,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 10,
+    "name": "일반 공격 데미지+",
+    "turn": "always"
+   }
+  ],
+  "init": [
+   {
+    "findUnit": {
+     "槽": 0,
+     "id": 10035
+    }
+   }
+  ]
+ }
+}

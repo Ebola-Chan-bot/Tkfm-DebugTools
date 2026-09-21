@@ -1,3 +1,6 @@
 node_modules/
 dist/
 *.log
+
+# 机制表构建产物（flat.json/mechanisms.bin/record指纹.json 由 flatten_core.js + flatc 工具链可重现，SOP 见 机制表/README.md）
+优化器/机制表/build/

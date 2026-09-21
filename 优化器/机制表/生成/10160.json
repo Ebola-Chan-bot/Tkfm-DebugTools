@@ -1,0 +1,524 @@
+{
+ "id": 10160,
+ "机动性": [
+  840,
+  40,
+  980,
+  40,
+  1120,
+  40,
+  1260,
+  40,
+  1400,
+  40
+ ],
+ "槽位初值": {},
+ "排除伤害": [
+  "<지켜야 할 존재>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "광"
+     ]
+    },
+    "body": [
+     {
+      "deleteBuff": [
+       "$i",
+       "기본",
+       "성검 포효·성진편년1"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜"
+     ]
+    },
+    "body": [
+     {
+      "deleteBuff": [
+       "$i",
+       "기본",
+       "성검 포효·성진편년2"
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 18,
+        "name": "성검 포효·성진편년1",
+        "turn": 8
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 21,
+        "name": "성검 포효·성진편년1",
+        "turn": 8
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 24,
+        "name": "성검 포효·성진편년1",
+        "turn": 8
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "평추가*",
+        "size": 15,
+        "name": "성검 포효·성진편년2",
+        "turn": 8
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 27,
+        "name": "성검 포효·성진편년1",
+        "turn": 8
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "평추가*",
+        "size": 20,
+        "name": "성검 포효·성진편년2",
+        "turn": 8
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 30,
+        "name": "성검 포효·성진편년1",
+        "turn": 8
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "평추가*",
+        "size": 25,
+        "name": "성검 포효·성진편년2",
+        "turn": 8
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": {
+     "星级": 5
+    }
+   }
+  ],
+  "atkbefore": [
+   {
+    "deleteBuff": [
+     "boss",
+     "기본",
+     "역날"
+    ]
+   },
+   {
+    "tbf": "boss",
+    "type": "받뎀증",
+    "size": 10,
+    "name": "역날",
+    "turn": 2
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "temp": [
+     "v__0x1575ac",
+     {
+      "常数": 0
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "if": {
+       "kind": "循环元素",
+       "cmp": "==",
+       "val": 3
+      },
+      "then": [
+       {
+        "continue": 1
+       }
+      ]
+     },
+     {
+      "addTemp": [
+       "v__0x1575ac",
+       1
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "<지켜야 할 존재>",
+       0,
+       "마지막 용자",
+       1,
+       4
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x1575ac",
+     "cmp": "==",
+     "fix": 4
+    },
+    "then": [
+     {
+      "addCd": -20
+     },
+     {
+      "addCurCd": -20
+     },
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 200,
+      "name": "<모든 것을 지키는 결심>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 50,
+      "name": "<모든 것을 지키는 결심>2",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 100,
+      "name": "<모든 것을 지키는 결심>3",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 60,
+      "name": "<모든 것을 지키는 결심>4",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "self",
+         "궁",
+         "$i",
+         "받속뎀",
+         30,
+         "<모든 것을 지키는 결심>5",
+         1,
+         1,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "용사의 직책1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 50,
+    "name": "용사의 직책2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 30,
+    "name": "용사의 직책3",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "방뎀증",
+    "size": 100,
+    "name": "용사의 직책4",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "inject": {
+       "方法": "ultimate",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "cdChange": "self",
+         "值": -1
+        }
+       ]
+      }
+     },
+     {
+      "inject": {
+       "方法": "attack",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "cdChange": "self",
+         "值": -1
+        }
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "방",
+     "self",
+     "아머",
+     {
+      "hpExpr": {
+       "base": "self",
+       "N": 20,
+       "armorUp": {
+        "act": "방",
+        "mode": "발동"
+       }
+      }
+     },
+     "<새벽빛>1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "방",
+     "self",
+     "평추가*",
+     50,
+     "<새벽빛>2",
+     2,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 30,
+    "name": "성검 해방, 최종 형태!",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "가하는 데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "排除上层栈",
+         "cmp": "==",
+         "上层": 0
+        },
+        "then": [
+         {
+          "continue": 1
+         }
+        ],
+        "else": [
+         {
+          "if": {
+           "kind": "循环role",
+           "cmp": "!=",
+           "val": 0
+          },
+          "then": [
+           {
+            "continue": 1
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "cdChange": "self",
+        "值": -20
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

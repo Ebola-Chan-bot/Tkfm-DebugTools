@@ -1,0 +1,478 @@
+{
+ "id": 10140,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [
+  "<강림치>"
+ ],
+ "旗标": [
+  "CheckOn"
+ ],
+ "钩子": {
+  "leader": [
+   {
+    "hpUpMe": [
+     "self",
+     50
+    ]
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "왜곡 의식1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁발동*",
+    "size": 400,
+    "name": "왜곡 의식2",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "range",
+     "上界": 3,
+     "下界": 1
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "가뎀증",
+      "size": -300,
+      "name": "<살아있는 제물>1",
+      "turn": "always"
+     },
+     {
+      "atbf": [
+       "$i",
+       "공격",
+       {
+        "comp": 0
+       },
+       "공고증",
+       {
+        "hpExpr": {
+         "base": "$i",
+         "N": 125,
+         "field": "atk"
+        }
+       },
+       "<살아있는 제물>2",
+       1,
+       "always"
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "atbf": [
+         {
+          "$i上": 1
+         },
+         "궁",
+         "$i",
+         "받속뎀",
+         14,
+         "<살아있는 제물>3",
+         2,
+         "always"
+        ]
+       }
+      ]
+     },
+     {
+      "if": {
+       "kind": "循环role集合",
+       "in": [
+        0
+       ]
+      },
+      "then": [
+       {
+        "atbf": [
+         "$i",
+         "행동",
+         {
+          "comp": 0
+         },
+         "궁발동+",
+         {
+          "hpExpr": {
+           "base": "compN",
+           "compN": 0,
+           "N": 100
+          }
+         },
+         "<의식 박리>1",
+         50,
+         1
+        ]
+       },
+       {
+        "atbf": [
+         "$i",
+         "행동",
+         {
+          "comp": 0
+         },
+         "궁발동*",
+         150,
+         "<의식 박리>2",
+         50,
+         1
+        ]
+       },
+       {
+        "atbf": [
+         "$i",
+         "행동",
+         {
+          "comp": 0
+         },
+         "가뎀증",
+         25,
+         "<의식 박리>3",
+         50,
+         1
+        ]
+       }
+      ]
+     },
+     {
+      "if": {
+       "kind": "循环role集合",
+       "in": [
+        4
+       ]
+      },
+      "then": [
+       {
+        "setUnitField": {
+         "目标": "$i",
+         "field": "isFirstTurnActed",
+         "value": false
+        }
+       },
+       {
+        "inject": {
+         "方法": "ultimate",
+         "目标": "$i",
+         "模式": "追加",
+         "后置": [
+          {
+           "if": {
+            "not": {
+             "kind": "单位字段",
+             "field": "isFirstTurnActed",
+             "目标": "$i"
+            }
+           },
+           "then": [
+            {
+             "buff": [
+              {
+               "comp": 0
+              },
+              "궁",
+              "boss",
+              "받뎀증",
+              45,
+              "<의식 박리>5",
+              9,
+              50,
+              "발동",
+              true
+             ]
+            }
+           ]
+          },
+          {
+           "setUnitField": {
+            "目标": "$i",
+            "field": "isFirstTurnActed",
+            "value": true
+           }
+          }
+         ]
+        }
+       },
+       {
+        "inject": {
+         "方法": "attack",
+         "目标": "$i",
+         "模式": "追加",
+         "后置": [
+          {
+           "if": {
+            "not": {
+             "kind": "单位字段",
+             "field": "isFirstTurnActed",
+             "目标": "$i"
+            }
+           },
+           "then": [
+            {
+             "buff": [
+              {
+               "comp": 0
+              },
+              "궁",
+              "boss",
+              "받뎀증",
+              45,
+              "<의식 박리>5",
+              9,
+              50,
+              "발동",
+              true
+             ]
+            }
+           ]
+          },
+          {
+           "setUnitField": {
+            "目标": "$i",
+            "field": "isFirstTurnActed",
+            "value": true
+           }
+          }
+         ]
+        }
+       },
+       {
+        "inject": {
+         "方法": "defense",
+         "目标": "$i",
+         "模式": "追加",
+         "后置": [
+          {
+           "if": {
+            "not": {
+             "kind": "单位字段",
+             "field": "isFirstTurnActed",
+             "目标": "$i"
+            }
+           },
+           "then": [
+            {
+             "buff": [
+              {
+               "comp": 0
+              },
+              "궁",
+              "boss",
+              "받뎀증",
+              45,
+              "<의식 박리>5",
+              9,
+              50,
+              "발동",
+              true
+             ]
+            }
+           ]
+          },
+          {
+           "setUnitField": {
+            "目标": "$i",
+            "field": "isFirstTurnActed",
+            "value": true
+           }
+          }
+         ]
+        }
+       },
+       {
+        "atbf": [
+         "$i",
+         "행동",
+         {
+          "comp": 0
+         },
+         "가뎀증",
+         25,
+         "<의식 박리>6",
+         50,
+         1
+        ]
+       }
+      ]
+     },
+     {
+      "if": {
+       "kind": "循环role集合",
+       "in": [
+        2,
+        1,
+        3
+       ]
+      },
+      "then": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": -600,
+        "name": "<의식 박리>7",
+        "turn": "always"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "all",
+    "type": "궁뎀증",
+    "size": 30,
+    "name": "심연의 관저",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 10,
+    "name": "형언할 수 없는 몸1",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "가뎀증",
+     20,
+     "형언할 수 없는 몸2",
+     1,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "self",
+     "<강림치>",
+     0,
+     "<강림 준비>",
+     1,
+     10,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "<강림치>",
+     0,
+     "<강림 준비>",
+     3,
+     10,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "boss",
+     "받뎀증",
+     5,
+     "<최고 신 강림>1",
+     3,
+     9,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁발동+",
+     {
+      "hpExpr": {
+       "base": "self",
+       "N": 50
+      }
+     },
+     "<최고 신 강림>2",
+     "always",
+     false
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "nestByType",
+     "type": "<강림치>",
+     "cmp": ">=",
+     "fix": 10
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "单位字段",
+       "field": "check",
+       "目标": "self"
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<최고 신 강림>1",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "<최고 신 강림>2",
+        "on": true
+       },
+       {
+        "flag": "CheckOff"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

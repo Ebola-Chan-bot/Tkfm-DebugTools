@@ -1,0 +1,308 @@
+{
+ "id": 10119,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 50,
+      "name": "아이카의 여름 칵테일1",
+      "turn": 3
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 10,
+      "name": "아이카의 여름 칵테일2",
+      "turn": 3
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 20,
+      "name": "아이카의 여름 칵테일3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 75,
+      "name": "아이카의 여름 칵테일1",
+      "turn": 3
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 10,
+      "name": "아이카의 여름 칵테일2",
+      "turn": 3
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 35,
+      "name": "아이카의 여름 칵테일3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 75,
+      "name": "아이카의 여름 칵테일1",
+      "turn": 3
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "아이카의 여름 칵테일2",
+      "turn": 3
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 35,
+      "name": "아이카의 여름 칵테일3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 100,
+      "name": "아이카의 여름 칵테일1",
+      "turn": 3
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "아이카의 여름 칵테일2",
+      "turn": 3
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "아이카의 여름 칵테일3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 100,
+      "name": "아이카의 여름 칵테일1",
+      "turn": 3
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 30,
+      "name": "아이카의 여름 칵테일2",
+      "turn": 3
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "아이카의 여름 칵테일3",
+      "turn": 3
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "시저 님은 신이야",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 50,
+    "name": "전속 종업원1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "평발동*",
+    "size": 100,
+    "name": "전속 종업원2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁발동*",
+    "size": 250,
+    "name": "전속 종업원3",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "탱"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "탱"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 50,
+        "name": "시저 님은 영원히 옳다1",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "평발동*",
+        "size": 100,
+        "name": "시저 님은 영원히 옳다2",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "평발동+",
+        "size": {
+         "hpExpr": {
+          "base": "$i",
+          "N": 50
+         }
+        },
+        "name": "시저 님은 영원히 옳다2",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "궁발동*",
+        "size": 250,
+        "name": "시저 님은 영원히 옳다3",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "궁발동+",
+        "size": {
+         "hpExpr": {
+          "base": "$i",
+          "N": 125
+         }
+        },
+        "name": "시저 님은 영원히 옳다3",
+        "turn": "always"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "힐",
+     150,
+     "메이드... 종업원 섹스 테크닉!1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "궁발동*",
+    "size": 250,
+    "name": "메이드... 종업원 섹스 테크닉!2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "아름다운 맛~",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "발효증",
+    "size": 75,
+    "name": "꾸잉 꾸잉 뀨~1",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "아머",
+     {
+      "hpExpr": {
+       "base": "self",
+       "N": 15
+      }
+     },
+     "꾸잉 꾸잉 뀨~2",
+     1,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ]
+ }
+}

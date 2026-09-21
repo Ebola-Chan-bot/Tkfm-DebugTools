@@ -1,0 +1,437 @@
+{
+ "id": 10149,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁뎀증",
+        "size": 20,
+        "name": "천호요화1",
+        "turn": 4
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 15,
+        "name": "천호요화2",
+        "turn": 4
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁뎀증",
+        "size": 30,
+        "name": "천호요화1",
+        "turn": 4
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 20,
+        "name": "천호요화2",
+        "turn": 4
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁뎀증",
+        "size": 40,
+        "name": "천호요화1",
+        "turn": 4
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 30,
+        "name": "천호요화2",
+        "turn": 4
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁뎀증",
+        "size": 50,
+        "name": "천호요화1",
+        "turn": 4
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 40,
+        "name": "천호요화2",
+        "turn": 4
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁뎀증",
+        "size": 60,
+        "name": "천호요화1",
+        "turn": 4
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 50,
+        "name": "천호요화2",
+        "turn": 4
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 30
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "옥면과 은빛 꼬리의 구미호1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "flag": "NoCdChange",
+      "目标": "$i"
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "화"
+     ]
+    },
+    "body": [
+     {
+      "anbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       100,
+       "옥면과 은빛 꼬리의 구미호2",
+       1,
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "anbf": [
+       "self",
+       "궁",
+       "$i",
+       "받직뎀",
+       50,
+       "옥면과 은빛 꼬리의 구미호3",
+       1,
+       2,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "$i",
+       "방",
+       "$i",
+       "공퍼증",
+       50,
+       "<요술달인>1",
+       2,
+       "always"
+      ]
+     },
+     {
+      "atbf": [
+       "$i",
+       "방",
+       "$i",
+       "궁뎀증",
+       60,
+       "<요술달인>2",
+       2,
+       "always"
+      ]
+     },
+     {
+      "atbf": [
+       "$i",
+       "방",
+       "$i",
+       "궁추가*",
+       100,
+       "<요술달인>3",
+       2,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "화"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": -250,
+      "name": "<과열>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": -250,
+      "name": "<과열>2",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "힐",
+     75,
+     "나이는 비밀~",
+     1,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "boss",
+     "받뎀증",
+     30,
+     "장난 전문가",
+     1,
+     2,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 4,
+       "余": 0
+      },
+      "then": [
+       {
+        "tbf": "self",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          60
+         ]
+        },
+        "name": "살짝 놀리기만 하면 돼",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

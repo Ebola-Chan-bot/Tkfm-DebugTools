@@ -1,0 +1,375 @@
+{
+ "id": 10083,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        40
+       ]
+      },
+      "name": "함께 가버리는 거야~1",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        45
+       ]
+      },
+      "name": "함께 가버리는 거야~1",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        50
+       ]
+      },
+      "name": "함께 가버리는 거야~1",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 10,
+      "name": "함께 가버리는 거야~2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        50
+       ]
+      },
+      "name": "함께 가버리는 거야~1",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 15,
+      "name": "함께 가버리는 거야~2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        50
+       ]
+      },
+      "name": "함께 가버리는 거야~1",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 20,
+      "name": "함께 가버리는 거야~2",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "ultafter": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "$i",
+         "궁",
+         "self",
+         "공고증",
+         {
+          "atkRef": [
+           "myCurAtk",
+           "+$iId",
+           50
+          ]
+         },
+         "나도 기분 좋게 해줘~",
+         2,
+         1
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 30,
+    "name": "누구나 환영~",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "평발동*",
+     50,
+     "크레이지 츄르릅",
+     2,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "평발동*",
+     50,
+     "크레이지 츄르릅",
+     2,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "평발동*",
+     50,
+     "크레이지 츄르릅",
+     2,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "self",
+     "공퍼증",
+     10,
+     "<절정으로 Fly>",
+     1,
+     7,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "제거",
+     "기본",
+     "<절정으로 Fly>",
+     1,
+     "always"
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "평발동*",
+     50,
+     "<멈출수 없는 츄르릅>",
+     2,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "평발동*",
+     50,
+     "<멈출수 없는 츄르릅>",
+     2,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "평발동*",
+     50,
+     "<멈출수 없는 츄르릅>",
+     2,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "self",
+     "공퍼증",
+     10,
+     "<갈수록 짜릿짜릿>",
+     1,
+     7,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "제거",
+     "기본",
+     "<갈수록 짜릿짜릿>",
+     1,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "방",
+     "self",
+     "공퍼증",
+     10,
+     "<갈수록 짜릿짜릿>",
+     3,
+     7,
+     "always"
+    ]
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "anbf": [
+       "self",
+       "방",
+       "self",
+       "공퍼증",
+       10,
+       "<절정으로 Fly>",
+       3,
+       7,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격력 증가",
+    "turn": "always"
+   }
+  ]
+ }
+}

@@ -1,0 +1,399 @@
+// ============================================================================
+// 机制表 FlatBuffers schema（阶段 0 草案 v0.1，2026-09-19）
+//
+// 定位：191 个角色的全部技能机制 = 纯数据（约束 1：零角色专属函数）。
+//   本 schema 是"压平后"的二进制布局；人工可读源是嵌套 JSON（见 机制表/README.md），
+//   经确定性压平器（tools/flatten_core.js）转为本 schema 兼容 JSON，再由 flatc --binary 编译成 .bin。
+//   数据流：可读JSON →(tools/flatten_core.js)→ flat.json →(flatc)→ mechanisms.bin
+//     →(tools/bin读取器.js, 定长struct直读+ByteBuffer解根表)→ 解释器源.js/ML
+//
+// 约束 4（定长）：CharacterRecord 与 Cmd 均为 struct（FlatBuffers struct 天生定长、
+//   字段全标量内联、禁字符串）→ records 数组里每角色字节数恒定。
+//   变长内容只有两处，都在 record 之外：根表字段 与 names/types 全局字典区。
+//
+// 定长指令池：每角色 K=256 条 Cmd。**2026-09-19 阶段01实测校准**：原估 K=192（基于
+//   승나미 96 原子调用+块标记 ~146）被 10188 实测 213 条冲破（perLib 5档展开×7条 + 双钩子
+//   门控重复块）；10177 实测 145。K=256 留 ~20% 余量，record≈26.7KB，191角色≈5.1MB。
+//   struct 布局即 ABI，K 一经发布不可改，只能加新版 schema；若阶段3发现更密角色超 256，
+//   bump SCHEMA_VERSION 重建，不得静默截断。用 usedCmds 标记有效前缀，
+//   其余槽全零（零 = 无指令，与约束 1 "零即无" 一致）。
+//
+// ⚠ bit-exact 关键规则——数值一律定点 i32 ×10⁴：
+//   源码常量有小数（setMnc 139.8、buff 2.25、공퍼증 52.5…），JS 是 double。
+//   float32 存不下 139.8（会变成 139.80000305…）→ 伤害逐位不一致，违背约束 2。
+//   定点方案：数据存 round(x×10⁴) 的 i32，引擎端 除以 10⁴ 还原。
+//   数学保证：只要十进制字面量小数位 ≤4，"字面量解析成 double" 与 "整数除法还原"
+//   都是对同一有理数的正确舍入 → 逐位相同。（阶段 2 抽取器必须校验：发现小数位 >4
+//   的常量即报警，该常量走 f64 逃逸槽——目前考古样本中未见。）
+//
+// 字典：buff name 2448 种 / type 93 种 → 合并为**单一字典** names（解释器把字符串原样传给
+//   引擎函数，字典分区无语义价值），record 内只存 u16 索引（struct 禁字符串，定长天然要求）。
+//   字典只追加不改序（历史 .bin 索引不失效），与 3.6-4c 决策一致。
+// ============================================================================
+
+namespace TkfmMech;
+
+// ---- 指令操作码（覆盖考古所见的全部原语；未用值留作扩展）----
+enum Op : ubyte {
+  Nop = 0,                 // 空槽（定长填充）
+
+  // ① buff 挂载类（7 原语，直接复用引擎同名函数；参数按位放进 ps）
+  Tbf = 1,                 // tbf(目标,type,size,name,turn)               arity=5
+  Nbf = 2,                 // nbf(目标,type,size,name,nest,maxNest)       arity=6
+  Anbf = 3,                // anbf(触发者,act,目标,type,size,name,turn?,maxNest?,dur) arity=9
+  Atbf = 4,                // atbf(触发者,act,目标,type,size,name,turn?,dur)          arity=8
+  Ptbf = 5,                // ptbf(...8) "추가" 变体
+  Pnbf = 6,                // pnbf(...9) "추가" 变体
+  Buff = 7,                // buff(...6/10/11) 底层原语（on/off/제거/"발동"/"추가" div 等魔法位由引擎解释）
+
+  // ② 属性/状态类（引擎既有函数）
+  HpUpAll = 10,            // hpUpAll(pct)
+  HpUpMe = 11,             // hpUpMe(目标,pct)
+  ArmorUp = 12,            // armorUp(目标,size,turn)
+  Heal = 13,               // 目标.heal()
+  Heal2 = 14,              // heal2 变体
+  Bless = 15,              // bless(...)
+  CdChange = 16,           // cdChange(目标,±n)（值可为三元表达式，见 Tag）
+  DeleteBuff = 17,         // deleteBuff(目标,div,name)
+  DeleteBuffType = 18,     // deleteBuffType(目标,type)
+  KeepOnlyLastBuff = 19,   // keepOnlyLastBuff(目标,type,name)（全库仅 10213 一处 → 具名机制化）
+  SetBuffOn = 20,          // setBuffOn(目标,div,name,bool)      bool 可为条件表达式结果
+  SetBuffOnAll = 21,       // setBuffOnAll(目标,div,name,bool)
+  SetBuffOnExtra = 22,     // setBuffOnExtra(目标,act,div,name,bool)（引擎 find(div==arg2&&name==arg3&&div!="기본"&&act==arg1).on=arg4；
+                           //   批次E-4 实现：ps=[act字典idx, div字典idx, name字典idx, on(Bool/SlotRef/TempRef)[,Fix]]——比 SetBuffOn 多一个 act 前缀；
+                           //   全库唯一使用者=10158 tmpfunc 子程序内联体内 8 处）
+  SetBuffSize = 23,        // setBuffSize(目标,div,name,size)
+  SetBuffSizeAll = 24,
+  SetBuffNest = 25,        // setBuffNest(目标,div,name,nest)
+  BuffNestByType = 26,
+  SetMnc = 27,             // 机动性数组（10 float，实际直接进 record.mnc，此 op 仅兜底）
+  Heal3 = 28,              // 目标.heal3()（源码 2 处；批次E-5a 10190 act_attack/act_ultimate 注入体首次入表）
+  // ③ 私有计数器（决策 #2：通用槽位，slot=0..3；源码 stack → slot0）
+  SetSlot = 30,            // slot = n                     （源码 u.stack = 50）
+  AddSlot = 31,            // slot += n（n 可负）          （源码 u.stack++ / -=10）
+  ClampSlot = 32,          // slot 夹到 [lo,hi]（源码 if(stack>8)stack=8 / if(<0)=0）
+
+  // ④ 骨架动作（标准形；引擎写死逻辑）
+  ActUltLogic = 40,        // ultLogic(self, mult?)  mult 缺省 1（10141 用 6）
+  ActAtkLogic = 41,        // atkLogic(self, mult?)
+  ActDefense = 42,         // self.act_defense()
+  ActHit = 43,             // self.hit()（少数角色主动触发）
+
+  // ⑤ 钩子分隔与旗标
+  HookStart = 44,          // ps[0]=钩子枚举；线性指令池中钩子按固定顺序排布的分界标记；
+                           //   枚举 11='init' 伪钩子（批次B）：case 顶层即时语句段（setMnc 后、钩子定义外的
+                           //   deleteBuff/注入/旗标），**装配期执行一次**（与源码 setDefault 顶层执行同机）
+  BossDefOff = 45,         // boss.def=false（**指令形**：源码 6 处全在钩子体内，每次动作触发；
+                           //   区别于 SetFlag 的 BossDefOff 旗标位（装配期一次性）——指令形才是源码语义）
+  AddCd = 46,              // 目标.cd += ps[0].Fix（可负）——**直接改字段**，与 CdChange(16) 不同：
+                           //   cdChange() 函数尊重 canCDChange 门控，源码 U.cd-=3（10008 leader）不经门控
+  SetCd = 47,              // 目标.cd = ps[0].Fix（源码 U.cd=3，10087 一处）
+  AddCurCd = 48,           // 目标.curCd += ps[0].Fix（可负，**无 clamp**，与源码直接复合赋值 bit 一致；
+                           //   源码 U.curCd-=1 leader/passive 8 处主体；curCd 允许为负，legalActs 读 curCd<=0 判궁就绪）
+  SetCurCd = 49,           // 目标.curCd = ps[0].Fix（直接赋值形）
+  SetFlag = 50,            // ps[0]=旗标枚举 → record.flags 对应位=true；
+                           //   引擎按旗标分支（约束 1 的"唯一实例=布尔字段"落点）。
+                           //   已知旗标: ArmorZero(10133 getArmor→0)、TurnHeal(10134)、
+                           //   IsSealed(10159/16568/16722)、BossDefOff(boss.def=false)、
+                           //   NoCdChange(canCDChange=false)、StopCd(stopCd=true)、SANFix…
+                           //   **目标化**（批次A）：tgt=None/Self → 装配期旗位（record.flags）+执行期幂等；
+                           //   tgt=其它（LoopI/CompN）→ 仅执行期对目标单位应用（10149 循环内 canCDChange=false），
+                           //   不占 record.flags（那不是自身旗标）
+
+  // ⑥ 控制流（线性化块标记，if/for 的体 = 标记之间的指令）
+  If = 60,                 // 条件在 cond 字段；体至 EndIf
+  EndIf = 61,
+  For = 62,                // 选择器在 cond 字段(selKind/selMask/ps)；体至 EndFor；循环变量 = Target.LoopI
+  EndFor = 63,
+  LibIf = 64,              // 解放等级 == ps[0].i（0 表示"default"=等级5）；体至 EndIf/ElseIf/Else
+  ElseIf = 65,             // else-if 链（源码 10141 turnstart: if(getNest<1)A else if(GT>1&&!isSANFix)B）；条件在 cond
+  Else = 66,               // else 段；与 ElseIf/EndIf 搭配
+
+  // ⑦ 函数注入（订阅-追加/环绕，引擎统一执行；源码 62 处 61 处为包装式）
+  InjectStart = 70,        // ps[0]=方法枚举(ultimate/attack/hit/defense/ultafter/atkafter…)
+                           // ps[1]=模式(0=after追加 1=环绕wrap 2=replace)
+                           // 目标 = cond.selKind/selMask（如 elementIdx("광")、comp[4]）
+  Snapshot = 71,           // "读一次存临时槽"（钩子顶层或注入体皆可用）：ps[0]=源(0=slot 1=getNest)
+                           //   ps[1]=源参(slot号 或 字典Idx) ps[2]=临时槽号。
+                           //   用途：勝나미注入体 6 处比较同一 getNest 快照（原函数会改 nest）；
+                           //   10188 钩子顶层 const s=stack（末尾 stack++ 会污染后续 s==3/7 比较）
+  InjectEnd = 72,          // 注入块结束（含前置/CallOriginal/后置 三段，段界用 PhaseMark）
+  PhaseMark = 73,          // ps[0]=0前置/1调原函数/2后置（环绕模式三段；追加模式只有 2）
+  FindUnit = 74,           // 批次B2：ps[0]=Bool(单元槽号0..7)，ps[1]=Fix(角色id)。执行 ctx.unitVars[槽]=comp.find(u=>u.id==id)||null
+                           //   （源码 `const V = comp.find(x=>x.id==10053)`；槽号由抽取器分配，同一钩子作用域内有效）
+  FindBuff = 75,           // 批次B2：tgt=t查单位，ps[0]=Bool(槽号0..7)，ps[1]=Fix(项数)，ps[2..]=Fix(field<<24|字典idx)。
+                           //   执行 ctx.unitVars[槽]={__b: !!tgt.buff.find(∀项 field==字典串)}（源码 10052 L3420/10058 L3706；
+                           //   10052 矛盾谓词 type==기본 && type==CD카운트정지 自然恒假，合取语义 bit 一致）
+  Continue = 76,           // 批次C-2：for 体内通用 continue（无参数）。语义：置 ctx.__cont 信号，__mech_执行段逐步检查并中断当前段，
+                           //   由最近外层 For 迭代消费（清信号后下一单元）；源码 continue 只出现在 for 体内，
+                           //   排除self形态已由抽取器 归一排除self 先行剔除（10160/10167/10186/10206 element/role 过滤）
+  ClampCurCd = 77,         // 批次C-3：curCd 三元手卷 clamp 直译（`V.curCd = V.curCd<N ? X : V.curCd-M`，
+                           //   源码全库唯一 10025 passive；无 canCDChange 门控——非 cdChange 函数而是直接赋值）：
+                           //   tgt=目标单位，ps[0]=N定点 ps[1]=X定点 ps[2]=M定点；执行 unit.curCd = unit.curCd<N ? X : unit.curCd-M
+  SetHpUltDmg = 78,        // 批次C-4：tgt.hpUltDmg = ExprHp(ps[0])（10050/10144 ultimate switch 各档 hp*89..161；
+                           //   hpUltDmg/hpAtkDmg 是引擎单位定长字段，伤害期 /100 乘区；状态快照已含两字段）
+  SetHpAtkDmg = 79,        // 批次C-4：同上，字段=hpAtkDmg（10050/10144 attack hp*50）
+  SetBuffSizeUp = 80,      // 批次C-4：引擎 setBuffSizeUp(tgt,div,name,up)（=find(div+name)后 size+=up；
+                           //   与 SetBuffSize 同构仅 =/+= 之别；ps=[div字典idx, name字典idx, up值]；10131 全库唯一）
+  SetSlotFromNest = 81,    // 批次C-7：ctx.u.stack = ctx.u.getNest(ps[0]型)（全库唯一 10183 注入体后置；
+                           //   无目标位=恒机制拥有者（注入体 c2.u=ownerU 语义同）
+  AddTemp = 83,            // 批次E-2b：数值 temp 累加 tempVars[ps[0]名]+=ps[1]/1e4（10097 `V+=10` / 10160 `V++`(定点+1)）；
+                           //   ps[0]=NameIdx ps[1]=Fix；与 AddSlot 同构但对象是 tempVars（源码 let V 局部数值累加器）
+  ClampTemp = 84,          // 批次E-2b：数值 temp 上限钳制 if(tempVars[ps[0]]>ps[1])tempVars[ps[0]]=ps[1]（10139 `if(V>4)V=4`）；
+                           //   ps[0]=NameIdx ps[1]=Fix上限；引擎写死钳制逻辑（源码 10190/10097 stack clamp 已同构验证）
+  ClampCurCdToCd = 85,     // 批次E-2b：`if(U.curCd>U.cd){U.curCd=U.cd}` 直译（10008 turnstart 全库唯一）：
+                           //   tgt=目标（源码恒 self）；执行 if(u.curCd>u.cd)u.curCd=u.cd（无 canCDChange 门控——直接字段赋值同 ClampCurCd 先例）
+  BuffSizeAddAll = 86,     // 批次E-2b：自身全部同名 buff 尺寸增量（10040 turnstart `for(b of U.buff){if(div&&name)b.size-=12.5}`）：
+                           //   tgt=self；ps=[div字典idx, name字典idx, Fix增量(可负)]；执行 u.buff.filter(div&&name).forEach(b=>b.size+=d)
+                           //   （与源码 for-of+if 逐一匹配同语义；filter 迭代中不增删条目安全）
+  SetUnitField = 87,       // 批次E-3b：单位布尔字段直接赋值（10140 `comp[V].isFirstTurnActed=false/true`，注入体内前置置位/
+                           //   后置置位成对出现；isFirstTurnActed 非旗标语义（无引擎副作用，纯状态位读写）不适用 SetFlag）：
+                           //   tgt=目标单位（主目标编码）；ps[0]=字段名字典；ps[1]=Bool；执行 unit[fname]=bool
+  FindMaxUnit = 88,        // 批次E-5b：argmax/argmin 选择器（10111 `comp.filter(role==0)+reduce(b.atk>a.atk?b:a,V[0])` /
+                           //   10138 手卷 `let idx=0,best=0; for(k<5){if(comp[k].hp>best){idx=k;best=…}}` 的通用化）：
+                           //   ps=[Bool(TempUnit槽号), NameIdx(字段名 hp/atk), Fix(role过滤位集，0=不过滤), Bool(方向 0=max/1=min)]；
+                           //   执行 ctx.unitVars[槽]=过滤后集合严格 >（max）/<（min）归约（平局取先，初值=集合首元素；
+                           //   10138 手卷 best 初值 0/999999999 因 hp 恒正与其等价）；空集/无命中→null（调用点受 find真值 守卫）
+  SpliceFirstBuffOn = 89,  // 批次E-5a：自身 buff 循环删除首个点亮项（10190 ultimate `for(i<U.buff.length){if(b[i].name===N&&
+                           //   b[i].div==기본&&b[i].on){b.splice(i,1);break}}` 直译）：tgt=self；ps=[div字典, name字典]；
+                           //   引擎写死 findIndex(b=>b.name===name&&b.div==div&&b.on) 命中删 1 个（与源码 splice+break 同语义）
+  ThrowRef = 90            // 批次E-5c：未声明标识符 ReferenceError 忠实复刻（10089 leader `hpUpAll(c,30)` 的 c 全文件未声明——
+                           //   源码 bug，非严格模式读未声明变量抛 ReferenceError）：ps[0]=标识符字典；
+                           //   执行期 throw new ReferenceError(name+" is not defined")（V8 消息逐字一致）；
+                           //   双跑差分改造：两侧同抛且消息一致=PASS（忠实优先于语义猜测 hpUpAll(30)）
+}
+
+// ---- 参数标签（Param.tag）：一个 32 位载荷的多路解释 ----
+enum Tag : ubyte {
+  None = 0,
+  NameIdx = 1,             // u16 → 统一字典索引（buff 名字面量）
+  TypeIdx = 2,             // u16 → 统一字典索引（buff type / on·off·제거·발동·추가 等魔法串；与 NameIdx 同字典，仅语义标记不同）
+  Fix = 3,                 // i32 定点 ×10⁴（size/turn/nest/max/dur/pct…一切数值）
+  Always = 4,              // turn 位的 always（引擎全局常量，直接引用其对象保 bit 一致）
+  Bool = 5,                // i=0/1
+  Target = 6,              // 目标是另一单位引用（i=Target 枚举值，如 buff 第 1/3 参的 unit）
+  ExprAtkRef = 7,          // myCurAtk (+id) 表达式：bit30=+self.id(机制拥有者) bit29=+target.id
+                           //   bit28=+source.id(触发者，循环变量场景)；低 24 位=+常数定点
+                           //   （实测最大 578×10⁴=5.78M 需 23 位；16 位不够，2026-09-19 修正）。
+                           //   bit27=myCurShd('b')变体 或 armor模式下的 mode（getSize 内部按 charAt(0) 分流）。
+                           //   bit25-26=source 的 LoopUp 层级（0=栈顶；嵌套 for，同 Target.LoopUp），
+                           //     或 armor 模式的 act(0궁/1평/2방)。
+                           //   bit31=+findId：取 ctx.unitVars[bits25-26].id（10052 myCurAtk+V.id+100，V=comp.find）。
+                           //   bit24=1 → armorUp 乘子模式（批次B2，全库 9 处 myCurAtk+U.id+armorUp(U,act,mode)*K）：
+                           //     bits0-15=K（正整数），bit28/29 必 0，前缀必 myCurAtk（bit27=mode）。与 bit31 互斥。
+                           //   批次E-2b：+comp[N].id 段不进本 Tag（bit27 与 myCurShd 冲突、bits24-26 与 armor 模式冲突）
+                           //     → 用独立 Tag ExprAtkComp=22（10135 全库唯一形态）
+  TernLeader = 8,          // 三元 isLeader?a:b 的标记（i=1）；分支值放 ps[1]/ps[2] 两个 Fix
+                           //   （不打包进一个 i32：负定点拆位会溢出，2026-09-19 修正；如 10141 cdChange -6:-3）
+  SlotRef = 9,             // 引用私有计数器当前值（i=slot 号）
+  HookId = 10,             // HookStart/InjectStart 的方法/钩子枚举（批次E-5a：注入方法枚举扩 act_attack=10/act_ultimate=11，
+                           //   10190 leader 循环内注入；与 flatten METHOD_ID/解释器 __MECH_METHOD 同步）
+  ModeId = 11,             // 注入模式
+  PhaseId = 12,            // 注入段标记
+  FlagId = 13,             // SetFlag 的旗标枚举（u16 → flags 位号）
+  ExprHp = 14,             // 动态尺寸表达式（批次C+B2，源码 112 处 hp + 22 处 atk：<base>.<hp|atk> * N [* armorUp(base,act,mode)]）：
+                           //   低24位=N 定点×10⁴；bit24-26=base Target枚举(1=self/5=LoopI/7=LowestHp)；
+                           //   bit27=带armorUp；bit28-29=act(0궁/1평/2방)；bit30=mode(0추가/1발동)；
+                           //   bit31=字段（0=hp/1=atk，批次B2；mode 只占 1 位故 bit31 可用）。
+                           //   armorUp 逻辑写死引擎（约束1），数据只给 act/mode 枚举——零角色专属函数。
+                           //   批次E-2b 扩展（_pad2 原恒 0→字段扩展位；旧 bin 兼容 _pad2=0 行为不变）：
+                           //   _pad2(u16) bits0-3=fieldExt：2=getCurAtk() 方法调用（10133 `U.getCurAtk()*25*armorUp`，
+                           //     基类返0运行时子类覆盖——非 atk 字段！含 buff 乘区；bit31 仍=1 标记 atk 族）；
+                           //   _pad2 bits4-15=compN：base=4 哨兵时 comp[N] 固定位基座（10140 `comp[0].hp*100`；
+                           //     bit30=mode 占用下 base 位域 3bit 容不下 9，4=哨兵+_pad2 compN；与异源哨兵6互斥）
+  TempRef = 15,            // setBuffOn.on 的 temp 比较形态（源码 setBuffOn(u,…,s>N)，s=先前快照）：
+                           //   低16位=变量名字典索引；bit16-23=Cmp 枚举；比较定点值放 ps[3]=Fix
+  ExprSize = 16,           // 批次C-3：动态 size 表达式 (base+加)*K，setBuffSize/All/Nest 的第4参专用：
+                           //   i32 bits0-9=K(1..1023)，bits10-17=加+128(±127)，bits18-20=base(0=stack/1=getNest/2=星级/3=minClamp/4=temp)；
+                           //   _pad2(u16)=base1 时 getNest 型字典idx；base4 时 temp 槽名字典idx（批次E-4：10170 tmpfunc
+                           //   `const V=U.stack; setBuffSize(…,V*10)` → (tempVars[槽]+加)*K，执行期读快照——与源码只读语义一致）；
+                           //   其它基座=0。源码形态：U.stack*K / U.getNest("형")*K / (U.stack+add)*K / (L+add)*K / V*K(V=temp快照)
+  CountVal = 17,           // 批次C-4：计数函数值位 getRoleCnt/getElementCnt(mask…)（10155 nbf turn=getElementCnt("화")）：
+                           //   i=位集 mask（role/element 5bit），_pad2=0 role/1 element；与 CmpRoleCnt/CmpElCnt 同 mask 约定
+  ExprNestByType = 19,     // 批次E-2b：buffNestByType(self,type)*K 值位（10138 `buffNestByType(U,"<파티 사회자>")*7.5`）：
+                           //   i=K定点×10⁴（K 可小数！7.5→1e4 定点；ExprSize 的 K 是 10bit 整数故不可复用）；
+                           //   _pad2=type字典idx(u16≤65535，字典2242项内)；执行期 buffNestByType(ctx.u,type)*K（引擎既有纯函数）
+  NameCat = 20,            // 批次E-2b：buff 名拼接 "字串"+V（10165 `"<날개형 유도탄>"+V` V=循环下标 1..6）：
+                           //   i bits0-15=字典idx，bits16-17=模式(0=kStack顶下标拼接)；执行期 names[idx]+String(kStack顶)（JS 数字转串与源码 + 同路径）
+  TempVal = 21,            // 批次E-2b：数值 temp 变量进值位（10097 hpUpAll(V)/10139 nbf(…,V,4)，V=let 初始化的累加器）：
+                           //   i=varIdx(u16 字典)；执行期 ctx.tempVars[names[i]]（与 TempRef 区别：TempRef 携带 cmp 段专用于 setBuffOn.on，TempVal 是纯数值引用）
+  ExprAtkComp = 22,        // 批次E-2b：myCurAtk + comp[N].id + 常数 拼接（10135 全库唯一）：
+                           //   bits24-26=compN(0..4)，bits0-23=常数定点×10⁴；前缀恒 myCurAtk（非 Shd）；
+                           //   执行期 s=myCurAtk; s+=comp[N].id; s+=cv（与源码字符串拼接同路径）
+  NaNVal = 23              // 批次E-5b：执行期恒返 NaN 的值位（10138 L8888 `comp[idx]*30`——单位对象×30=NaN，源码 bug
+                           //   形态忠实复刻：NaN 进 buff.size → 护甲计算 NaN → 伤害 NaN；i 不用）；
+                           //   双跑差分 A/B 层比较须 Object.is（NaN!==NaN 假不一致）
+}
+// ⚠ 未编码的"引用表达式"变体（阶段2 抽取器标记为残差，不硬塞 ABI）：
+//   ① myCurAtk + id + armorUp(self,act,mode)*K —— 尾段是运行时值（读 buff），源码 9 处（칼리버系/10033）。
+//   ② self.hp * N * armorUp(...) 等纯数值算术 size（非 getSize 字符串），源码个别处（如 8272）。
+//   两者都需"运行期求值再拼接/传值"，超出 ExprAtkRef 的编译期常数编码能力 → 待残差聚类后统一设计
+//   ExprDynamicRef（阶段3）。myCurShd('b')前缀的常数形态已由 ExprAtkRef bit27 覆盖（getSize 内部按前缀分流）。
+
+// ---- 目标选择 ----
+enum Target : ubyte { None = 0, Self = 1, All = 2, Boss = 3, CompN = 4, LoopI = 5, LoopUp = 6, LowestHp = 7, TempUnit = 8, BossHitTarget = 9 }   // 批次C-10b：BossHitTarget=引擎常量对象 {id:0,name:"타깃"}（10196 atbf 目标参；源码全局 bossHitTarget）
+//  TempUnit: tgtN=单元槽号（0..7），FindUnit 指令写入的 comp.find(id) 结果（可能 null，调用点受 CmpFindUnit 守卫）
+//  LowestHp: 全队当前 curHp 最低的单位（批次B；源码 comp.reduce((a,b)=>b.curHp<a.curHp?b:a, comp[0])
+//   固定形态的唯一实例→谓词逻辑写死引擎：严格小于、平局取先=reduce 顺序 bit 一致，零数据字段）
+//  CompN: ps 里带固定位号（源码 comp[4]，10188 大量使用）
+//  LoopI: For 体的循环变量（= iStack 栈顶；源码 comp[_0x…] of getElementIdx/getRoleIdx）
+//  LoopUp: tgtN = 从栈顶向上第 k 层循环变量（k=1..3）。**嵌套 for 的源/目标区分**（2026-09-19
+//    10081 回归发现：turnstart 内层 anbf(comp[外层],…comp[内层],…) 两个循环变量都译 LoopI
+//    会丢外层单位——buff 挂错对象，伤害不一致）
+
+// ---- 条件种类（If/For 的 cond 区）----
+enum CondKind : ubyte {
+  None = 0,
+  // For 选择器
+  SelMembers = 1,          // for (c of comp)；flag bit0=排除self
+  SelRole = 2,             // getRoleIdx(roles…)；mask=role位集（섶탱딜디힐 → 5bit）
+  SelElement = 3,          // getElementIdx(elements…)；mask=element位集（화광수풍암 → 5bit）
+  // If 条件
+  CmpLeader = 10,          // isLeader == a.i
+  CmpGT = 11,              // GLOBAL_TURN cmp a.i（单值 ==/>/</…）
+  CmpGTIn = 12,            // GLOBAL_TURN ∈ mask 集合（源码 GT==1||GT==5||GT==9，10188）
+  CmpGTMod = 13,           // 裸取模：(GLOBAL_TURN + a.i) % b.i == nameIdx（源码仅 3 处不带 GT>1）
+  CmpSlot = 14,            // slot[ps0] cmp Fix（源码 stack>=50 / s==3 / s==7）
+  CmpNest = 15,            // getNest(typeIdx) cmp Fix（源码 getNest("<이성치>")<1）
+  CmpTemp = 16,            // 注入快照临时槽 cmp Fix（环绕注入 6 连比较）
+  CmpElKind = 17,          // getElKind()：单值模式 cmp+a(定点)；in 集合模式 a=-1 哨兵、b=元素种类数集合位
+                           //   （勝나미 in{3,4,5}→b=0b111000；10188 ==1→a=1）
+  CmpRoleCnt = 18,         // getRoleCnt(roles) cmp n（如 10133 섶>=2）
+  CmpElCnt = 19,           // getElementCnt(elements) cmp n
+  HasTurnBuffType = 20,    // 自己是否有 isTurn 且 type==X 的 buff（10141 isSANFix 的泛化，
+                           //   谓词逻辑在引擎，数据只给 typeIdx → 零角色专属函数）
+  CmpGTModGated = 21,      // GLOBAL_TURN>1 && (GLOBAL_TURN+a)%b==nameIdx（源码 58/59 主流形态：
+                           //   GT>1 前置守卫内建引擎——勝나미 if(GT>1 && (GT-1)%3==0)。a=偏移定点
+                           //   b=模定点 nameIdx=余定点。与裸 CmpGTMod 分列，共性写死约束１）
+  CmpRoKind = 22,          // getRoKind() cmp a(定点)（职务种类数；10143 if(getRoKind()==3)，源码 9 处）
+  CmpLoopEl = 23,          // 循环目标元素比较：iStack顶.element cmp a（10199 if(comp[V].element==1)，源码 7 处；
+                           //   与 CmpSelEl 不同点：基座是运行期循环变量而非静态队面）
+  SelRange = 24,           // for(V=0;V<N;V++) 固定下标范围选择器：a=上界N（源码 10125 前2位/10093 前4位形态；
+                           //   LoopI=comp[k] k∈[0,N)）
+  SelList = 25,            // for(x of [a,b,…]) 固定下标列表选择器（批次B；源码全库唯一形态 [1,3]：
+                           //   a=打包下标（每槽 3bit×5，终止符 7）→ LoopI=comp[k]，顺序即源码序）
+  CmpFindUnit = 26,        // 批次B2：裸真值 if(V)，V=FindUnit 槽绑定变量：a=槽号，b=1（存在）/0（不存在，源码未见）
+                           //   语义＝ctx.unitVars[a] 非 null；源码 `const V=comp.find(…); if(V){…}`
+  CmpFindBuff = 27,        // 批次B2：裸真值 if(V)，V=FindBuff 槽：a=槽号，判 ctx.unitVars[a].__b===true
+                           //   （10058 turnover：if(V){canCDChange=false}else{=true}；10052：if(V){…}else{…}）
+  CmpLib = 28,             // 批次C-1：星级比较 if(L <op> N)：a=N 小整数(1..5非定点)，cmp 常规；
+                           //   L=setDefault 第2参（10029 if(L>=5)/10031 if(L==3)/10040 if(L<3)）；
+                           //   ctx.lib 装配期已按 setMnc 同规则规范化（undefined/null/<1/>5→5）
+  CmpLoopRole = 29,        // 批次C-2：循环目标职务比较 iStack顶.role cmp a（a=小整数0..4非定点；
+                           //   10167 leader：for(comp){if(V.role==0)continue;…}，与 CmpLoopEl 同构）
+  CmpLoopId = 30,          // 批次C-4：循环目标 id 比较 iStack顶.id cmp a（a=角色id定点×10⁴，仅 ==/!=；
+                           //   10211 leader：for(comp){if(V.id==10160){V.cd-=20;…}}，comp[V].id 同形）
+  CmpNeqPrevId = 31,       // 批次C-5：两循环变量 id 比较（嵌套排除；10062/10147 `if($内.id!=$外.id){body}`）：
+                           //   a=1 → iStack顶 vs 上一层；a=0 → iStack顶 vs ctx.u（self，10213 ultbefore）；cmp 仅 ==/!=
+  CmpSlotIn = 32,          // 批次C-7：slot 值∈集合（`U.stack==2||U.stack==3`，10181）：a=slot号(0=stack)，
+                           //   b=值位集（bit v=值 v 在集；值域 0..30，负/小数/超限在抽取器即拒→残差）；cmp 恒 Eq
+  CmpLoopRoleIn = 33,      // 批次C-7：循环目标 role∈集合（10159 comp[V].role∈{0,4}/10182 V.role∈{0,2}）：
+                           //   a=role位集（0..4）；iStack顶.role；cmp 恒 Eq；与 CmpElKind in 模式同构
+  SelCountRole = 34,       // 批次C-8：计数上界 Cfor 选择器（10198 `const V=getRoleCnt(mask)-1; for(k=0;k<V;k++)`）：
+                           //   a=role位集，b=偏移定点（如 -1→-10000）；执行期 n=getRoleCnt(mask)+b/1e4，迭代 n 次
+                           //   LoopI=comp[k]；n≤0 空循环；不支持排除self（b 被偏移占用——抽取器已防御）
+  SelCountElement = 35,    // 批次C-8：同上，getElementCnt 版（源码未见实例，对称预留）
+  SelCountTemp = 36,       // 批次C-9：上界=temp 快照变量的 Cfor 选择器（10192 `const V=U.stack; for(k<V)` /
+                           //   10201 `const V=U.getNest(형); for(k<V)`）：nameIdx=temp槽名字典idx；
+                           //   执行期 n=ctx.tempVars[槽名]|0 次迭代，LoopI=comp[k]；n≤0 空循环
+  CmpLoopElIn = 37,        // 批次C-10a：循环目标 element∈集合（10137 `getElementIdx("풍")绑定.includes(V)` 等价重写）：
+                           //   a=element位集（0..4）；iStack顶.element；cmp 恒 Eq；与 CmpLoopRoleIn 同构
+  CmpLoopName = 38,        // 批次C-10a：循环目标名比较 iStack顶.name cmp nameIdx字典串（10088 `if(V.name=="신파랑")`；
+                           //   源码仅 ==/!=）；nameIdx=name 字典索引
+  CmpLoopIdx = 39,         // 批次C-10a：循环下标比较 kStack顶 cmp a（a=小整数非定点；10022 `for(V of getRoleIdx(…)){if(V!=0)}`；
+                           //   kStack=For 执行期与 iStack 平行的原始下标栈——iStack 存 comp[idx] 单位，排除self 过滤后
+                           //   位置≠下标，故必须独立栈）
+  CmpHasUnitId = 40,       // 批次C-10a：队伍中存在指定 id 角色（10089 `if(comp.find(x=>x.id==10088))`）：a=角色id定点，
+                           //   b=1 存在真值；执行期 comp.some(u=>u.id==a/1e4)——与 find 结果真值等价（find 非 null ⟺ some）
+  CmpUnitField = 41,       // 批次C-10b：单位布尔字段真值读取（10190 `if(U.isHealed||U.isHealed2||U.isHealed3)` OR展开后单项 /
+                           //   10134 `if(U.turnHeal)` / 10140 `&& U.check`）：nameIdx=字段名字典（isHealed/isHealed2/isHealed3/
+                           //   turnHeal/check/stopCd/canCDChange…引擎不建名单——字段名直接下标 u[fname]，通用机制非角色专属）；
+                           //   b=目标单位 Target 打包（批次E-3b 泛化：枚举+tgtN*256，同参数位 Target；b=0→self 向后兼容旧 bin）；
+                           //   执行期 !!unit[fname] 真值；否定形态由 not 包裹翻转 cmp（10140 注入体 `!comp[V].isFirstTurnActed`：
+                           //   b=LoopI(5)——注入 ctx iStack=[被注入者] 与闭包捕获的 comp[V] 语义一致）
+  CmpRandom = 42,          // 批次C-10b：Math.random() 比较（10038 `if(Math.random()<0.5)`）：a=阈值定点，cmp 常规；
+                           //   执行期现调 Math.random()——双跑差分有确定性种子桩（新旧引擎同序列抽取，bit-exact 可验；
+                           //   调用次数两侧一致：同钩子同执行路径）
+  CmpTempFlag = 43,        // 批次C-10b：temp 槽布尔真值（`const V=boss.def; ultLogic…; if(V)` 快照→真值判断，10197/10173）：
+                           //   nameIdx=temp槽名字典；执行期 !!ctx.tempVars[槽名]；快照源=Snapshot srcKind=2（见 Cmd 注释）
+  CmpBossField = 44,       // 批次C-10b：boss 字段比较（10150 `boss.element!=undefined && boss.element==4`）：
+                           //   nameIdx=字段名字典；b=1 → undefined 存在性判定（直译：Eq→"是 undefined"、Ne→"不是 undefined"）；
+                           //   b=0 → 常规比较 boss[fname] cmp a/1e4
+  CmpNestByType = 45,      // 批次C-10b：buffNestByType(self,type) 比较（10124 `<2` / 10140 `>=10`）：
+                           //   nameIdx=type字典；a=阈值定点；执行期直调引擎 buffNestByType(u,type)（纯函数无副作用）
+  CmpBuffSize = 46,        // 批次C-10b：getBuffSize(self,div,name) 比较（10153 `!=0` / 10171 `==undefined`）：
+                           //   nameIdx=name字典；a=div字典idx；b=阈值定点，b=INT_MIN 哨兵=undefined存在性判定
+                           //   （cmp==Eq → "是 undefined"真；cmp==Ne → "不是 undefined"真）；执行期直调引擎 getBuffSize（可返 undefined）
+  CmpHpRatio = 47,         // 批次C-10b：循环目标 hp 比例比较（10181 `if(V.curHp/V.hp>0.5)`）：a=阈值定点；
+                           //   执行期 iStack顶.curHp / iStack顶.hp cmp a/1e4（hp=0 → Infinity，与源码除零同语义）
+  CmpSelfIdx = 48,         // 批次C-10b：循环下标 vs self 在 comp 中的下标（10136 `let V=comp.findIndex(x=>x.id==U.id); if(k==V)continue`）：
+                           //   kStack顶 cmp comp.indexOf(ctx.u)；findIndex 结果等价重写（无 find 命中时 findIndex=-1，indexOf 同）
+  SelCountLib = 49         // 批次E-1a：星级上界 Cfor 选择器（10153 `for(V=0;V<L+5;V++)`）：a=偏移定点；
+                           //   执行期 n=ctx.lib+a/1e4 次迭代，LoopI=comp[k]（k≥5 时 undefined，与源码越界同语义）
+}
+
+enum Cmp : ubyte { Eq = 0, Ne = 1, Gt = 2, Ge = 3, Lt = 4, Le = 5 }
+
+// ---- 定长积木 ----
+struct Param {              // 8B：tag + 32bit 载荷（Fix=定点×10⁴）
+  tag: Tag;
+  _pad: ubyte;
+  _pad2: ushort;
+  i: int;
+}
+
+struct Cond {               // 12B（flatc 实测 sizeOf，非手算 16B）：条件/选择器统一编码
+  kind: CondKind;
+  cmp: Cmp;
+  nameIdx: ushort;          // HasTurnBuffType/CmpNest 的 type 字典索引；CmpGTMod 的余数
+  a: int;                   // Fix 定点 或 位集 mask(slot号/回合集合/元素种类集合/role·element位集) 或 偏移
+  b: int;                   // 第二参数：CmpGTMod 的模数；for 选择器的 排除self=1；计数条件的阈值 n
+}
+
+struct Cmd {                // 104B：一条线性化指令
+  op: Op;
+  tgt: Target;
+  tgtN: ubyte;              // CompN 的位号
+  _pad: ubyte;
+  cond: Cond;               // If 的条件 / For 的选择器（其余 op 为 None）
+  ps: [Param: 11];          // 参数区（考古最大 arity=11 的 buff 原语；不足的槽 tag=None）
+}
+
+// ---- 角色记录（定长 26,776B，批次E-4 mnc 改 double 后 flatc 实测；191 角色 ≈ 5.1MB 原始，brotli 后 ~400KB 级）----
+struct CharacterRecord {
+  id: uint;
+  rarity: ubyte;
+  element: ubyte;           // 0..4（화수목광암 按引擎编码）
+  role: ubyte;              // 0..4（탱딜디힐섶 按引擎 role 数组序）
+  cd: ubyte;
+  hp: uint;
+  atk: uint;
+  atkMag: ushort;
+  ultMag: ushort;
+  seq: ushort;
+  usedCmds: ushort;         // 有效指令前缀长度（其后到 K 全零）
+  exclCount: ubyte;         // buff_ex.push 数量（排除伤害计算的标记型 buff，实测最多 2 → 留 4）
+  _pad3: ubyte;
+  exclTypes: [ushort: 4];   // buff_ex 的 type 字典索引（装配时引擎逐个 buff_ex.push(types[i])）
+  mnc: [double: 10];        // setMnc 恒 10 槽——**原生 double 存储**（批次E-4 ABI 变更）：
+                           //   源码 10173 机动性数组含 FP 噪声字面量（298.20000000000005/331.09999999999997/
+                           //   396.90000000000003，算术序列内联的 double 累积噪声，全文件唯一），噪声在小数第 14 位——
+                           //   定点 ×10⁴（i32）无法无损表示，而 mnc→u.ultMag 是伤害关键路径 + C 层状态 diff 字段，
+                           //   必须 bit-exact。double 定长 8B×10=80B 仍满足"静态字段固定字节长度"约束。
+                           //   其余 190 角色清洁值（≤4位小数）double 往返无损，行为不变。
+  slotInit: [int: 4];       // 私有计数器初值（stack 等；决策 #2 通用槽位）
+  flags: [ubyte: 16];       // 128 位旗标区：每 bit = 一个具名布尔机制的有无（约束 1 落点）
+  cmds: [Cmd: 256];         // 定长指令池（K=256，见文件头论证；10188 实测 213 条）
+}
+
+// ---- 根表（唯一变长部分：字典区；records 为 struct 数组 → 每角色定长）----
+table MechanismTable {
+  version: ushort;          // schema 语义版本（布局变更必须 +1；解释器拒读不匹配版本）
+  charCount: ushort;
+  records: [CharacterRecord];
+  names: [string];          // 统一字符串字典（buff name/type/魔法串；只追加不改序）
+}
+
+root_type MechanismTable;
+// 4 字节文件标识：flatc 用它校验 .bin 与 schema 匹配；布局变更时同步 bump（与 version 字段互补）
+file_identifier "TKFM";

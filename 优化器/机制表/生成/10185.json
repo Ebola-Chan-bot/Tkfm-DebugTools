@@ -1,0 +1,581 @@
+{
+ "id": 10185,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<원금에 이자까지>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 105,
+      "name": "시멘트 통에 처박아줄게♡1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 150,
+      "name": "시멘트 통에 처박아줄게♡2",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 24,
+      "name": "시멘트 통에 처박아줄게♡3",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 120,
+      "name": "시멘트 통에 처박아줄게♡1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 175,
+      "name": "시멘트 통에 처박아줄게♡2",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 28,
+      "name": "시멘트 통에 처박아줄게♡3",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 14,
+      "name": "시멘트 통에 처박아줄게♡4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 135,
+      "name": "시멘트 통에 처박아줄게♡1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 200,
+      "name": "시멘트 통에 처박아줄게♡2",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 32,
+      "name": "시멘트 통에 처박아줄게♡3",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 16,
+      "name": "시멘트 통에 처박아줄게♡4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 150,
+      "name": "시멘트 통에 처박아줄게♡1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 225,
+      "name": "시멘트 통에 처박아줄게♡2",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 36,
+      "name": "시멘트 통에 처박아줄게♡3",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 18,
+      "name": "시멘트 통에 처박아줄게♡4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 165,
+      "name": "시멘트 통에 처박아줄게♡1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 250,
+      "name": "시멘트 통에 처박아줄게♡2",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 40,
+      "name": "시멘트 통에 처박아줄게♡3",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 20,
+      "name": "시멘트 통에 처박아줄게♡4",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 1
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁발동*",
+      "size": 110,
+      "name": "달콤한 마력 이자1",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 2
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁발동*",
+      "size": 110,
+      "name": "달콤한 마력 이자2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 3
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁발동*",
+      "size": 110,
+      "name": "달콤한 마력 이자3",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 4
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁발동*",
+      "size": 110,
+      "name": "달콤한 마력 이자4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "ultLogic": null
+   },
+   {
+    "nbf": [
+     "self",
+     "<원금에 이자까지>",
+     0,
+     "<빚 갚을 시간>",
+     -4,
+     4
+    ]
+   },
+   {
+    "setSlot": [
+     "stack",
+     0
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<일수 악마>",
+    "on": false
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 45
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "광"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 45,
+        "name": "<잡어! 잡어!>",
+        "turn": "always"
+       },
+       {
+        "anbf": [
+         "$i",
+         "공격",
+         "self",
+         "<원금에 이자까지>",
+         0,
+         "<빚 갚을 시간>",
+         1,
+         4,
+         "always"
+        ]
+       },
+       {
+        "inject": {
+         "方法": "attack",
+         "目标": "$i",
+         "模式": "追加",
+         "后置": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": "==",
+            "fix": 3
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "기본",
+             "name": "<일수 악마>",
+             "on": true
+            }
+           ]
+          },
+          {
+           "addSlot": [
+            "stack",
+            1
+           ]
+          },
+          {
+           "clampSlot": [
+            "stack",
+            null,
+            4
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "inject": {
+         "方法": "ultimate",
+         "目标": "$i",
+         "模式": "追加",
+         "后置": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": "==",
+            "fix": 3
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "기본",
+             "name": "<일수 악마>",
+             "on": true
+            }
+           ]
+          },
+          {
+           "addSlot": [
+            "stack",
+            1
+           ]
+          },
+          {
+           "clampSlot": [
+            "stack",
+            null,
+            4
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "광"
+         ]
+        },
+        "body": [
+         {
+          "atbf": [
+           {
+            "$i上": 1
+           },
+           "공격",
+           "$i",
+           "받속뎀",
+           7.5,
+           "<빚 갚을 시간>2",
+           1,
+           "always"
+          ]
+         }
+        ]
+       },
+       {
+        "atbf": [
+         "$i",
+         "궁",
+         "self",
+         "궁발동*",
+         65,
+         "<이자 2배!>1",
+         1,
+         "always"
+        ]
+       },
+       {
+        "atbf": [
+         "$i",
+         "궁",
+         "self",
+         "공퍼증",
+         25,
+         "<이자 2배!>2",
+         1,
+         "always"
+        ]
+       },
+       {
+        "atbf": [
+         "$i",
+         "궁",
+         "self",
+         "가뎀증",
+         10,
+         "<이자 2배!>3",
+         1,
+         "always"
+        ]
+       },
+       {
+        "atbf": [
+         "$i",
+         "궁",
+         "self",
+         "발효증",
+         25,
+         "<이자 2배!>4",
+         1,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 65,
+    "name": "잡어가 파산해버렸네",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "anbf": [
+       "$i",
+       "궁",
+       "self",
+       "<원금에 이자까지>",
+       0,
+       "<빚 갚을 시간>",
+       1,
+       4,
+       "always"
+      ]
+     },
+     {
+      "inject": {
+       "方法": "ultimate",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "if": {
+          "kind": "slot比较",
+          "slot": "stack",
+          "cmp": "==",
+          "fix": 3
+         },
+         "then": [
+          {
+           "setBuffOn": "self",
+           "div": "기본",
+           "name": "<일수 악마>",
+           "on": true
+          }
+         ]
+        },
+        {
+         "addSlot": [
+          "stack",
+          1
+         ]
+        },
+        {
+         "clampSlot": [
+          "stack",
+          null,
+          4
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "atbf": [
+         {
+          "$i上": 1
+         },
+         "궁",
+         "$i",
+         "받속뎀",
+         7.5,
+         "<빚 갚을 시간>2",
+         1,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁발동*",
+     65,
+     "<일수 악마>",
+     "always",
+     false
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ]
+ }
+}

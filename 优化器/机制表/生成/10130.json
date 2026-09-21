@@ -1,0 +1,592 @@
+{
+ "id": 10130,
+ "机动性": [
+  211,
+  3,
+  234,
+  3,
+  256,
+  3,
+  278,
+  3,
+  300,
+  3
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<싸움상등!>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "반격*",
+      "size": 156,
+      "name": "이 일격으로 머리를 뚫어버린다!2",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "반격*",
+      "size": 156,
+      "name": "이 일격으로 머리를 뚫어버린다!2",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 20,
+      "name": "이 일격으로 머리를 뚫어버린다!1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "반격*",
+      "size": 178,
+      "name": "이 일격으로 머리를 뚫어버린다!2",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 20,
+      "name": "이 일격으로 머리를 뚫어버린다!1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "반격*",
+      "size": 178,
+      "name": "이 일격으로 머리를 뚫어버린다!2",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 25,
+      "name": "이 일격으로 머리를 뚫어버린다!1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "반격*",
+      "size": 200,
+      "name": "이 일격으로 머리를 뚫어버린다!2",
+      "turn": 3
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "탱"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 140,
+      "name": "크리스마스 계승자1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 100,
+      "name": "크리스마스 계승자2",
+      "turn": "always"
+     },
+     {
+      "anbf": [
+       "all",
+       "피격",
+       "boss",
+       "받발뎀",
+       20,
+       "<빠따는 훌륭한 대화 수단!>",
+       1,
+       10,
+       "always"
+      ]
+     },
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": [
+       {
+        "atbf": [
+         "$i",
+         "궁",
+         "$i",
+         "반격*",
+         250,
+         "<그래도 넌 내가 이김!>",
+         3,
+         "always"
+        ]
+       },
+       {
+        "inject": {
+         "方法": "hit",
+         "目标": "$i",
+         "模式": "追加",
+         "后置": [
+          {
+           "deleteBuff": [
+            "$i",
+            "기본",
+            "<그래도 넌 내가 이김!>"
+           ]
+          }
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "flag": "NoCdChange"
+   },
+   {
+    "anbf": [
+     "self",
+     "피격",
+     "self",
+     "<싸움상등!>",
+     0,
+     "늑대가 뒤를 돌아본 것은!",
+     1,
+     10,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "피격",
+     "self",
+     "on",
+     "기본",
+     "보은 때문이 아닌!1",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "피격",
+     "self",
+     "on",
+     "기본",
+     "보은 때문이 아닌!2",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "피격",
+     "self",
+     "on",
+     "기본",
+     "보은 때문이 아닌!3",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "inject": {
+     "方法": "hit",
+     "目标": "self",
+     "模式": "环绕",
+     "前置": [
+      {
+       "setBuffNest": "self",
+       "div": "기본",
+       "name": "<싸움상등!>",
+       "nest": {
+        "sizeMinClamp": {
+         "加": 1,
+         "cap": 10
+        }
+       }
+      },
+      {
+       "if": {
+        "kind": "slot比较",
+        "slot": "stack",
+        "cmp": "==",
+        "fix": 2
+       },
+       "then": [
+        {
+         "setBuffOn": "self",
+         "div": "발동",
+         "name": "보은 때문이 아닌!1",
+         "on": true
+        }
+       ],
+       "elif": [
+        {
+         "if": {
+          "kind": "slot比较",
+          "slot": "stack",
+          "cmp": "==",
+          "fix": 5
+         },
+         "then": [
+          {
+           "setBuffOn": "self",
+           "div": "발동",
+           "name": "보은 때문이 아닌!2",
+           "on": true
+          }
+         ],
+         "elif": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": "==",
+            "fix": 8
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "발동",
+             "name": "보은 때문이 아닌!3",
+             "on": true
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "后置": [
+      {
+       "if": {
+        "kind": "slot比较",
+        "slot": "stack",
+        "cmp": "==",
+        "fix": 2
+       },
+       "then": [
+        {
+         "setBuffOn": "self",
+         "div": "발동",
+         "name": "보은 때문이 아닌!1",
+         "on": false
+        }
+       ],
+       "elif": [
+        {
+         "if": {
+          "kind": "slot比较",
+          "slot": "stack",
+          "cmp": "==",
+          "fix": 5
+         },
+         "then": [
+          {
+           "setBuffOn": "self",
+           "div": "발동",
+           "name": "보은 때문이 아닌!2",
+           "on": false
+          }
+         ],
+         "elif": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": "==",
+            "fix": 8
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "발동",
+             "name": "보은 때문이 아닌!3",
+             "on": false
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "addSlot": [
+        "stack",
+        1
+       ]
+      },
+      {
+       "clampSlot": [
+        "stack",
+        null,
+        10
+       ]
+      },
+      {
+       "deleteBuff": [
+        "self",
+        "기본",
+        "이 일격으로 머리를 뚫어버린다!2"
+       ]
+      },
+      {
+       "deleteBuff": [
+        "self",
+        "기본",
+        "<빠가야로!>"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "nbf": [
+     "self",
+     "공퍼증",
+     5,
+     "<싸움상등!>",
+     0,
+     10
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "가뎀증",
+     5,
+     "보은 때문이 아닌!1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "가뎀증",
+     10,
+     "보은 때문이 아닌!2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "가뎀증",
+     15,
+     "보은 때문이 아닌!3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "행동",
+     "self",
+     "반격*",
+     100,
+     "<빠가야로!>",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<싸움상등!>",
+       0,
+       "늑대가 뒤를 돌아본 것은!",
+       2,
+       10
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       2
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       10
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 3,
+       "余": 0
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<싸움상등!>",
+         0,
+         "늑대가 뒤를 돌아본 것은!",
+         2,
+         10
+        ]
+       },
+       {
+        "addSlot": [
+         "stack",
+         2
+        ]
+       },
+       {
+        "clampSlot": [
+         "stack",
+         null,
+         10
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "setBuffNest": "self",
+    "div": "기본",
+    "name": "<싸움상등!>",
+    "nest": {
+     "slot": "stack"
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "보은 때문이 아닌!1",
+    "on": {
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 3
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "보은 때문이 아닌!2",
+    "on": {
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 6
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "보은 때문이 아닌!3",
+    "on": {
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 9
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "발동",
+    "name": "<빠가야로!>",
+    "on": {
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 10
+    }
+   }
+  ]
+ }
+}

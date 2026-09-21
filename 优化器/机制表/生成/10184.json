@@ -1,0 +1,641 @@
+{
+ "id": 10184,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<마력 수집>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁뎀증",
+        "size": 30,
+        "name": "아담한 몸집, 모성의 포용1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 12,
+        "name": "아담한 몸집, 모성의 포용2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 18,
+        "name": "아담한 몸집, 모성의 포용3",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁뎀증",
+        "size": 35,
+        "name": "아담한 몸집, 모성의 포용1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 14,
+        "name": "아담한 몸집, 모성의 포용2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 21,
+        "name": "아담한 몸집, 모성의 포용3",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁뎀증",
+        "size": 40,
+        "name": "아담한 몸집, 모성의 포용1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 16,
+        "name": "아담한 몸집, 모성의 포용2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 24,
+        "name": "아담한 몸집, 모성의 포용3",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁뎀증",
+        "size": 45,
+        "name": "아담한 몸집, 모성의 포용1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 18,
+        "name": "아담한 몸집, 모성의 포용2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 27,
+        "name": "아담한 몸집, 모성의 포용3",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁뎀증",
+        "size": 50,
+        "name": "아담한 몸집, 모성의 포용1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 20,
+        "name": "아담한 몸집, 모성의 포용2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 30,
+        "name": "아담한 몸집, 모성의 포용3",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultafter": [
+   {
+    "bossDefOff": true
+   }
+  ],
+  "ultimate": [
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 0
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "페어리 행복 안심 위원회1",
+      "on": true
+     }
+    ]
+   },
+   {
+    "ultLogic": null
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 0
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "페어리 행복 안심 위원회1",
+      "on": false
+     }
+    ]
+   },
+   {
+    "nbf": [
+     "self",
+     "<마력 수집>",
+     0,
+     "미니 더피 등장!",
+     1,
+     3
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 2
+    },
+    "then": [
+     {
+      "setBuffOnAll": "self",
+      "div": "발동",
+      "name": "페어리 행복 안심 위원회3",
+      "on": true
+     }
+    ]
+   },
+   {
+    "addSlot": [
+     "stack",
+     1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     3
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 45
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": [
+       {
+        "anbf": [
+         {
+          "$i上": 1
+         },
+         "궁",
+         "$i",
+         "공퍼증",
+         8,
+         "<애교 타임>2",
+         1,
+         11,
+         "always"
+        ]
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": [
+       {
+        "anbf": [
+         {
+          "$i上": 1
+         },
+         "궁",
+         "$i",
+         "가뎀증",
+         5,
+         "<애교 타임>3",
+         1,
+         11,
+         "always"
+        ]
+       }
+      ]
+     },
+     {
+      "anbf": [
+       "$i",
+       "궁",
+       "boss",
+       "받궁뎀",
+       4,
+       "<애교 타임>4",
+       1,
+       11,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     100,
+     "페어리 행복 안심 위원회1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "on",
+     "기본",
+     "페어리 행복 안심 위원회1",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "buff": [
+       "self",
+       "궁",
+       "$i",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         20
+        ]
+       },
+       "페어리 행복 안심 위원회3",
+       1,
+       "always",
+       "발동",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "탱",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "궁추가*",
+      "size": 75,
+      "name": "꼬마 엄마의 섹스테크닉♡",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<마력 수집>",
+         0,
+         "미니 더피 등장!",
+         1,
+         3
+        ]
+       },
+       {
+        "addSlot": [
+         "stack",
+         1
+        ]
+       },
+       {
+        "clampSlot": [
+         "stack",
+         null,
+         3
+        ]
+       },
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "페어리 행복 안심 위원회1",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 3,
+       "余": 0
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "slot比较",
+         "slot": "stack",
+         "cmp": ">=",
+         "fix": 2
+        },
+        "then": [
+         {
+          "tbf": "boss",
+          "type": "받뎀증",
+          "size": 15,
+          "name": "페어리 행복 안심 위원회2",
+          "turn": 1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -3
+     }
+    ]
+   }
+  ]
+ }
+}

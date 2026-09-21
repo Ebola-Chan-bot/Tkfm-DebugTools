@@ -1,0 +1,314 @@
+{
+ "id": 10121,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 60,
+      "name": "회기ㆍ백화투영1",
+      "turn": 4
+     },
+     {
+      "tbf": "boss",
+      "type": "받일뎀",
+      "size": 40,
+      "name": "회기ㆍ백화투영2",
+      "turn": 8
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 75,
+      "name": "회기ㆍ백화투영1",
+      "turn": 4
+     },
+     {
+      "tbf": "boss",
+      "type": "받일뎀",
+      "size": 55,
+      "name": "회기ㆍ백화투영2",
+      "turn": 8
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 90,
+      "name": "회기ㆍ백화투영1",
+      "turn": 4
+     },
+     {
+      "tbf": "boss",
+      "type": "받일뎀",
+      "size": 70,
+      "name": "회기ㆍ백화투영2",
+      "turn": 8
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 105,
+      "name": "회기ㆍ백화투영1",
+      "turn": 4
+     },
+     {
+      "tbf": "boss",
+      "type": "받일뎀",
+      "size": 85,
+      "name": "회기ㆍ백화투영2",
+      "turn": 8
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 120,
+      "name": "회기ㆍ백화투영1",
+      "turn": 4
+     },
+     {
+      "tbf": "boss",
+      "type": "받일뎀",
+      "size": 100,
+      "name": "회기ㆍ백화투영2",
+      "turn": 8
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "all",
+    "type": "일뎀증",
+    "size": 50,
+    "name": "후방 보급이다냥",
+    "turn": 2
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 25
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "풍"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 40,
+      "name": "<갈매기 도적단>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "일뎀증",
+      "size": 100,
+      "name": "<갈매기 도적단>2",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "평추가*",
+      "size": 65,
+      "name": "<갈매기 도적단>3",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "anbf": [
+       "self",
+       "평",
+       "boss",
+       "받뎀증",
+       5,
+       "<대해를 향하여!>1",
+       1,
+       10,
+       "always"
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "atbf": [
+         "self",
+         "궁",
+         "$i",
+         "받속뎀",
+         15,
+         "<대해를 향하여!>2",
+         2,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "ptbf": [
+     "self",
+     "평",
+     "all",
+     "아머",
+     {
+      "hpExpr": {
+       "base": "self",
+       "N": 10
+      }
+     },
+     "폭풍우 감행",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "평추가*",
+     120,
+     "<폭풍우도 우릴 막을 수 없어>1",
+     2,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "풍"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       15,
+       "<폭풍우도 우릴 막을 수 없어>2",
+       2,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "평추가*",
+    "size": 70,
+    "name": "프로젝터 캐논",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "가뎀증",
+    "size": 10,
+    "name": "오랜 추억1",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "all",
+     "공퍼증",
+     10,
+     "오랜 추억2",
+     1,
+     4,
+     "always"
+    ]
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -4
+     }
+    ]
+   }
+  ]
+ }
+}

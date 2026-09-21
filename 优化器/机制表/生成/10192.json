@@ -1,0 +1,871 @@
+{
+ "id": 10192,
+ "机动性": [
+  324,
+  4,
+  378,
+  4,
+  432,
+  4,
+  486,
+  4,
+  540,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<순진무구>",
+  "<여우 신부의 축복>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "deleteBuff": [
+     "self",
+     "기본",
+     "새로운 빛으로 물들이다1"
+    ]
+   },
+   {
+    "deleteBuff": [
+     "self",
+     "기본",
+     "새로운 빛으로 물들이다2"
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "deleteBuff": [
+       "$i",
+       "발동",
+       "새로운 빛으로 물들이다3"
+      ]
+     },
+     {
+      "deleteBuff": [
+       "$i",
+       "발동",
+       "새로운 빛으로 물들이다4"
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "새로운 빛으로 물들이다1",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 18,
+      "name": "새로운 빛으로 물들이다2",
+      "turn": 4
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "암"
+         ]
+        },
+        "body": [
+         {
+          "atbf": [
+           {
+            "$i上": 1
+           },
+           "공격",
+           "$i",
+           "받속뎀",
+           5,
+           "새로운 빛으로 물들이다4",
+           1,
+           5
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 112,
+      "name": "새로운 빛으로 물들이다1",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 21,
+      "name": "새로운 빛으로 물들이다2",
+      "turn": 4
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "$i",
+         "공격",
+         "boss",
+         "받뎀증",
+         3.5,
+         "새로운 빛으로 물들이다3",
+         1,
+         5
+        ]
+       },
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "암"
+         ]
+        },
+        "body": [
+         {
+          "atbf": [
+           {
+            "$i上": 1
+           },
+           "공격",
+           "$i",
+           "받속뎀",
+           6,
+           "새로운 빛으로 물들이다4",
+           1,
+           5
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 128,
+      "name": "새로운 빛으로 물들이다1",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 24,
+      "name": "새로운 빛으로 물들이다2",
+      "turn": 4
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "$i",
+         "공격",
+         "boss",
+         "받뎀증",
+         4,
+         "새로운 빛으로 물들이다3",
+         1,
+         5
+        ]
+       },
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "암"
+         ]
+        },
+        "body": [
+         {
+          "atbf": [
+           {
+            "$i上": 1
+           },
+           "공격",
+           "$i",
+           "받속뎀",
+           7,
+           "새로운 빛으로 물들이다4",
+           1,
+           5
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 144,
+      "name": "새로운 빛으로 물들이다1",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 27,
+      "name": "새로운 빛으로 물들이다2",
+      "turn": 4
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "$i",
+         "공격",
+         "boss",
+         "받뎀증",
+         4.5,
+         "새로운 빛으로 물들이다3",
+         1,
+         5
+        ]
+       },
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "암"
+         ]
+        },
+        "body": [
+         {
+          "atbf": [
+           {
+            "$i上": 1
+           },
+           "공격",
+           "$i",
+           "받속뎀",
+           8,
+           "새로운 빛으로 물들이다4",
+           1,
+           5
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 160,
+      "name": "새로운 빛으로 물들이다1",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 30,
+      "name": "새로운 빛으로 물들이다2",
+      "turn": 4
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "$i",
+         "공격",
+         "boss",
+         "받뎀증",
+         5,
+         "새로운 빛으로 물들이다3",
+         1,
+         5
+        ]
+       },
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "암"
+         ]
+        },
+        "body": [
+         {
+          "atbf": [
+           {
+            "$i上": 1
+           },
+           "공격",
+           "$i",
+           "받속뎀",
+           9,
+           "새로운 빛으로 물들이다4",
+           1,
+           5
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": 3
+   },
+   {
+    "temp": [
+     "v__0x4783f6",
+     {
+      "slot": "stack"
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "countTemp",
+     "temp": "v__0x4783f6"
+    },
+    "body": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 7,
+      "name": "<여우의 어령>1",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 5,
+      "name": "<여우의 어령>2",
+      "turn": 5
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 10,
+      "name": "<여우의 어령>3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "nbf": [
+     "self",
+     "<순진무구>",
+     0,
+     "장난꾸러기 요호의 하루 기원",
+     -3,
+     3
+    ]
+   },
+   {
+    "setSlot": [
+     "stack",
+     0
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<무결한 마음>1",
+    "on": false
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<무결한 마음>2",
+    "on": false
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "<무결한 마음>3",
+    "on": false
+   }
+  ],
+  "attack": [
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 2
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<무결한 마음>1",
+      "on": true
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<무결한 마음>2",
+      "on": true
+     }
+    ]
+   },
+   {
+    "atkLogic": null
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 2
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<무결한 마음>1",
+      "on": false
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<무결한 마음>2",
+      "on": false
+     },
+     {
+      "setBuffOnAll": "self",
+      "div": "발동",
+      "name": "<무결한 마음>3",
+      "on": true
+     }
+    ]
+   },
+   {
+    "addSlot": [
+     "stack",
+     1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     3
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 50
+   },
+   {
+    "anbf": [
+     "self",
+     "방",
+     "self",
+     "<순진무구>",
+     0,
+     "장난꾸러기 요호의 하루 기원",
+     1,
+     3,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "nbf": [
+       "$i",
+       "<여우 신부의 축복>",
+       0,
+       "오늘은 시즈카가 시집가는 날~",
+       {
+        "countVal": {
+         "fn": "getRoleCnt",
+         "mask": [
+          "딜",
+          "탱",
+          "디"
+         ]
+        }
+       },
+       4
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜",
+      "탱",
+      "디"
+     ],
+     "cmp": ">=",
+     "n": 4
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 100,
+        "name": "<새해의 인연>1",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 35,
+        "name": "<새해의 인연>2",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "일뎀증",
+        "size": 60,
+        "name": "<새해의 인연>3",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "궁뎀증",
+        "size": 40,
+        "name": "<새해의 인연>4",
+        "turn": "always"
+       },
+       {
+        "atbf": [
+         "$i",
+         "공격",
+         "all",
+         "공고증",
+         {
+          "atkRef": [
+           "myCurAtk",
+           "+$iId",
+           10
+          ]
+         },
+         "<새해의 인연>5",
+         1,
+         "always"
+        ]
+       },
+       {
+        "tbf": "$i",
+        "type": "평추가*",
+        "size": 25,
+        "name": "<새해의 인연>6",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "궁추가*",
+        "size": 50,
+        "name": "<새해의 인연>7",
+        "turn": "always"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "평",
+     "self",
+     "궁뎀증",
+     2.5,
+     "소꿉놀이로 끝내고 싶지 않아1",
+     1,
+     6,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "일뎀증",
+     10,
+     "소꿉놀이로 끝내고 싶지 않아2",
+     1,
+     3,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "self",
+     "<순진무구>",
+     0,
+     "장난꾸러기 요호의 하루 기원",
+     1,
+     3,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "self",
+     "on",
+     "기본",
+     "<무결한 마음>1",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "self",
+     "on",
+     "기본",
+     "<무결한 마음>2",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁뎀증",
+     20,
+     "<무결한 마음>1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "방뎀증",
+     100,
+     "<무결한 마음>2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "all",
+     "제거",
+     "기본",
+     "<무결한 마음>3",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "all",
+     "공퍼증",
+     15,
+     "<무결한 마음>3",
+     5,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "가하는 데미지+",
+    "turn": "always"
+   }
+  ],
+  "defense": [
+   {
+    "actDefense": true
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": "==",
+       "fix": 2
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "<무결한 마음>1",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "<무결한 마음>2",
+        "on": true
+       },
+       {
+        "setBuffOnAll": "self",
+        "div": "발동",
+        "name": "<무결한 마음>3",
+        "on": true
+       }
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       1
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       3
+      ]
+     }
+    ]
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -4
+     },
+     {
+      "nbf": [
+       "self",
+       "<순진무구>",
+       0,
+       "장난꾸러기 요호의 하루 기원",
+       3,
+       3
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       3
+      ]
+     },
+     {
+      "setBuffOn": "self",
+      "div": "기본",
+      "name": "<무결한 마음>1",
+      "on": true
+     },
+     {
+      "setBuffOn": "self",
+      "div": "기본",
+      "name": "<무결한 마음>2",
+      "on": true
+     },
+     {
+      "setBuffOnAll": "self",
+      "div": "발동",
+      "name": "<무결한 마음>3",
+      "on": true
+     }
+    ]
+   }
+  ]
+ }
+}

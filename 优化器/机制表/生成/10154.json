@@ -1,0 +1,481 @@
+{
+ "id": 10154,
+ "机动性": [
+  265,
+  3,
+  298,
+  3,
+  331,
+  3,
+  364,
+  3,
+  397,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ],
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁추가*",
+        "size": 80,
+        "name": "러브 메이드의 모에모에 빔",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ],
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁추가*",
+        "size": 90,
+        "name": "러브 메이드의 모에모에 빔",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ],
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁추가*",
+        "size": 100,
+        "name": "러브 메이드의 모에모에 빔",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ],
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁추가*",
+        "size": 110,
+        "name": "러브 메이드의 모에모에 빔",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ],
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁추가*",
+        "size": 120,
+        "name": "러브 메이드의 모에모에 빔",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "☆스타라이트 걸☆",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "anbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       7.5,
+       "비밀 개조 마도 전투복",
+       1,
+       4,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "defense": [
+   {
+    "actDefense": true
+   },
+   {
+    "if": {
+     "kind": "回合模",
+     "偏移": -1,
+     "模": 3,
+     "余": 0
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": 3
+     }
+    ]
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": ">",
+       "fix": 1
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "回合模",
+         "偏移": -1,
+         "模": 3,
+         "余": 0
+        },
+        "then": [
+         {
+          "if": {
+           "kind": "元素计数",
+           "mask": [
+            "수"
+           ],
+           "cmp": ">=",
+           "n": 4
+          },
+          "then": [
+           {
+            "tbf": "all",
+            "type": "공퍼증",
+            "size": 15,
+            "name": "<유성처럼 추락>1",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "가뎀증",
+            "size": 10,
+            "name": "<유성처럼 추락>2",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "궁뎀증",
+            "size": 12.5,
+            "name": "<유성처럼 추락>3",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "궁추가*",
+            "size": 10,
+            "name": "<유성처럼 추락>4",
+            "turn": 1
+           },
+           {
+            "tbf": "boss",
+            "type": "받뎀증",
+            "size": 10,
+            "name": "<유성처럼 추락>5",
+            "turn": 1
+           }
+          ]
+         },
+         {
+          "if": {
+           "kind": "职务种类",
+           "cmp": "==",
+           "val": 4
+          },
+          "then": [
+           {
+            "tbf": "all",
+            "type": "공퍼증",
+            "size": 15,
+            "name": "<유성처럼 추락>1",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "가뎀증",
+            "size": 10,
+            "name": "<유성처럼 추락>2",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "궁뎀증",
+            "size": 12.5,
+            "name": "<유성처럼 추락>3",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "궁추가*",
+            "size": 10,
+            "name": "<유성처럼 추락>4",
+            "turn": 1
+           },
+           {
+            "tbf": "boss",
+            "type": "받뎀증",
+            "size": 10,
+            "name": "<유성처럼 추락>5",
+            "turn": 1
+           }
+          ]
+         },
+         {
+          "if": {
+           "kind": "role计数",
+           "mask": [
+            "딜"
+           ],
+           "cmp": ">=",
+           "n": 1
+          },
+          "then": [
+           {
+            "tbf": "all",
+            "type": "공퍼증",
+            "size": 15,
+            "name": "<유성처럼 추락>1",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "가뎀증",
+            "size": 10,
+            "name": "<유성처럼 추락>2",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "궁뎀증",
+            "size": 12.5,
+            "name": "<유성처럼 추락>3",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "궁추가*",
+            "size": 10,
+            "name": "<유성처럼 추락>4",
+            "turn": 1
+           },
+           {
+            "tbf": "boss",
+            "type": "받뎀증",
+            "size": 10,
+            "name": "<유성처럼 추락>5",
+            "turn": 1
+           }
+          ]
+         },
+         {
+          "if": {
+           "kind": "role计数",
+           "mask": [
+            "섶"
+           ],
+           "cmp": ">=",
+           "n": 1
+          },
+          "then": [
+           {
+            "tbf": "all",
+            "type": "공퍼증",
+            "size": 15,
+            "name": "<유성처럼 추락>1",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "가뎀증",
+            "size": 10,
+            "name": "<유성처럼 추락>2",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "궁뎀증",
+            "size": 12.5,
+            "name": "<유성처럼 추락>3",
+            "turn": 1
+           },
+           {
+            "tbf": "all",
+            "type": "궁추가*",
+            "size": 10,
+            "name": "<유성처럼 추락>4",
+            "turn": 1
+           },
+           {
+            "tbf": "boss",
+            "type": "받뎀증",
+            "size": 10,
+            "name": "<유성처럼 추락>5",
+            "turn": 1
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 3,
+       "余": 0
+      },
+      "then": [
+       {
+        "tbf": "all",
+        "type": "궁뎀증",
+        "size": 50,
+        "name": "<너만의 아이돌>1",
+        "turn": 1
+       },
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "수"
+         ]
+        },
+        "body": [
+         {
+          "tbf": "$i",
+          "type": "공퍼증",
+          "size": 120,
+          "name": "두근두근♡사랑 시작의 신호1",
+          "turn": 1
+         }
+        ]
+       },
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "수"
+         ]
+        },
+        "body": [
+         {
+          "tbf": "$i",
+          "type": "가뎀증",
+          "size": 60,
+          "name": "두근두근♡사랑 시작의 신호2",
+          "turn": 1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -3
+     }
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,410 @@
+{
+ "id": 10128,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받직뎀",
+         30,
+         "흔들리는 와인잔1",
+         1,
+         2
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 50,
+      "name": "흔들리는 와인잔2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받직뎀",
+         36.5,
+         "흔들리는 와인잔1",
+         1,
+         2
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 56.5,
+      "name": "흔들리는 와인잔2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받직뎀",
+         40,
+         "흔들리는 와인잔1",
+         1,
+         2
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 70,
+      "name": "흔들리는 와인잔2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받직뎀",
+         46.5,
+         "흔들리는 와인잔1",
+         1,
+         2
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 76.5,
+      "name": "흔들리는 와인잔2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받직뎀",
+         50,
+         "흔들리는 와인잔1",
+         1,
+         2
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 90,
+      "name": "흔들리는 와인잔2",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "nbf": [
+     "all",
+     "공퍼증",
+     40,
+     "숨막히는 여왕",
+     1,
+     1
+    ]
+   },
+   {
+    "temp": [
+     "v__0x538bbf",
+     {
+      "countCall": {
+       "fn": "getElementCnt",
+       "mask": [
+        "광"
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "temp": [
+     "v__0x118bac",
+     {
+      "countCall": {
+       "fn": "getRoleCnt",
+       "mask": [
+        "딜"
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x538bbf",
+     "cmp": ">=",
+     "fix": 3
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "속상감",
+      "size": 55,
+      "name": "야릇한 음악0",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜"
+       ]
+      },
+      "body": [
+       {
+        "atbf": [
+         "self",
+         "평",
+         "$i",
+         "공고증",
+         {
+          "hpExpr": {
+           "base": "self",
+           "N": 30,
+           "field": "atk"
+          }
+         },
+         "야릇한 음악1",
+         4,
+         "always"
+        ]
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "self",
+         "평",
+         "$i",
+         "속뎀증",
+         7,
+         "야릇한음악2",
+         1,
+         8,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x118bac",
+     "cmp": ">=",
+     "fix": 3
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜"
+       ]
+      },
+      "body": [
+       {
+        "flag": "NoCdChange",
+        "目标": "$i"
+       },
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 20,
+        "name": "무장방어1",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "평추가*",
+        "size": 40,
+        "name": "무장방어2",
+        "turn": "always"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "일뎀증",
+      "size": 30,
+      "name": "곡도 같은 눈썹1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 60,
+    "name": "곡도 같은 눈썹2",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공퍼증",
+      "size": 30,
+      "name": "핏빛 입술1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "핏빛 입술2",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "가뎀증",
+      "size": 15,
+      "name": "모든 것을 독점한 아름다움1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 20,
+    "name": "모든 것을 독점한 아름다움2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "가하는 데미지+",
+    "turn": "always"
+   }
+  ]
+ }
+}

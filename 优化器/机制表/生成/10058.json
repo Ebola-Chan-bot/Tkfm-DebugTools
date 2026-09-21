@@ -1,0 +1,211 @@
+{
+ "id": 10058,
+ "机动性": [
+  200,
+  8,
+  200,
+  8,
+  200,
+  8,
+  200,
+  8,
+  200,
+  8
+ ],
+ "槽位初值": {},
+ "排除伤害": [
+  "궁극기 CD 변경 면역"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultafter": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 96,
+      "name": "월하의 하울링",
+      "turn": 6
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 118,
+      "name": "월하의 하울링",
+      "turn": 6
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 141,
+      "name": "월하의 하울링",
+      "turn": 6
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 163,
+      "name": "월하의 하울링",
+      "turn": 6
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 186,
+      "name": "월하의 하울링",
+      "turn": 6
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 20,
+    "name": "겁쟁이 늑대의 여정1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "일뎀증",
+    "size": 40,
+    "name": "겁쟁이 늑대의 여정2",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "궁극기 CD 변경 면역",
+     0,
+     "아드레날린",
+     8,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "평발동*",
+     90,
+     "3연격 발톱 공격",
+     6,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "가뎀증",
+     20,
+     "심해지는 광기",
+     1,
+     2,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격력 증가",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -6
+     }
+    ]
+   }
+  ],
+  "turnover": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "findBuff": {
+     "槽": 0,
+     "目标": "self",
+     "谓词": [
+      {
+       "field": "div",
+       "串": "기본"
+      },
+      {
+       "field": "type",
+       "串": "궁극기 CD 변경 면역"
+      }
+     ]
+    }
+   },
+   {
+    "if": {
+     "kind": "buffFind真值",
+     "槽": 0
+    },
+    "then": [
+     {
+      "flag": "NoCdChange"
+     }
+    ],
+    "else": [
+     {
+      "flag": "CanCdOn"
+     }
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,372 @@
+{
+ "id": 10021,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 15,
+        "name": "재생의 바람1",
+        "turn": 4
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 17.5,
+        "name": "재생의 바람1",
+        "turn": 4
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 17.5,
+        "name": "재생의 바람1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 17.5,
+        "name": "재생의 바람1",
+        "turn": 4
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 20,
+        "name": "재생의 바람1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 20,
+        "name": "재생의 바람1",
+        "turn": 4
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 25,
+        "name": "재생의 바람1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 25,
+        "name": "재생의 바람1",
+        "turn": 4
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 10
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "시공을 초월한 현자1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "시공을 초월한 현자2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "탱"
+     ]
+    },
+    "body": [
+     {
+      "hpUpMe": [
+       "$i",
+       10
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "힐",
+      "섶"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공퍼증",
+      "size": 40,
+      "name": "시공을 초월한 현자4",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "hpUpMe": [
+     "self",
+     10
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "공격",
+       "$i",
+       "아머",
+       {
+        "hpExpr": {
+         "base": "$i",
+         "N": 10
+        }
+       },
+       "전능의 술1",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "공격",
+       "$i",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         20
+        ]
+       },
+       "전능의 술2",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 20,
+    "name": "천 년의 지혜",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "가뎀증",
+      "size": 15,
+      "name": "<적재적소>1",
+      "turn": 50
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "힐",
+      "섶"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공퍼증",
+      "size": 15,
+      "name": "<적재적소>2",
+      "turn": 50
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ]
+ }
+}

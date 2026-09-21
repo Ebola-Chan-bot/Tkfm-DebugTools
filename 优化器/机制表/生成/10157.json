@@ -1,0 +1,438 @@
+{
+ "id": 10157,
+ "机动性": [
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1
+ ],
+ "槽位初值": {},
+ "排除伤害": [
+  "<순진한 소원>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "섹스마스의 예찬2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "섹스마스의 예찬2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "섹스마스의 예찬2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "섹스마스의 예찬2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "섹스마스의 예찬2",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "if": {
+     "kind": "nest比较",
+     "type": "<순진한 소원>",
+     "cmp": "==",
+     "fix": 0
+    },
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<순진한 소원>",
+       0,
+       "섹스마스의 예찬1",
+       {
+        "sizeExpr": {
+         "base": "星级",
+         "加": 5,
+         "K": 1
+        }
+       },
+       10
+      ]
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<정해진 운명>1",
+      "on": true
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<정해진 운명>2",
+      "on": true
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<정해진 운명>3",
+      "on": true
+     },
+     {
+      "setBuffOnAll": "self",
+      "div": "발동",
+      "name": "마음에 사랑이 깃든다면1",
+      "on": true
+     },
+     {
+      "setBuffOnAll": "self",
+      "div": "발동",
+      "name": "마음에 사랑이 깃든다면2",
+      "on": true
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<가장 아름다운 밤>1",
+      "on": true
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<가장 아름다운 밤>2",
+      "on": true
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "all",
+    "type": "공고증",
+    "size": {
+     "atkRef": [
+      "myCurAtk",
+      "+selfId",
+      30
+     ]
+    },
+    "name": "크리스마스의 환희",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "크리스마스의 핫걸 무엘라1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "평추가*",
+    "size": 15,
+    "name": "크리스마스의 핫걸 무엘라2",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "궁추가*",
+    "size": 30,
+    "name": "크리스마스의 핫걸 무엘라3",
+    "turn": "always"
+   },
+   {
+    "buff": [
+     "self",
+     "공격",
+     "all",
+     "가뎀증",
+     0.75,
+     "<정해진 운명>1",
+     {
+      "sizeExpr": {
+       "base": "星级",
+       "加": 5,
+       "K": 1
+      }
+     },
+     80,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공격",
+     "boss",
+     "받뎀증",
+     0.25,
+     "<정해진 운명>2",
+     {
+      "sizeExpr": {
+       "base": "星级",
+       "加": 5,
+       "K": 1
+      }
+     },
+     80,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공격",
+     "all",
+     "받속뎀",
+     0.25,
+     "<정해진 운명>3",
+     {
+      "sizeExpr": {
+       "base": "星级",
+       "加": 5,
+       "K": 1
+      }
+     },
+     80,
+     "always",
+     "발동",
+     false
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "atbf": [
+       "$i",
+       "평",
+       "$i",
+       "제거",
+       "기본",
+       "마음에 사랑이 깃든다면1",
+       1,
+       "always"
+      ]
+     },
+     {
+      "atbf": [
+       "$i",
+       "궁",
+       "$i",
+       "제거",
+       "기본",
+       "마음에 사랑이 깃든다면2",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "all",
+     "일뎀증",
+     8,
+     "마음에 사랑이 깃든다면1",
+     {
+      "sizeExpr": {
+       "base": "星级",
+       "加": 5,
+       "K": 1
+      }
+     },
+     20,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "all",
+     "궁뎀증",
+     1.25,
+     "마음에 사랑이 깃든다면2",
+     {
+      "sizeExpr": {
+       "base": "星级",
+       "加": 5,
+       "K": 1
+      }
+     },
+     50,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공격",
+     "boss",
+     "받뎀증",
+     0.25,
+     "<가장 아름다운 밤>1",
+     {
+      "sizeExpr": {
+       "base": "星级",
+       "加": 5,
+       "K": 1
+      }
+     },
+     80,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공격",
+     "all",
+     "받속뎀",
+     0.25,
+     "<가장 아름다운 밤>2",
+     {
+      "sizeExpr": {
+       "base": "星级",
+       "加": 5,
+       "K": 1
+      }
+     },
+     80,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -1
+     }
+    ]
+   }
+  ]
+ }
+}

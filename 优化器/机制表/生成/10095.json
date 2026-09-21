@@ -1,0 +1,406 @@
+{
+ "id": 10095,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<불굴의 결심>",
+  "<작은 기사>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 10,
+      "name": "큰 용기1",
+      "turn": 3
+     },
+     {
+      "ptbf": [
+       "self",
+       "궁",
+       "self",
+       "아머",
+       {
+        "hpExpr": {
+         "base": "self",
+         "N": 30
+        }
+       },
+       "큰 용기2",
+       1,
+       1
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 5,
+      "name": "큰 용기3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 20,
+      "name": "큰 용기1",
+      "turn": 3
+     },
+     {
+      "ptbf": [
+       "self",
+       "궁",
+       "self",
+       "아머",
+       {
+        "hpExpr": {
+         "base": "self",
+         "N": 35
+        }
+       },
+       "큰 용기2",
+       1,
+       1
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 10,
+      "name": "큰 용기3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 30,
+      "name": "큰 용기1",
+      "turn": 3
+     },
+     {
+      "ptbf": [
+       "self",
+       "궁",
+       "self",
+       "아머",
+       {
+        "hpExpr": {
+         "base": "self",
+         "N": 40
+        }
+       },
+       "큰 용기2",
+       1,
+       1
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 15,
+      "name": "큰 용기3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 40,
+      "name": "큰 용기1",
+      "turn": 3
+     },
+     {
+      "ptbf": [
+       "self",
+       "궁",
+       "self",
+       "아머",
+       {
+        "hpExpr": {
+         "base": "self",
+         "N": 45
+        }
+       },
+       "큰 용기2",
+       1,
+       1
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 20,
+      "name": "큰 용기3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "큰 용기1",
+      "turn": 3
+     },
+     {
+      "ptbf": [
+       "self",
+       "궁",
+       "self",
+       "아머",
+       {
+        "hpExpr": {
+         "base": "self",
+         "N": 50
+        }
+       },
+       "큰 용기2",
+       1,
+       1
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 25,
+      "name": "큰 용기3",
+      "turn": 3
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "addSlot": [
+     "stack",
+     1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     10
+    ]
+   },
+   {
+    "setBuffSize": "self",
+    "div": "기본",
+    "name": "드높은 투지1",
+    "size": {
+     "sizeExpr": {
+      "base": "stack",
+      "加": 0,
+      "K": 10
+     }
+    }
+   },
+   {
+    "setBuffNest": "self",
+    "div": "발동",
+    "name": "드높은 투지2",
+    "nest": {
+     "slot": "stack"
+    }
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "어엿한 성기사가 되겠어!1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "광"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "어엿한 성기사가 되겠어!2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "nbf": [
+     "self",
+     "<불굴의 결심>",
+     0,
+     "굳센 결심",
+     10,
+     10
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "피격",
+     "self",
+     "<불굴의 결심>",
+     0,
+     "굳센 결심",
+     1,
+     10,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "궁발동*",
+    "size": 0,
+    "name": "굳센 결심1",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "<불굴의 결심>",
+     0,
+     "굳센 결심",
+     2,
+     10,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "평발동*",
+    "size": 0,
+    "name": "드높은 투지1",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "self",
+     "<작은 기사>",
+     0,
+     "드높은 투지",
+     1,
+     10,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "boss",
+     "받발뎀",
+     10,
+     "드높은 투지2",
+     0,
+     10,
+     "always"
+    ]
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": ">",
+       "fix": 1
+      },
+      "then": [
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "광"
+         ],
+         "排除self": true
+        },
+        "body": [
+         {
+          "tbf": "$i",
+          "type": "공고증",
+          "size": {
+           "atkRef": [
+            "myCurAtk",
+            "+selfId",
+            40
+           ]
+          },
+          "name": "어엿한 성기사가 되겠어!4",
+          "turn": 1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "setBuffSize": "self",
+    "div": "기본",
+    "name": "굳센 결심1",
+    "size": {
+     "sizeExpr": {
+      "base": "getNest",
+      "加": 0,
+      "K": 45,
+      "型": "<불굴의 결심>"
+     }
+    }
+   }
+  ]
+ }
+}

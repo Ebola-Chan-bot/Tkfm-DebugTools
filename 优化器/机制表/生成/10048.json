@@ -1,0 +1,216 @@
+{
+ "id": 10048,
+ "机动性": [
+  200,
+  4,
+  200,
+  4,
+  200,
+  4,
+  200,
+  4,
+  200,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 130,
+      "name": "독액 배출1",
+      "turn": 2
+     },
+     {
+      "tbf": "all",
+      "type": "일뎀증",
+      "size": 20,
+      "name": "독액 배출2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 176,
+      "name": "독액 배출1",
+      "turn": 2
+     },
+     {
+      "tbf": "all",
+      "type": "일뎀증",
+      "size": 25,
+      "name": "독액 배출2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 222,
+      "name": "독액 배출1",
+      "turn": 2
+     },
+     {
+      "tbf": "all",
+      "type": "일뎀증",
+      "size": 30,
+      "name": "독액 배출2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 268,
+      "name": "독액 배출1",
+      "turn": 2
+     },
+     {
+      "tbf": "all",
+      "type": "일뎀증",
+      "size": 35,
+      "name": "독액 배출2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 314,
+      "name": "독액 배출1",
+      "turn": 2
+     },
+     {
+      "tbf": "all",
+      "type": "일뎀증",
+      "size": 40,
+      "name": "독액 배출2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 100,
+    "name": "독액 배출3",
+    "turn": 2
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "치명적인 독",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "일뎀증",
+      "size": 50,
+      "name": "<무해지독>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "$i",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "<무해지독>2",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "공퍼증",
+     80,
+     "통제불능의 전주곡",
+     2,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "boss",
+     "받일뎀",
+     60,
+     "부식성 맹독",
+     2,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       30,
+       "스칼렛 톡신",
+       2,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 10,
+    "name": "일반 공격 데미지+",
+    "turn": "always"
+   }
+  ]
+ }
+}

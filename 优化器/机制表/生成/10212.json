@@ -1,0 +1,370 @@
+{
+ "id": 10212,
+ "机动性": [
+  458.5,
+  3,
+  524,
+  3,
+  589,
+  3,
+  654.5,
+  3,
+  719.5,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 58.05,
+      "name": "빙폭의 장송1",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 19.35,
+      "name": "빙폭의 장송2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 67.73,
+      "name": "빙폭의 장송1",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 22.58,
+      "name": "빙폭의 장송2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 77.4,
+      "name": "빙폭의 장송1",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 25.8,
+      "name": "빙폭의 장송2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 87.08,
+      "name": "빙폭의 장송1",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 29.03,
+      "name": "빙폭의 장송2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 96.75,
+      "name": "빙폭의 장송1",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 32.25,
+      "name": "빙폭의 장송2",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": 5
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 15,
+    "name": "힘 축적",
+    "turn": 3
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 55
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "영혼을 삼키는 마검1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素种类",
+     "cmp": "==",
+     "val": 1
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 36,
+      "name": "<마력 충전>2",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "<마력 충전>3",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "궁추가*",
+      "size": 120,
+      "name": "<마력 충전>4",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素种类",
+     "cmp": "==",
+     "val": 1
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "$i",
+         "궁",
+         "self",
+         "공고증",
+         {
+          "hpExpr": {
+           "base": "$i",
+           "N": 5.76
+          }
+         },
+         "<영혼 흡수>1",
+         1,
+         "always"
+        ]
+       },
+       {
+        "anbf": [
+         "$i",
+         "궁",
+         "boss",
+         "받뎀증",
+         1,
+         "<영혼 흡수>2",
+         1,
+         12,
+         "always"
+        ]
+       },
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "암"
+         ]
+        },
+        "body": [
+         {
+          "anbf": [
+           {
+            "$i上": 1
+           },
+           "궁",
+           "$i",
+           "받속뎀",
+           1.5,
+           "<영혼 흡수>3",
+           1,
+           12,
+           "always"
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "공격",
+     "self",
+     "궁뎀증",
+     5.05,
+     "마왕의 피로 벼려낸 검",
+     1,
+     10,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "atbf": [
+       "$i",
+       "궁",
+       "self",
+       "공고증",
+       {
+        "hpExpr": {
+         "base": "$i",
+         "N": 13.76
+        }
+       },
+       "혹독한 겨울",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "암"
+     ]
+    },
+    "body": [
+     {
+      "anbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       16.1,
+       "서리 독의 침식2",
+       1,
+       3,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "元素种类",
+         "cmp": "==",
+         "val": 1
+        },
+        "then": [
+         {
+          "for": {
+           "kind": "全队",
+           "排除self": true
+          },
+          "body": [
+           {
+            "cdChange": "$i",
+            "值": -3
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -3
+     }
+    ]
+   }
+  ]
+ }
+}

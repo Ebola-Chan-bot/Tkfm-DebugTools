@@ -1,0 +1,263 @@
+{
+ "id": 10124,
+ "机动性": [
+  265,
+  3,
+  298,
+  3,
+  331,
+  3,
+  364,
+  3,
+  397,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [
+  "<애교 시간>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "받캐뎀",
+       30,
+       "네 마음을 NyoroNyoro하게",
+       1,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "받캐뎀",
+       30,
+       "네 마음을 NyoroNyoro하게",
+       1,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "받캐뎀",
+       35,
+       "네 마음을 NyoroNyoro하게",
+       1,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "받캐뎀",
+       35,
+       "네 마음을 NyoroNyoro하게",
+       1,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "받캐뎀",
+       40,
+       "네 마음을 NyoroNyoro하게",
+       1,
+       2
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "nestByType",
+       "type": "<애교 시간>",
+       "cmp": "<",
+       "fix": 2
+      },
+      "then": [
+       {
+        "addCd": -1
+       },
+       {
+        "addCurCd": -1
+       },
+       {
+        "nbf": [
+         "self",
+         "<애교 시간>",
+         0,
+         "애교계 청순한 여친",
+         1,
+         2
+        ]
+       }
+      ],
+      "else": [
+       {
+        "setCd": 3
+       },
+       {
+        "setCurCd": 3
+       },
+       {
+        "deleteBuffType": [
+         "self",
+         "기본",
+         "<애교 시간>"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "광"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 80,
+      "name": "<우사기 히메 부비부비~>",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "암"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 60,
+      "name": "<미루 부비부비~>1",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "self",
+         "궁",
+         "$i",
+         "받속뎀",
+         25,
+         "<미루 부비부비~>2",
+         1,
+         2,
+         "always"
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "궁추가*",
+      "size": 160,
+      "name": "<미루 부비부비~>3",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "공격",
+     "self",
+     "공퍼증",
+     20,
+     "꼬리달린 소형 양생동물",
+     1,
+     4,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "궁추가*",
+    "size": 66,
+    "name": "핑크빛 유혹",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 40,
+    "name": "뇨로는 모두를 좋아해~",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "피해+",
+    "turn": "always"
+   }
+  ]
+ }
+}

@@ -1,0 +1,389 @@
+{
+ "id": 10097,
+ "机动性": [
+  265,
+  3,
+  298,
+  3,
+  331,
+  3,
+  364,
+  3,
+  397,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [
+  "StackFalse"
+ ],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 25,
+      "name": "섹스마스 강림!1",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "섹스마스 강림!1",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "섹스마스 강림!1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "섹스마스 강림!2",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "섹스마스 강림!1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "섹스마스 강림!2",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 35,
+      "name": "섹스마스 강림!1",
+      "turn": 2
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 25,
+      "name": "섹스마스 강림!2",
+      "turn": 2
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "单位字段",
+       "field": "stack",
+       "目标": "self"
+      },
+      "then": [
+       {
+        "cdChange": "self",
+        "值": -3
+       },
+       {
+        "flag": "StackFalse"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "temp": [
+     "v__0x4fa54b",
+     {
+      "常数": 0
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "광"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "addTemp": [
+       "v__0x4fa54b",
+       10
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 65,
+      "name": "<오럴송>1",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "all",
+         "공격",
+         "$i",
+         "받속뎀",
+         4,
+         "<오럴송>2",
+         1,
+         5,
+         "always"
+        ]
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "all",
+         "공격",
+         "$i",
+         "받속뎀",
+         4,
+         "<오럴송>3",
+         1,
+         5,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "풍"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "addTemp": [
+       "v__0x4fa54b",
+       10
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 65,
+      "name": "<난교 파티>1",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "all",
+         "공격",
+         "$i",
+         "받속뎀",
+         4,
+         "<난교 파티>2",
+         1,
+         5,
+         "always"
+        ]
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "all",
+         "공격",
+         "$i",
+         "받속뎀",
+         4,
+         "<난교 파티>3",
+         1,
+         5,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x4fa54b",
+     "cmp": "!=",
+     "fix": 0
+    },
+    "then": [
+     {
+      "hpUpAll": {
+       "tempVal": "v__0x4fa54b"
+      }
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "받캐뎀",
+     50,
+     "발골",
+     1,
+     1,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "공퍼증",
+     50,
+     "정신통일",
+     1,
+     2,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 15,
+    "name": "시저 님을 위하여1",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "boss",
+     "받뎀증",
+     35,
+     "시저 님을 위하여2",
+     2,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 10,
+    "name": "궁극기+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": ">",
+       "fix": 1
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "回合模",
+         "偏移": -1,
+         "模": 3,
+         "余": 0
+        },
+        "then": [
+         {
+          "flag": "StackTrue"
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

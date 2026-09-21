@@ -1,0 +1,448 @@
+{
+ "id": 10178,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "deleteBuff": [
+     "self",
+     "기본",
+     "초고속 루프 기동2"
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "풍"
+     ]
+    },
+    "body": [
+     {
+      "deleteBuff": [
+       "$i",
+       "기본",
+       "초고속 루프 기동3"
+      ]
+     }
+    ]
+   },
+   {
+    "deleteBuff": [
+     "self",
+     "기본",
+     "초고속 루프 기동4"
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "초고속 루프 기동1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 150,
+      "name": "초고속 루프 기동2",
+      "turn": 3
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 18,
+        "name": "초고속 루프 기동3",
+        "turn": 3
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 125,
+      "name": "초고속 루프 기동1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 175,
+      "name": "초고속 루프 기동2",
+      "turn": 3
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 21,
+        "name": "초고속 루프 기동3",
+        "turn": 3
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 150,
+      "name": "초고속 루프 기동1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 200,
+      "name": "초고속 루프 기동2",
+      "turn": 3
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 24,
+        "name": "초고속 루프 기동3",
+        "turn": 3
+       }
+      ]
+     },
+     {
+      "buff": [
+       "self",
+       "공발동*",
+       80,
+       "초고속 루프 기동4",
+       3,
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 175,
+      "name": "초고속 루프 기동1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 225,
+      "name": "초고속 루프 기동2",
+      "turn": 3
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 27,
+        "name": "초고속 루프 기동3",
+        "turn": 3
+       }
+      ]
+     },
+     {
+      "buff": [
+       "self",
+       "공발동*",
+       100,
+       "초고속 루프 기동4",
+       3,
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 200,
+      "name": "초고속 루프 기동1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 250,
+      "name": "초고속 루프 기동2",
+      "turn": 3
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 30,
+        "name": "초고속 루프 기동3",
+        "turn": 3
+       }
+      ]
+     },
+     {
+      "buff": [
+       "self",
+       "공발동*",
+       120,
+       "초고속 루프 기동4",
+       3,
+       false
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "기본",
+    "name": "초고속 루프 기동4",
+    "on": true
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "회오리 여행 가방",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "바알 항공이 정성을 다해 모시겠습니다",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "풍"
+     ],
+     "cmp": ">=",
+     "n": 4
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 40,
+      "name": "<전속력으로☆바알 항공>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 90,
+      "name": "<전속력으로☆바알 항공>2",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "all",
+         "궁",
+         "$i",
+         "받속뎀",
+         3,
+         "<전속력으로☆바알 항공>3",
+         1,
+         20,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "flag": "NoCdChange"
+   },
+   {
+    "tbf": "self",
+    "type": "평발동*",
+    "size": 100,
+    "name": "타올라라! 이 몸의 생존 본능!1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁발동*",
+    "size": 200,
+    "name": "타올라라! 이 몸의 생존 본능!2",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "가뎀증",
+     15,
+     "검은 스타킹의 유혹",
+     1,
+     3,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "가하는 데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 3,
+       "余": 0
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "role计数",
+         "mask": [
+          "딜"
+         ],
+         "cmp": ">=",
+         "n": 2
+        },
+        "then": [
+         {
+          "tbf": "boss",
+          "type": "받발뎀",
+          "size": 80,
+          "name": "<리틀 바알 출동!>1",
+          "turn": 3
+         },
+         {
+          "for": {
+           "kind": "element",
+           "mask": [
+            "풍"
+           ]
+          },
+          "body": [
+           {
+            "tbf": "$i",
+            "type": "받속뎀",
+            "size": 20,
+            "name": "<리틀 바알 출동!>2",
+            "turn": 1
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

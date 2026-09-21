@@ -1,0 +1,711 @@
+{
+ "id": 10199,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<카드 한 장 세트>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 28.5,
+        "name": "섹스 신의 선고1",
+        "turn": 1
+       },
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 17.1,
+        "name": "섹스 신의 선고2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 11.4,
+      "name": "섹스 신의 선고3",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 17.1,
+        "name": "섹스 신의 선고4",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 33.25,
+        "name": "섹스 신의 선고1",
+        "turn": 1
+       },
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 19.95,
+        "name": "섹스 신의 선고2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 13.3,
+      "name": "섹스 신의 선고3",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 19.95,
+        "name": "섹스 신의 선고4",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 38,
+        "name": "섹스 신의 선고1",
+        "turn": 1
+       },
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 22.8,
+        "name": "섹스 신의 선고2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 15.2,
+      "name": "섹스 신의 선고3",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 22.8,
+        "name": "섹스 신의 선고4",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 42.75,
+        "name": "섹스 신의 선고1",
+        "turn": 1
+       },
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 25.65,
+        "name": "섹스 신의 선고2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 17.1,
+      "name": "섹스 신의 선고3",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 25.65,
+        "name": "섹스 신의 선고4",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 47.5,
+        "name": "섹스 신의 선고1",
+        "turn": 1
+       },
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 28.5,
+        "name": "섹스 신의 선고2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 19,
+      "name": "섹스 신의 선고3",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 28.5,
+        "name": "섹스 신의 선고4",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "setSlot": [
+     "stack",
+     0
+    ]
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "<리버스 카드 오픈>1",
+    "on": false
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "<리버스 카드 오픈>2",
+    "on": false
+   }
+  ],
+  "atkbefore": [
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "드로우!",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "addSlot": [
+     "stack",
+     1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     2
+    ]
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "<리버스 카드 오픈>1",
+    "on": {
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 1
+    }
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "<리버스 카드 오픈>2",
+    "on": {
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 2
+    }
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 50
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 65,
+    "name": "섹스 신관의 특훈1",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "수"
+     ],
+     "cmp": ">=",
+     "n": 4
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": -500,
+      "name": "섹스 신관의 특훈2",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         30
+        ]
+       },
+       "전술마법 「야외 자위」",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "self",
+     "<카드 한 장 세트>",
+     0,
+     "섹스 듀얼리스트의 마음",
+     1,
+     2,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "buff": [
+       "self",
+       "궁",
+       "$i",
+       "궁뎀증",
+       12,
+       "<리버스 카드 오픈>1",
+       1,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "self",
+       "궁",
+       "$i",
+       "발효증",
+       24,
+       "<리버스 카드 오픈>1",
+       1,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "self",
+       "궁",
+       "$i",
+       "궁뎀증",
+       12,
+       "<리버스 카드 오픈>2",
+       1,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "self",
+       "궁",
+       "$i",
+       "발효증",
+       24,
+       "<리버스 카드 오픈>2",
+       1,
+       "always",
+       "발동",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "<카드 한 장 세트>",
+     0,
+     "섹스 듀얼리스트의 마음",
+     -2,
+     2,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": ">",
+       "fix": 1
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "回合模",
+         "偏移": -1,
+         "模": 3,
+         "余": 0
+        },
+        "then": [
+         {
+          "for": {
+           "kind": "element",
+           "mask": [
+            "수"
+           ]
+          },
+          "body": [
+           {
+            "tbf": "$i",
+            "type": "가뎀증",
+            "size": 38.5,
+            "name": "<하늘에서 내려온 복음>1",
+            "turn": 1
+           },
+           {
+            "tbf": "$i",
+            "type": "궁뎀증",
+            "size": 32,
+            "name": "<하늘에서 내려온 복음>2",
+            "turn": 1
+           },
+           {
+            "tbf": "$i",
+            "type": "발효증",
+            "size": 64,
+            "name": "<하늘에서 내려온 복음>3",
+            "turn": 1
+           }
+          ]
+         },
+         {
+          "for": {
+           "kind": "role",
+           "mask": [
+            "딜",
+            "탱",
+            "디"
+           ]
+          },
+          "body": [
+           {
+            "if": {
+             "kind": "循环元素",
+             "cmp": "==",
+             "val": 1
+            },
+            "then": [
+             {
+              "tbf": "$i",
+              "type": "궁추가*",
+              "size": 48,
+              "name": "<하늘에서 내려온 복음>4",
+              "turn": 1
+             },
+             {
+              "tbf": "$i",
+              "type": "궁발동*",
+              "size": 24,
+              "name": "<하늘에서 내려온 복음>5",
+              "turn": 1
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "tbf": "boss",
+          "type": "받뎀증",
+          "size": 25.5,
+          "name": "<하늘에서 내려온 복음>6",
+          "turn": 1
+         },
+         {
+          "for": {
+           "kind": "element",
+           "mask": [
+            "수"
+           ]
+          },
+          "body": [
+           {
+            "tbf": "$i",
+            "type": "받속뎀",
+            "size": 38.5,
+            "name": "<하늘에서 내려온 복음>7",
+            "turn": 1
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 3,
+       "余": 0
+      },
+      "then": [
+       {
+        "for": {
+         "kind": "role",
+         "mask": [
+          "딜",
+          "탱",
+          "디"
+         ]
+        },
+        "body": [
+         {
+          "if": {
+           "kind": "循环元素",
+           "cmp": "==",
+           "val": 1
+          },
+          "then": [
+           {
+            "tbf": "$i",
+            "type": "궁추가*",
+            "size": 35.6,
+            "name": "<섹스의 힘>1",
+            "turn": 1
+           },
+           {
+            "tbf": "$i",
+            "type": "궁발동*",
+            "size": 17.8,
+            "name": "<섹스의 힘>2",
+            "turn": 1
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

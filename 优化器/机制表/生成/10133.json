@@ -1,0 +1,420 @@
+{
+ "id": 10133,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 50,
+        "field": "atk"
+       }
+      },
+      "name": "이것이 바로 프로 아이돌의 매력1",
+      "turn": 4
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 20,
+      "name": "이것이 바로 프로 아이돌의 매력2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 55,
+        "field": "atk"
+       }
+      },
+      "name": "이것이 바로 프로 아이돌의 매력1",
+      "turn": 4
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 25,
+      "name": "이것이 바로 프로 아이돌의 매력2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 60,
+        "field": "atk"
+       }
+      },
+      "name": "이것이 바로 프로 아이돌의 매력1",
+      "turn": 4
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "이것이 바로 프로 아이돌의 매력2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 65,
+        "field": "atk"
+       }
+      },
+      "name": "이것이 바로 프로 아이돌의 매력1",
+      "turn": 4
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 35,
+      "name": "이것이 바로 프로 아이돌의 매력2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 70,
+        "field": "atk"
+       }
+      },
+      "name": "이것이 바로 프로 아이돌의 매력1",
+      "turn": 4
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 40,
+      "name": "이것이 바로 프로 아이돌의 매력2",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "ultafter": [
+   {
+    "tbf": "all",
+    "type": "아머",
+    "size": {
+     "hpExpr": {
+      "base": "self",
+      "N": 25,
+      "field": "curAtk",
+      "armorUp": {
+       "act": "궁",
+       "mode": "추가"
+      }
+     }
+    },
+    "name": "청순 아이돌1",
+    "turn": 1
+   },
+   {
+    "tbf": "all",
+    "type": "아머",
+    "size": {
+     "hpExpr": {
+      "base": "self",
+      "N": 30,
+      "armorUp": {
+       "act": "궁",
+       "mode": "추가"
+      }
+     }
+    },
+    "name": "청순 아이돌2",
+    "turn": 1
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁발동+",
+      "size": {
+       "atkRef": [
+        "myCurShd",
+        "+selfId",
+        60
+       ]
+      },
+      "name": "나나미의 형상으로 변한 것뿐2",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "hit": "self"
+     },
+     {
+      "deleteBuffType": [
+       "self",
+       "기본",
+       "아머"
+      ]
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "all",
+    "type": "아머",
+    "size": {
+     "hpExpr": {
+      "base": "self",
+      "N": 25,
+      "field": "curAtk",
+      "armorUp": {
+       "act": "평",
+       "mode": "추가"
+      }
+     }
+    },
+    "name": "한눈 팔기 없기~1",
+    "turn": 1
+   },
+   {
+    "tbf": "all",
+    "type": "아머",
+    "size": {
+     "hpExpr": {
+      "base": "self",
+      "N": 30,
+      "armorUp": {
+       "act": "평",
+       "mode": "추가"
+      }
+     }
+    },
+    "name": "한눈 팔기 없기~2",
+    "turn": 1
+   }
+  ],
+  "atkafter": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평발동+",
+      "size": {
+       "atkRef": [
+        "myCurShd",
+        "+selfId",
+        55
+       ]
+      },
+      "name": "나나미의 형상으로 변한 것뿐1",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "hit": "self"
+     },
+     {
+      "deleteBuffType": [
+       "self",
+       "기본",
+       "아머"
+      ]
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "악수회 시간이야~1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "발효증",
+    "size": 100,
+    "name": "악수회 시간이야~2",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "가뎀증",
+    "size": 20,
+    "name": "악수회 시간이야~3",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "섶"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "flag": "ArmorZero"
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "atbf": [
+       "$i",
+       "공격",
+       {
+        "comp": 0
+       },
+       "아머",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+$iId",
+         30
+        ]
+       },
+       "<돈은 사라지지 않아>",
+       1,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "가아증",
+    "size": 15,
+    "name": "무대 준비",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        25
+       ]
+      },
+      "name": "OnlySex",
+      "turn": 1
+     }
+    ]
+   }
+  ]
+ }
+}

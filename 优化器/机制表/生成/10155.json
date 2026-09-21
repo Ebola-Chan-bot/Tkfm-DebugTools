@@ -1,0 +1,315 @@
+{
+ "id": 10155,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "정확히 후두부 가격1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 100,
+      "name": "정확히 후두부 가격2",
+      "turn": 3
+     },
+     {
+      "tbf": "boss",
+      "type": "받발뎀",
+      "size": 60,
+      "name": "정확히 후두부 가격3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 125,
+      "name": "정확히 후두부 가격1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 150,
+      "name": "정확히 후두부 가격2",
+      "turn": 3
+     },
+     {
+      "tbf": "boss",
+      "type": "받발뎀",
+      "size": 70,
+      "name": "정확히 후두부 가격3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 150,
+      "name": "정확히 후두부 가격1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 200,
+      "name": "정확히 후두부 가격2",
+      "turn": 3
+     },
+     {
+      "tbf": "boss",
+      "type": "받발뎀",
+      "size": 80,
+      "name": "정확히 후두부 가격3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 175,
+      "name": "정확히 후두부 가격1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 250,
+      "name": "정확히 후두부 가격2",
+      "turn": 3
+     },
+     {
+      "tbf": "boss",
+      "type": "받발뎀",
+      "size": 90,
+      "name": "정확히 후두부 가격3",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 200,
+      "name": "정확히 후두부 가격1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 300,
+      "name": "정확히 후두부 가격2",
+      "turn": 3
+     },
+     {
+      "tbf": "boss",
+      "type": "받발뎀",
+      "size": 100,
+      "name": "정확히 후두부 가격3",
+      "turn": 3
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "케첩 짜기",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 30
+   },
+   {
+    "if": {
+     "kind": "元素种类",
+     "cmp": "==",
+     "val": 1
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 70,
+      "name": "<유머 대결>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 30,
+      "name": "<유머 대결>2",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "공발동*",
+      "size": 40,
+      "name": "<유머 대결>3",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "평발동*",
+    "size": 100,
+    "name": "간단한 메이드 잡기술",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 30,
+    "name": "신형 마도포1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁발동*",
+    "size": 300,
+    "name": "신형 마도포2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 30,
+    "name": "넘어지기 스킬1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "방발동*",
+    "size": 50,
+    "name": "넘어지기 스킬2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": "==",
+       "fix": 10
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "元素种类",
+         "cmp": "==",
+         "val": 1
+        },
+        "then": [
+         {
+          "for": {
+           "kind": "element",
+           "mask": [
+            "화"
+           ]
+          },
+          "body": [
+           {
+            "nbf": [
+             "$i",
+             "받속뎀",
+             10,
+             "<유머 대결>4",
+             {
+              "countVal": {
+               "fn": "getElementCnt",
+               "mask": [
+                "화"
+               ]
+              }
+             },
+             5
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 7
+    },
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "궁뎀증",
+       100,
+       "넘어지기 스킬3",
+       1,
+       1
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

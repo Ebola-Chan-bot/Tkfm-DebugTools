@@ -1,0 +1,456 @@
+{
+ "id": 10109,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          20
+         ]
+        },
+        "name": "설탕처럼 진한 달콤함1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "설탕처럼 진한 달콤함2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          20
+         ]
+        },
+        "name": "설탕처럼 진한 달콤함1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        35
+       ]
+      },
+      "name": "설탕처럼 진한 달콤함2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          20
+         ]
+        },
+        "name": "설탕처럼 진한 달콤함1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        40
+       ]
+      },
+      "name": "설탕처럼 진한 달콤함2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          30
+         ]
+        },
+        "name": "설탕처럼 진한 달콤함1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        40
+       ]
+      },
+      "name": "설탕처럼 진한 달콤함2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          40
+         ]
+        },
+        "name": "설탕처럼 진한 달콤함1",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        40
+       ]
+      },
+      "name": "설탕처럼 진한 달콤함2",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "광"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        10
+       ]
+      },
+      "name": "네게만 줄게1",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "tbf": {
+     "comp": 4
+    },
+    "type": "공고증",
+    "size": {
+     "atkRef": [
+      "myCurAtk",
+      "+selfId",
+      20
+     ]
+    },
+    "name": "네게만 줄게2",
+    "turn": 1
+   },
+   {
+    "tbf": {
+     "comp": 4
+    },
+    "type": "일뎀증",
+    "size": 35,
+    "name": "네게만 줄게3",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 30
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "달콤한 날",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "힐",
+      "섶"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "$i",
+       "궁",
+       {
+        "comp": 4
+       },
+       "가뎀증",
+       15,
+       "<가장 사랑하는 그대에게>1",
+       1,
+       "always"
+      ]
+     },
+     {
+      "atbf": [
+       "$i",
+       "궁",
+       {
+        "comp": 4
+       },
+       "궁발동*",
+       50,
+       "<가장 사랑하는 그대에게>2",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "range",
+     "上界": 4,
+     "下界": 0
+    },
+    "body": [
+     {
+      "anbf": [
+       {
+        "comp": 4
+       },
+       "궁",
+       "$i",
+       "공퍼증",
+       50,
+       "<정이 담긴 초콜릿>",
+       1,
+       1,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "nbf": [
+     {
+      "comp": 4
+     },
+     "일뎀증",
+     50,
+     "달콤한 선물",
+     1,
+     1
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     {
+      "comp": 4
+     },
+     "궁뎀증",
+     30,
+     "연애, 마왕, 초콜릿1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "궁뎀증",
+       20,
+       "연애, 마왕, 초콜릿2",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 4,
+       "余": 0
+      },
+      "then": [
+       {
+        "tbf": {
+         "comp": 4
+        },
+        "type": "궁뎀증",
+        "size": 40,
+        "name": "정성 가득 초콜릿",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

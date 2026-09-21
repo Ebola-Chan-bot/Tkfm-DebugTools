@@ -1,0 +1,428 @@
+{
+ "id": 10052,
+ "机动性": [
+  475,
+  5,
+  550,
+  5,
+  625,
+  5,
+  700,
+  5,
+  775,
+  5
+ ],
+ "槽位初值": {},
+ "排除伤害": [
+  "CD 카운트 정지"
+ ],
+ "旗标": [],
+ "钩子": {
+  "leader": [
+   {
+    "hpUpMe": [
+     "self",
+     50
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "암"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공퍼증",
+      "size": 20,
+      "name": "크리스마스 킬러",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "findUnit": {
+     "槽": 0,
+     "id": 10053
+    }
+   },
+   {
+    "if": {
+     "kind": "find真值",
+     "槽": 0
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        {
+         "+findId": 0
+        },
+        100
+       ]
+      },
+      "name": "공포에 굴복1",
+      "turn": 50
+     },
+     {
+      "tbf": {
+       "find": 0
+      },
+      "type": "CD 카운트 정지",
+      "size": 0,
+      "name": "공포에 굴복2",
+      "turn": 5
+     },
+     {
+      "addCd": {
+       "目标": {
+        "find": 0
+       },
+       "N": 2
+      }
+     },
+     {
+      "addCurCd": {
+       "目标": {
+        "find": 0
+       },
+       "N": 2
+      }
+     },
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "광기1",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 25,
+        "name": "광기2",
+        "turn": "always"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "findUnit": {
+     "槽": 1,
+     "id": 10054
+    }
+   },
+   {
+    "if": {
+     "kind": "find真值",
+     "槽": 1
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        {
+         "+findId": 1
+        },
+        100
+       ]
+      },
+      "name": "공포에 굴복1",
+      "turn": 50
+     },
+     {
+      "tbf": {
+       "find": 1
+      },
+      "type": "CD 카운트 정지",
+      "size": 0,
+      "name": "공포에 굴복2",
+      "turn": 5
+     },
+     {
+      "addCd": {
+       "目标": {
+        "find": 1
+       },
+       "N": 2
+      }
+     },
+     {
+      "addCurCd": {
+       "目标": {
+        "find": 1
+       },
+       "N": 2
+      }
+     },
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "광기1",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 25,
+        "name": "광기2",
+        "turn": "always"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "평",
+     "boss",
+     "받궁뎀",
+     2.5,
+     "빌어먹을 순록",
+     1,
+     4,
+     "always"
+    ]
+   },
+   {
+    "findUnit": {
+     "槽": 2,
+     "id": 10054
+    }
+   },
+   {
+    "if": {
+     "kind": "find真值",
+     "槽": 2
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "self",
+         "평",
+         "$i",
+         "받속뎀",
+         5,
+         "순록 사살",
+         1,
+         5,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "boss",
+     "받일뎀",
+     5,
+     "빌어먹을 순록",
+     1,
+     4,
+     "always"
+    ]
+   },
+   {
+    "findUnit": {
+     "槽": 3,
+     "id": 10053
+    }
+   },
+   {
+    "if": {
+     "kind": "find真值",
+     "槽": 3
+    },
+    "then": [
+     {
+      "anbf": [
+       "self",
+       "평",
+       "boss",
+       "받일뎀",
+       6,
+       "크리스마스 파괴",
+       1,
+       5,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 50,
+    "name": "암흑의 크리스마스",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격력 증가",
+    "turn": "always"
+   }
+  ],
+  "turnover": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "findUnit": {
+       "槽": 4,
+       "id": 10053
+      }
+     },
+     {
+      "if": {
+       "kind": "find真值",
+       "槽": 4
+      },
+      "then": [
+       {
+        "findBuff": {
+         "槽": 5,
+         "目标": {
+          "find": 4
+         },
+         "谓词": [
+          {
+           "field": "type",
+           "串": "기본"
+          },
+          {
+           "field": "type",
+           "串": "CD 카운트 정지"
+          }
+         ]
+        }
+       },
+       {
+        "if": {
+         "kind": "buffFind真值",
+         "槽": 5
+        },
+        "then": [
+         {
+          "flag": "StopCd",
+          "目标": {
+           "find": 4
+          }
+         }
+        ],
+        "else": [
+         {
+          "flag": "StopCdOff",
+          "目标": {
+           "find": 4
+          }
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "findUnit": {
+       "槽": 6,
+       "id": 10054
+      }
+     },
+     {
+      "if": {
+       "kind": "find真值",
+       "槽": 6
+      },
+      "then": [
+       {
+        "findBuff": {
+         "槽": 7,
+         "目标": {
+          "find": 6
+         },
+         "谓词": [
+          {
+           "field": "type",
+           "串": "기본"
+          },
+          {
+           "field": "type",
+           "串": "CD 카운트 정지"
+          }
+         ]
+        }
+       },
+       {
+        "if": {
+         "kind": "buffFind真值",
+         "槽": 7
+        },
+        "then": [
+         {
+          "flag": "StopCd",
+          "目标": {
+           "find": 6
+          }
+         }
+        ],
+        "else": [
+         {
+          "flag": "StopCdOff",
+          "目标": {
+           "find": 6
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

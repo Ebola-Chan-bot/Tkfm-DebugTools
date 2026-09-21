@@ -1,0 +1,134 @@
+{
+  "id": 10188,
+  "机动性": [0, 4, 0, 4, 0, 4, 0, 4, 0, 4],
+  "槽位初值": { "stack": 0 },
+  "排除伤害": ["<뼈저린 후회>"],
+  "旗标": [],
+  "注释": "ultimate 与 attack 的门控块在源码里就是完整重复两遍（各 21 个 if），按原样转写不做共享抽象——bit-exact 优先；temp 快照必需：末尾 stack++ 会污染直接读",
+  "钩子": {
+    "ultbefore": [
+      { "for": { "kind": "全队" }, "body": [ { "deleteBuff": ["$i", "기본", "장미 개화1"] } ] },
+      { "for": { "kind": "全队" }, "body": [ { "deleteBuff": ["$i", "기본", "장미 개화3"] } ] },
+      { "deleteBuff": ["boss", "기본", "장미 개화4"] },
+      { "tbf": "all", "type": "가뎀증", "size": { "perLib": [15, 17.5, 20, 22.5, 25] }, "name": "장미 개화1", "turn": 4 },
+      { "tbf": "all", "type": "궁뎀증", "size": { "perLib": [15, 17.5, 20, 22.5, 25] }, "name": "장미 개화2", "turn": 1 },
+      { "tbf": "all", "type": "일뎀증", "size": { "perLib": [25.2, 29.4, 33.6, 37.8, 42] }, "name": "장미 개화3", "turn": 4 },
+      { "tbf": "boss", "type": "받뎀증", "size": { "perLib": [null, null, 6, 12, 18] }, "name": "장미 개화4", "turn": 4 }
+    ],
+
+    "ultimate": [
+      { "ultLogic": null },
+      { "temp": ["s", { "slot": "stack" }] },
+      { "if": { "kind": "队长", "cmp": "==", "val": true }, "then": [
+        { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕2", "on": true } ] },
+        { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕3", "on": true } ] },
+        { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 7 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕4", "on": true } ] },
+        { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 7 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕5", "on": true } ] }
+      ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOnAll": { "comp": 4 }, "div": "발동", "name": "<더 이상 피하지 않겠어>1", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOnAll": { "comp": 4 }, "div": "발동", "name": "<더 이상 피하지 않겠어>2", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "다시 다진 결의1", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 7 }, "then": [ { "setBuffOnAll": { "comp": 4 }, "div": "발동", "name": "<모든 것을 지키겠어>1", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 7 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "발동", "name": "<모든 것을 지키겠어>2", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 7 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "다시 다진 결의2", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "발동", "name": "잊은 적 없는 그 사람", "on": true } ] },
+      { "addSlot": ["stack", 1] },
+      { "clampSlot": ["stack", null, 8] }
+    ],
+
+    "atkbefore": [
+      { "tbf": "all", "type": "공고증", "size": { "atkRef": ["myCurAtk", "+selfId", 30] }, "name": "축복의 빛", "turn": 1 }
+    ],
+
+    "attack": [
+      { "atkLogic": null },
+      { "temp": ["s", { "slot": "stack" }] },
+      { "if": { "kind": "队长", "cmp": "==", "val": true }, "then": [
+        { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕2", "on": true } ] },
+        { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕3", "on": true } ] },
+        { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 7 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕4", "on": true } ] },
+        { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 7 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕5", "on": true } ] }
+      ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOnAll": { "comp": 4 }, "div": "발동", "name": "<더 이상 피하지 않겠어>1", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOnAll": { "comp": 4 }, "div": "발동", "name": "<더 이상 피하지 않겠어>2", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "다시 다진 결의1", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 7 }, "then": [ { "setBuffOnAll": { "comp": 4 }, "div": "발동", "name": "<모든 것을 지키겠어>1", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 7 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "발동", "name": "<모든 것을 지키겠어>2", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 7 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "다시 다진 결의2", "on": true } ] },
+      { "if": { "kind": "temp", "var": "s", "cmp": "==", "fix": 3 }, "then": [ { "setBuffOn": { "comp": 4 }, "div": "발동", "name": "잊은 적 없는 그 사람", "on": true } ] },
+      { "addSlot": ["stack", 1] },
+      { "clampSlot": ["stack", null, 8] }
+    ],
+
+    "leader": [
+      { "hpUpAll": 50 },
+      { "if": { "kind": "元素种类", "cmp": "==", "val": 1 }, "then": [
+        { "tbf": "all", "type": "공퍼증", "size": 50, "name": "<은밀한 도움>1", "turn": "always" },
+        { "tbf": "all", "type": "가뎀증", "size": 45, "name": "<은밀한 도움>2", "turn": "always" },
+        { "tbf": "all", "type": "일뎀증", "size": 75, "name": "<은밀한 도움>3", "turn": "always" },
+        { "tbf": "all", "type": "평추가*", "size": 30, "name": "<은밀한 도움>4", "turn": "always" }
+      ] },
+      { "for": { "kind": "role", "mask": ["딜", "탱", "디"] }, "body": [
+        { "atbf": ["$i", "공격", "all", "공고증", { "atkRef": ["myCurAtk", "+$iId", 15] }, "스스로 유배된 마왕1", 1, "always"] }
+      ] },
+      { "buff": [{ "comp": 4 }, "궁뎀증", 40, "스스로 유배된 마왕2", "always", false] },
+      { "buff": [{ "comp": 4 }, "궁추가*", 50, "스스로 유배된 마왕3", "always", false] },
+      { "buff": [{ "comp": 4 }, "궁뎀증", 80, "스스로 유배된 마왕4", "always", false] },
+      { "buff": [{ "comp": 4 }, "궁추가*", 100, "스스로 유배된 마왕5", "always", false] }
+    ],
+
+    "passive": [
+      { "anbf": ["self", "공격", { "comp": 4 }, "<뼈저린 후회>", 0, "잊은 적 없는 그 사람", 1, 8, "always"] },
+      { "atbf": ["self", "궁", "all", "공고증", { "atkRef": ["myCurAtk", "+selfId", 30] }, "잊은 적 없는 그 사람2", 1, "always"] },
+      { "buff": [{ "comp": 4 }, "궁", { "comp": 4 }, "제거", "기본", "<더 이상 피하지 않겠어>1", 1, "always", "발동", false] },
+      { "buff": [{ "comp": 4 }, "궁", { "comp": 4 }, "가뎀증", 7, "<더 이상 피하지 않겠어>1", 9, "always", "발동", false] },
+      { "buff": [{ "comp": 4 }, "궁", { "comp": 4 }, "제거", "기본", "<더 이상 피하지 않겠어>2", 1, "always", "발동", false] },
+      { "buff": [{ "comp": 4 }, "궁", { "comp": 4 }, "평추가*", 8, "<더 이상 피하지 않겠어>2", 8, "always", "발동", false] },
+      { "buff": [{ "comp": 4 }, "궁추가*", 25, "다시 다진 결의1", "always", false] },
+      { "buff": [{ "comp": 4 }, "궁", { "comp": 4 }, "제거", "기본", "<모든 것을 지키겠어>1", 1, "always", "발동", false] },
+      { "buff": [{ "comp": 4 }, "궁", { "comp": 4 }, "가뎀증", 17, "<모든 것을 지키겠어>1", 9, "always", "발동", false] },
+      { "buff": [{ "comp": 4 }, "궁", { "comp": 4 }, "평추가*", 16, "<모든 것을 지키겠어>2", 8, "always", "발동", false] },
+      { "buff": [{ "comp": 4 }, "궁추가*", 50, "다시 다진 결의2", "always", false] },
+      { "buff": [{ "comp": 4 }, "궁", { "comp": 4 }, "<뼈저린 후회>", 0, "잊은 적 없는 그 사람", -8, 8, "always", "발동", false] },
+      { "inject": {
+        "方法": "ultimate", "目标": { "comp": 4 }, "模式": "追加",
+        "后置": [
+          { "if": { "kind": "slot比较", "slot": "stack", "cmp": ">=", "fix": 4 }, "then": [
+            { "setSlot": ["stack", 0] },
+            { "if": { "kind": "队长", "cmp": "==", "val": true }, "then": [
+              { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕2", "on": false },
+              { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕3", "on": false },
+              { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕4", "on": false },
+              { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "스스로 유배된 마왕5", "on": false }
+            ] },
+            { "setBuffOnAll": { "comp": 4 }, "div": "발동", "name": "<더 이상 피하지 않겠어>1", "on": false },
+            { "setBuffOnAll": { "comp": 4 }, "div": "발동", "name": "<더 이상 피하지 않겠어>2", "on": false },
+            { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "다시 다진 결의1", "on": false },
+            { "setBuffOnAll": { "comp": 4 }, "div": "발동", "name": "<모든 것을 지키겠어>1", "on": false },
+            { "setBuffOn": { "comp": 4 }, "div": "발동", "name": "<모든 것을 지키겠어>2", "on": false },
+            { "setBuffOn": { "comp": 4 }, "div": "기본", "name": "다시 다진 결의2", "on": false },
+            { "setBuffOn": { "comp": 4 }, "div": "발동", "name": "잊은 적 없는 그 사람", "on": false }
+          ] }
+        ]
+      } },
+      { "atbf": ["self", "공격", { "comp": 4 }, "공고증", { "atkRef": ["myCurAtk", "+selfId", 15] }, "다시 출발1", 1, "always"] },
+      { "tbf": "self", "type": "공퍼증", "size": 10, "name": "공격+", "turn": "always" }
+    ],
+
+    "turnstart": [
+      { "if": { "kind": "队长", "cmp": "==", "val": true }, "then": [
+        { "if": { "kind": "回合", "cmp": "==", "fix": 1 }, "then": [
+          { "nbf": ["boss", "받뎀증", 16, "스스로 유배된 마왕6", 1, 1] },
+          { "for": { "kind": "element", "mask": ["광"] }, "body": [
+            { "nbf": ["$i", "받속뎀", 40, "스스로 유배된 마왕7", 1, 1] }
+          ] }
+        ] }
+      ] },
+      { "if": { "kind": "回合集合", "in": [1, 5, 9] }, "then": [
+        { "for": { "kind": "element", "mask": ["광"] }, "body": [
+          { "nbf": ["$i", "받속뎀", 10, "다시 출발2", 1, 3] }
+        ] }
+      ] }
+    ]
+  }
+}

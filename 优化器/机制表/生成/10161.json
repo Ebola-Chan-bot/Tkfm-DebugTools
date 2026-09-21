@@ -1,0 +1,354 @@
+{
+ "id": 10161,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "deleteBuff": [
+     "boss",
+     "기본",
+     "삼매룡화3"
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       15,
+       "삼매룡화1",
+       1,
+       2
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "삼매룡화2",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "도트뎀",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        210
+       ]
+      },
+      "name": "삼매룡화3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       17.5,
+       "삼매룡화1",
+       1,
+       2
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        35
+       ]
+      },
+      "name": "삼매룡화2",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "도트뎀",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        245
+       ]
+      },
+      "name": "삼매룡화3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       20,
+       "삼매룡화1",
+       1,
+       2
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        40
+       ]
+      },
+      "name": "삼매룡화2",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "도트뎀",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        280
+       ]
+      },
+      "name": "삼매룡화3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       22.5,
+       "삼매룡화1",
+       1,
+       2
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        45
+       ]
+      },
+      "name": "삼매룡화2",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "도트뎀",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        315
+       ]
+      },
+      "name": "삼매룡화3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       25,
+       "삼매룡화1",
+       1,
+       2
+      ]
+     },
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        50
+       ]
+      },
+      "name": "삼매룡화2",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "도트뎀",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        350
+       ]
+      },
+      "name": "삼매룡화3",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "진룡의 화신1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "가뎀증",
+    "size": -200,
+    "name": "진룡의 화신2",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "인룡혼혈",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "평",
+     "boss",
+     "도트뎀",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       50
+      ]
+     },
+     "타오르는 몸1",
+     4,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가지증",
+    "size": 150,
+    "name": "타오르는 몸2",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "공격",
+     "boss",
+     "받뎀증",
+     2,
+     "<고온탄화>1",
+     1,
+     10,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "공격",
+     "boss",
+     "받일뎀",
+     12,
+     "<고온탄화>2",
+     1,
+     10,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "tbf": "boss",
+        "type": "받지뎀",
+        "size": 200,
+        "name": "<화염산 점화>1",
+        "turn": 50
+       },
+       {
+        "tbf": "boss",
+        "type": "받뎀증",
+        "size": 100,
+        "name": "<화염산 점화>2",
+        "turn": 50
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

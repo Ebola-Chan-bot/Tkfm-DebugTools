@@ -1,0 +1,743 @@
+{
+ "id": 10153,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<고급 할로윈 디저트 세트>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       15,
+       "싹트는 살육 욕망1",
+       1,
+       2
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         5,
+         "싹트는 살육 욕망2",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       20,
+       "싹트는 살육 욕망1",
+       1,
+       2
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         5,
+         "싹트는 살육 욕망2",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       20,
+       "싹트는 살육 욕망1",
+       1,
+       2
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         10,
+         "싹트는 살육 욕망2",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       25,
+       "싹트는 살육 욕망1",
+       1,
+       2
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         10,
+         "싹트는 살육 욕망2",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       25,
+       "싹트는 살육 욕망1",
+       1,
+       2
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         15,
+         "싹트는 살육 욕망2",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "if": {
+     "kind": "buffSize",
+     "div": "기본",
+     "name": "성배의 메아리",
+     "cmp": "!=",
+     "fix": 0
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "countLib",
+       "偏移": 5
+      },
+      "body": [
+       {
+        "tbf": "self",
+        "type": "궁발동*",
+        "size": 30,
+        "name": "성배의 메아리2",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "setBuffSize": "self",
+    "div": "기본",
+    "name": "성배의 메아리",
+    "size": 0
+   },
+   {
+    "ultLogic": null
+   },
+   {
+    "deleteBuff": [
+     "self",
+     "기본",
+     "성배의 메아리2"
+    ]
+   },
+   {
+    "setBuffSize": "self",
+    "div": "기본",
+    "name": "성배의 메아리",
+    "size": {
+     "sizeExpr": {
+      "base": "星级",
+      "加": 5,
+      "K": 30
+     }
+    }
+   },
+   {
+    "setBuffNest": "self",
+    "div": "기본",
+    "name": "디저트 폭식",
+    "nest": 0
+   },
+   {
+    "setSlot": [
+     "stack",
+     0
+    ]
+   },
+   {
+    "setBuffSize": "self",
+    "div": "기본",
+    "name": "디저트 폭식1",
+    "size": 0
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "디저트 폭식2",
+    "on": false
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "디저트 폭식3",
+    "on": false
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "디저트 폭식4",
+    "on": false
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "setBuffNest": "self",
+    "div": "기본",
+    "name": "디저트 폭식",
+    "nest": 0
+   },
+   {
+    "setSlot": [
+     "stack",
+     0
+    ]
+   },
+   {
+    "setBuffSize": "self",
+    "div": "기본",
+    "name": "디저트 폭식1",
+    "size": 0
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "디저트 폭식2",
+    "on": false
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "디저트 폭식3",
+    "on": false
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "디저트 폭식4",
+    "on": false
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "귀엽고 위험한 사신",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "암"
+     ],
+     "cmp": ">=",
+     "n": 4
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "<달콤살벌한 살의>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 50,
+      "name": "<달콤살벌한 살의>2",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "self",
+         "피격",
+         "$i",
+         "받속뎀",
+         5,
+         "<달콤살벌한 살의>3",
+         1,
+         10,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "암"
+     ],
+     "cmp": ">=",
+     "n": 4
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공발동*",
+        "size": 20,
+        "name": "<살육을 즐기자>1",
+        "turn": "always"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "궁발동*",
+    "size": 0,
+    "name": "성배의 메아리",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "anbf": [
+       "$i",
+       "피격",
+       "self",
+       "<고급 할로윈 디저트 세트>",
+       0,
+       "디저트 폭식",
+       1,
+       6,
+       "always"
+      ]
+     },
+     {
+      "inject": {
+       "方法": "hit",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "addSlot": [
+          "stack",
+          1
+         ]
+        },
+        {
+         "clampSlot": [
+          "stack",
+          null,
+          6
+         ]
+        },
+        {
+         "setBuffSize": "self",
+         "div": "기본",
+         "name": "디저트 폭식1",
+         "size": {
+          "sizeExpr": {
+           "base": "stack",
+           "加": 0,
+           "K": 10
+          }
+         }
+        },
+        {
+         "setBuffOn": "self",
+         "div": "기본",
+         "name": "디저트 폭식2",
+         "on": {
+          "slot": "stack",
+          "cmp": ">=",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOn": "self",
+         "div": "기본",
+         "name": "디저트 폭식3",
+         "on": {
+          "slot": "stack",
+          "cmp": ">=",
+          "fix": 4
+         }
+        },
+        {
+         "setBuffOn": "self",
+         "div": "기본",
+         "name": "디저트 폭식4",
+         "on": {
+          "slot": "stack",
+          "cmp": ">=",
+          "fix": 6
+         }
+        }
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "평발동*",
+    "size": 0,
+    "name": "디저트 폭식1",
+    "turn": "always"
+   },
+   {
+    "buff": [
+     "self",
+     "발효증",
+     50,
+     "디저트 폭식2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     40,
+     "디저트 폭식3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "가뎀증",
+     30,
+     "디저트 폭식4",
+     "always",
+     false
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "inject": {
+       "方法": "attack",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "hit": "$i"
+        }
+       ]
+      }
+     },
+     {
+      "inject": {
+       "方法": "ultimate",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "hit": "$i"
+        }
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "발효증",
+    "size": 30,
+    "name": "트리거+",
+    "turn": "always"
+   }
+  ],
+  "defense": [
+   {
+    "actDefense": true
+   },
+   {
+    "setBuffNest": "self",
+    "div": "기본",
+    "name": "디저트 폭식",
+    "nest": 0
+   },
+   {
+    "setSlot": [
+     "stack",
+     0
+    ]
+   },
+   {
+    "setBuffSize": "self",
+    "div": "기본",
+    "name": "디저트 폭식1",
+    "size": 0
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "디저트 폭식2",
+    "on": false
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "디저트 폭식3",
+    "on": false
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "디저트 폭식4",
+    "on": false
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "元素计数",
+       "mask": [
+        "암"
+       ],
+       "cmp": ">=",
+       "n": 4
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "回合",
+         "cmp": ">",
+         "fix": 1
+        },
+        "then": [
+         {
+          "nbf": [
+           "self",
+           "<고급 할로윈 디저트 세트>",
+           0,
+           "디저트 폭식",
+           2,
+           6
+          ]
+         },
+         {
+          "addSlot": [
+           "stack",
+           2
+          ]
+         },
+         {
+          "clampSlot": [
+           "stack",
+           null,
+           6
+          ]
+         },
+         {
+          "setBuffSize": "self",
+          "div": "기본",
+          "name": "디저트 폭식1",
+          "size": {
+           "sizeExpr": {
+            "base": "stack",
+            "加": 0,
+            "K": 10
+           }
+          }
+         },
+         {
+          "setBuffOn": "self",
+          "div": "기본",
+          "name": "디저트 폭식2",
+          "on": {
+           "slot": "stack",
+           "cmp": ">=",
+           "fix": 2
+          }
+         },
+         {
+          "setBuffOn": "self",
+          "div": "기본",
+          "name": "디저트 폭식3",
+          "on": {
+           "slot": "stack",
+           "cmp": ">=",
+           "fix": 4
+          }
+         },
+         {
+          "setBuffOn": "self",
+          "div": "기본",
+          "name": "디저트 폭식4",
+          "on": {
+           "slot": "stack",
+           "cmp": ">=",
+           "fix": 6
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -3
+     }
+    ]
+   }
+  ]
+ }
+}

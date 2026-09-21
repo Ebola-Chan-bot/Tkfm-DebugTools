@@ -1,0 +1,449 @@
+{
+ "id": 10072,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        40
+       ]
+      },
+      "name": "부케 임자는 이미 정해졌엉~1",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        65
+       ]
+      },
+      "name": "부케 임자는 이미 정해졌엉~2",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "일뎀증",
+      "size": 80,
+      "name": "부케 임자는 이미 정해졌엉~3",
+      "turn": 2
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "부케 임자는 이미 정해졌엉~4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        40
+       ]
+      },
+      "name": "부케 임자는 이미 정해졌엉~1",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        65
+       ]
+      },
+      "name": "부케 임자는 이미 정해졌엉~2",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "일뎀증",
+      "size": 90,
+      "name": "부케 임자는 이미 정해졌엉~3",
+      "turn": 2
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "궁뎀증",
+      "size": 35,
+      "name": "부케 임자는 이미 정해졌엉~4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        45
+       ]
+      },
+      "name": "부케 임자는 이미 정해졌엉~1",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        70
+       ]
+      },
+      "name": "부케 임자는 이미 정해졌엉~2",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "일뎀증",
+      "size": 90,
+      "name": "부케 임자는 이미 정해졌엉~3",
+      "turn": 2
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "궁뎀증",
+      "size": 35,
+      "name": "부케 임자는 이미 정해졌엉~4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        45
+       ]
+      },
+      "name": "부케 임자는 이미 정해졌엉~1",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        70
+       ]
+      },
+      "name": "부케 임자는 이미 정해졌엉~2",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "일뎀증",
+      "size": 100,
+      "name": "부케 임자는 이미 정해졌엉~3",
+      "turn": 2
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "궁뎀증",
+      "size": 40,
+      "name": "부케 임자는 이미 정해졌엉~4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        50
+       ]
+      },
+      "name": "부케 임자는 이미 정해졌엉~1",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        75
+       ]
+      },
+      "name": "부케 임자는 이미 정해졌엉~2",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "일뎀증",
+      "size": 100,
+      "name": "부케 임자는 이미 정해졌엉~3",
+      "turn": 2
+     },
+     {
+      "tbf": {
+       "comp": 1
+      },
+      "type": "궁뎀증",
+      "size": 40,
+      "name": "부케 임자는 이미 정해졌엉~4",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": {
+     "comp": 1
+    },
+    "type": "공고증",
+    "size": {
+     "atkRef": [
+      "myCurAtk",
+      "+selfId",
+      75
+     ]
+    },
+    "name": "부케 던지기",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 80,
+    "name": "마왕의 연애 시뮬레이션1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 30,
+    "name": "마왕의 연애 시뮬레이션2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 125,
+    "name": "마왕의 연애 시뮬레이션3",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 50,
+    "name": "마왕의 연애 시뮬레이션4",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "평추가*",
+    "size": 125,
+    "name": "<마왕 바알이 원하는 고백>1",
+    "turn": 50
+   },
+   {
+    "tbf": "self",
+    "type": "궁추가*",
+    "size": 500,
+    "name": "<마왕 바알이 원하는 고백>2",
+    "turn": 50
+   }
+  ],
+  "passive": [
+   {
+    "tbf": {
+     "comp": 1
+    },
+    "type": "가뎀증",
+    "size": 25,
+    "name": "친구의 도움은 필수!",
+    "turn": 50
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격력 증가",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -4
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       15,
+       "<밀당의 매력>",
+       1,
+       8
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 2,
+       "余": 0
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "공퍼증",
+         15,
+         "<밀당의 매력>",
+         1,
+         8
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        35
+       ]
+      },
+      "name": "시크릿 연애 대작전",
+      "turn": 1
+     }
+    ]
+   }
+  ]
+ }
+}

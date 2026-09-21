@@ -1,0 +1,213 @@
+{
+ "id": 10045,
+ "机动性": [
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 75,
+      "name": "귀무에 취하다1",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 87.5,
+      "name": "귀무에 취하다1",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 87.5,
+      "name": "귀무에 취하다1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 15,
+      "name": "귀무에 취하다2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "귀무에 취하다1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "귀무에 취하다2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 112.5,
+      "name": "귀무에 취하다1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 25,
+      "name": "귀무에 취하다2",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 30,
+      "name": "미몽의 취무1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "화"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 40,
+      "name": "미몽의 취무2",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "평",
+     "self",
+     "궁추가*",
+     60.5,
+     "오니의 웃음",
+     7,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "공퍼증",
+     15,
+     "술 들이붓기",
+     -2,
+     6,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 35,
+    "name": "오니의 가무",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 10,
+    "name": "궁극기 데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       15,
+       "술 들이붓기",
+       1,
+       6
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

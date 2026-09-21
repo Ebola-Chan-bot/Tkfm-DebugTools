@@ -1,0 +1,170 @@
+{
+ "id": 10027,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받발뎀",
+      "size": 60,
+      "name": "살의의 유혹1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 60,
+      "name": "살의의 유혹2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받발뎀",
+      "size": 70,
+      "name": "살의의 유혹1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 70,
+      "name": "살의의 유혹2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받발뎀",
+      "size": 80,
+      "name": "살의의 유혹1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 80,
+      "name": "살의의 유혹2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받발뎀",
+      "size": 90,
+      "name": "살의의 유혹1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 90,
+      "name": "살의의 유혹2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받발뎀",
+      "size": 100,
+      "name": "살의의 유혹1",
+      "turn": 3
+     },
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "살의의 유혹2",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "atkafter": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 25,
+    "name": "갈겨찢기",
+    "turn": 2
+   }
+  ],
+  "leader": [
+   {
+    "addCd": -1
+   },
+   {
+    "addCurCd": -1
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 33,
+    "name": "블러드문의 재앙",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "피격",
+     "self",
+     "공퍼증",
+     10,
+     "고통과 희열",
+     1,
+     5,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "반격*",
+    "size": 100,
+    "name": "살육의 욕망대로",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 35,
+    "name": "살육의 충동",
+    "turn": "always"
+   }
+  ]
+ }
+}

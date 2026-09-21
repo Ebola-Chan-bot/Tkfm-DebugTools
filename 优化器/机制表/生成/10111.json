@@ -1,0 +1,307 @@
+{
+ "id": 10111,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        20
+       ]
+      },
+      "name": "시저 님의 냄새1",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        20
+       ]
+      },
+      "name": "시저 님의 냄새1",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        25
+       ]
+      },
+      "name": "시저 님의 냄새1",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 10,
+      "name": "시저 님의 냄새2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        25
+       ]
+      },
+      "name": "시저 님의 냄새1",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 20,
+      "name": "시저 님의 냄새2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "시저 님의 냄새1",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 20,
+      "name": "시저 님의 냄새2",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "수치성 열치료실",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": "!=",
+     "n": 0
+    },
+    "then": [
+     {
+      "findMaxUnit": {
+       "槽": 0,
+       "field": "atk",
+       "role过滤": [
+        0
+       ],
+       "方向": "max"
+      }
+     },
+     {
+      "tbf": {
+       "find": 0
+      },
+      "type": "공퍼증",
+      "size": 60,
+      "name": "<성욕 팽창>1",
+      "turn": "always"
+     },
+     {
+      "tbf": {
+       "find": 0
+      },
+      "type": "가뎀증",
+      "size": 35,
+      "name": "<성욕 팽창>2",
+      "turn": "always"
+     },
+     {
+      "tbf": {
+       "find": 0
+      },
+      "type": "궁뎀증",
+      "size": 40,
+      "name": "<성욕 팽창>3",
+      "turn": "always"
+     },
+     {
+      "tbf": {
+       "find": 0
+      },
+      "type": "궁발동*",
+      "size": 275,
+      "name": "<성욕 팽창>4",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "findMaxUnit": {
+     "槽": 1,
+     "field": "atk",
+     "role过滤": [],
+     "方向": "min"
+    }
+   },
+   {
+    "tbf": {
+     "find": 1
+    },
+    "type": "받아증",
+    "size": 30,
+    "name": "<자극적인 배덕감>",
+    "turn": 50
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "all",
+    "type": "받아증",
+    "size": 30,
+    "name": "약 복용과 섹스는 적당하게1",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "방",
+     "all",
+     "아머",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       25
+      ]
+     },
+     "약 복용과 섹스는 적당하게2",
+     1,
+     "always"
+    ]
+   },
+   {
+    "hpUpMe": [
+     "self",
+     10
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "말 안들으면 벌 줄거에요1",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "boss",
+     "받궁뎀",
+     20,
+     "말 안들으면 벌 줄거에요2",
+     1,
+     2,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ]
+ }
+}

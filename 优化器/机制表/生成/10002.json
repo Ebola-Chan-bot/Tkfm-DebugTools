@@ -1,0 +1,140 @@
+{
+ "id": 10002,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 60,
+      "name": "잔학무도",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 80,
+      "name": "잔학무도",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "잔학무도",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "잔학무도",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "잔학무도",
+      "turn": 3
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "마왕 사탄의 호기1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "가뎀증",
+    "size": 20,
+    "name": "마왕 사탄의 호기2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "마왕 사탄의 호기3",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "반격*",
+    "size": 100,
+    "name": "사탄의 보답1",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "피격",
+     "self",
+     "공퍼증",
+     10,
+     "사탄의 보답2",
+     1,
+     10,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "피격",
+     "self",
+     "가뎀증",
+     2,
+     "불패의 육체",
+     1,
+     10,
+     "always"
+    ]
+   }
+  ]
+ }
+}

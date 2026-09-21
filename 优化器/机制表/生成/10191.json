@@ -1,0 +1,517 @@
+{
+ "id": 10191,
+ "机动性": [
+  246,
+  4,
+  310.5,
+  4,
+  375,
+  4,
+  439.5,
+  4,
+  504,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<여전히 함께>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "deleteBuff": [
+     "self",
+     "기본",
+     "혈체술-영혼갈퀴0"
+    ]
+   },
+   {
+    "deleteBuff": [
+     "self",
+     "기본",
+     "혈체술-영혼갈퀴2"
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 39,
+      "name": "혈체술-영혼갈퀴1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 39,
+      "name": "혈체술-영혼갈퀴2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 45.5,
+      "name": "혈체술-영혼갈퀴1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 45.5,
+      "name": "혈체술-영혼갈퀴2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 10,
+      "name": "혈체술-영혼갈퀴0",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 52,
+      "name": "혈체술-영혼갈퀴1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 52,
+      "name": "혈체술-영혼갈퀴2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "혈체술-영혼갈퀴0",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 58.5,
+      "name": "혈체술-영혼갈퀴1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 58.5,
+      "name": "혈체술-영혼갈퀴2",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 30,
+      "name": "혈체술-영혼갈퀴0",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 65,
+      "name": "혈체술-영혼갈퀴1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 65,
+      "name": "혈체술-영혼갈퀴2",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": 5
+   },
+   {
+    "nbf": [
+     "self",
+     "<여전히 함께>",
+     0,
+     "마왕의 힘",
+     -3,
+     3
+    ]
+   },
+   {
+    "setSlot": [
+     "stack",
+     0
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "마왕의 힘1",
+    "on": false
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "마왕의 힘2",
+    "on": false
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "마왕의 힘3",
+    "on": false
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 8,
+    "name": "빌려온 힘",
+    "turn": 4
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 0
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "기본",
+      "name": "마왕의 힘1",
+      "on": true
+     }
+    ],
+    "elif": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "마왕의 힘2",
+        "on": true
+       }
+      ],
+      "elif": [
+       {
+        "if": {
+         "kind": "slot比较",
+         "slot": "stack",
+         "cmp": "==",
+         "fix": 2
+        },
+        "then": [
+         {
+          "setBuffOn": "self",
+          "div": "기본",
+          "name": "마왕의 힘3",
+          "on": true
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "addSlot": [
+     "stack",
+     1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     3
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 50
+   },
+   {
+    "if": {
+     "kind": "职务种类",
+     "cmp": "==",
+     "val": 3
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 70,
+      "name": "<의식 코어>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 70,
+      "name": "<의식 코어>2",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 75,
+      "name": "<의식 코어>3",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "발효증",
+      "size": 75,
+      "name": "<의식 코어>4",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "궁추가*",
+      "size": 100,
+      "name": "<의식 코어>5",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "궁발동*",
+      "size": 50,
+      "name": "<의식 코어>6",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环role",
+         "cmp": "==",
+         "val": 0
+        },
+        "then": [
+         {
+          "continue": 1
+         }
+        ]
+       },
+       {
+        "tbf": "$i",
+        "type": "공퍼증",
+        "size": 70,
+        "name": "<힘 흡수>1",
+        "turn": "always"
+       },
+       {
+        "atbf": [
+         "$i",
+         "공격",
+         "boss",
+         "받뎀증",
+         7,
+         "<힘 흡수>2",
+         1,
+         "always"
+        ]
+       },
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "풍"
+         ]
+        },
+        "body": [
+         {
+          "atbf": [
+           {
+            "$i上": 1
+           },
+           "공격",
+           "$i",
+           "받속뎀",
+           10.5,
+           "<힘 흡수>3",
+           1,
+           "always"
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 60,
+    "name": "광기에 빠진 시저1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "평발동*",
+    "size": 100,
+    "name": "광기에 빠진 시저2",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "self",
+     "<여전히 함께>",
+     0,
+     "마왕의 힘",
+     1,
+     3,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁발동*",
+     36,
+     "마왕의 힘1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁발동*",
+     72,
+     "마왕의 힘2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁발동*",
+     108,
+     "마왕의 힘3",
+     "always",
+     false
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 27.5,
+    "name": "이루지 못한 아쉬움1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "if": {
+       "kind": "循环role",
+       "cmp": "!=",
+       "val": 0
+      },
+      "then": [
+       {
+        "atbf": [
+         "$i",
+         "공격",
+         "boss",
+         "받뎀증",
+         6.5,
+         "<다하지 못한 약속>1",
+         1,
+         "always"
+        ]
+       },
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "풍"
+         ]
+        },
+        "body": [
+         {
+          "atbf": [
+           {
+            "$i上": 1
+           },
+           "공격",
+           "$i",
+           "받속뎀",
+           9.75,
+           "<다하지 못한 약속>2",
+           1,
+           "always"
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "데미지+",
+    "turn": "always"
+   }
+  ]
+ }
+}

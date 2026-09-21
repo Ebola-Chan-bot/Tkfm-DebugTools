@@ -1,0 +1,774 @@
+{
+ "id": 10170,
+ "机动性": [
+  120,
+  4,
+  140,
+  4,
+  160,
+  4,
+  180,
+  4,
+  200,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<응석 받아줄게~>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "if": {
+       "kind": "循环role",
+       "cmp": "==",
+       "val": 0
+      },
+      "then": [
+       {
+        "deleteBuff": [
+         "$i",
+         "기본",
+         "엄마의 사랑 요리♡2"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环role",
+         "cmp": "==",
+         "val": 0
+        },
+        "then": [
+         {
+          "tbf": "$i",
+          "type": "가뎀증",
+          "size": 24,
+          "name": "엄마의 사랑 요리♡2",
+          "turn": 4
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环role",
+         "cmp": "==",
+         "val": 0
+        },
+        "then": [
+         {
+          "tbf": "$i",
+          "type": "가뎀증",
+          "size": 28,
+          "name": "엄마의 사랑 요리♡2",
+          "turn": 4
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环role",
+         "cmp": "==",
+         "val": 0
+        },
+        "then": [
+         {
+          "tbf": "$i",
+          "type": "가뎀증",
+          "size": 32,
+          "name": "엄마의 사랑 요리♡2",
+          "turn": 4
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环role",
+         "cmp": "==",
+         "val": 0
+        },
+        "then": [
+         {
+          "tbf": "$i",
+          "type": "가뎀증",
+          "size": 36,
+          "name": "엄마의 사랑 요리♡2",
+          "turn": 4
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环role",
+         "cmp": "==",
+         "val": 0
+        },
+        "then": [
+         {
+          "tbf": "$i",
+          "type": "가뎀증",
+          "size": 40,
+          "name": "엄마의 사랑 요리♡2",
+          "turn": 4
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 0
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "기본",
+      "name": "영양 만점의 맛있는 저녁1",
+      "on": true
+     }
+    ]
+   },
+   {
+    "ultLogic": null
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<응석 받아줄게~>",
+       0,
+       "엄마의 사랑 요리♡",
+       4,
+       8
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       4
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       8
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<응석 받아줄게~>",
+       0,
+       "엄마의 사랑 요리♡",
+       5,
+       8
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       5
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       8
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<응석 받아줄게~>",
+       0,
+       "엄마의 사랑 요리♡",
+       6,
+       8
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       6
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       8
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<응석 받아줄게~>",
+       0,
+       "엄마의 사랑 요리♡",
+       7,
+       8
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       7
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       8
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<응석 받아줄게~>",
+       0,
+       "엄마의 사랑 요리♡",
+       8,
+       8
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       8
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       8
+      ]
+     }
+    ]
+   },
+   {
+    "temp": [
+     "v__0xd9b341",
+     {
+      "slot": "stack"
+     }
+    ]
+   },
+   {
+    "setBuffSize": "self",
+    "div": "발동",
+    "name": "초보 엄마의 새출발2",
+    "size": {
+     "sizeExpr": {
+      "base": "temp",
+      "加": 0,
+      "K": 10,
+      "temp": "v__0xd9b341"
+     }
+    }
+   },
+   {
+    "setBuffSize": "self",
+    "div": "발동",
+    "name": "초보 엄마의 새출발3",
+    "size": {
+     "sizeExpr": {
+      "base": "temp",
+      "加": 0,
+      "K": 10,
+      "temp": "v__0xd9b341"
+     }
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "영양 만점의 맛있는 저녁1",
+    "on": {
+     "temp": "v__0xd9b341",
+     "cmp": ">=",
+     "fix": 1
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "영양 만점의 맛있는 저녁2",
+    "on": {
+     "temp": "v__0xd9b341",
+     "cmp": ">=",
+     "fix": 2
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "영양 만점의 맛있는 저녁3",
+    "on": {
+     "temp": "v__0xd9b341",
+     "cmp": ">=",
+     "fix": 3
+    }
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "수"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 80,
+      "name": "<행복한 장난>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "일뎀증",
+      "size": 70,
+      "name": "<행복한 장난>2",
+      "turn": "always"
+     },
+     {
+      "ptbf": [
+       "all",
+       "평",
+       "all",
+       "힐",
+       20,
+       "<행복한 장난>3",
+       1,
+       "always"
+      ]
+     },
+     {
+      "ptbf": [
+       "all",
+       "궁",
+       "all",
+       "힐",
+       50,
+       "<행복한 장난>4",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "수"
+     ],
+     "cmp": ">=",
+     "n": 5
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "평추가*",
+      "size": 20,
+      "name": "<착한 아이를 위한 선물>1",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "all",
+         "평",
+         "$i",
+         "받속뎀",
+         2.5,
+         "<착한 아이를 위한 선물>2",
+         1,
+         10,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "평",
+     "boss",
+     "받뎀증",
+     1.5,
+     "초보 엄마의 새출발1",
+     1,
+     10,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "공격",
+     "self",
+     "평추가*",
+     0,
+     "초보 엄마의 새출발2",
+     2,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "방",
+     "self",
+     "평추가*",
+     0,
+     "초보 엄마의 새출발3",
+     2,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     50,
+     "영양 만점의 맛있는 저녁1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "일뎀증",
+     35,
+     "영양 만점의 맛있는 저녁2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평추가*",
+     30,
+     "영양 만점의 맛있는 저녁3",
+     "always",
+     false
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 20,
+    "name": "여우 엄마의 비밀 특훈1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "힐",
+       "$i",
+       "일뎀증",
+       9,
+       "여우 엄마의 비밀 특훈2",
+       4,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环role",
+         "cmp": "==",
+         "val": 0
+        },
+        "then": [
+         {
+          "cdChange": "$i",
+          "值": -4
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "turnover": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "nbf": [
+     "self",
+     "<응석 받아줄게~>",
+     0,
+     "엄마의 사랑 요리♡",
+     -1,
+     8
+    ]
+   },
+   {
+    "addSlot": [
+     "stack",
+     -1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     0,
+     null
+    ]
+   },
+   {
+    "temp": [
+     "v__0xd9b341",
+     {
+      "slot": "stack"
+     }
+    ]
+   },
+   {
+    "setBuffSize": "self",
+    "div": "발동",
+    "name": "초보 엄마의 새출발2",
+    "size": {
+     "sizeExpr": {
+      "base": "temp",
+      "加": 0,
+      "K": 10,
+      "temp": "v__0xd9b341"
+     }
+    }
+   },
+   {
+    "setBuffSize": "self",
+    "div": "발동",
+    "name": "초보 엄마의 새출발3",
+    "size": {
+     "sizeExpr": {
+      "base": "temp",
+      "加": 0,
+      "K": 10,
+      "temp": "v__0xd9b341"
+     }
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "영양 만점의 맛있는 저녁1",
+    "on": {
+     "temp": "v__0xd9b341",
+     "cmp": ">=",
+     "fix": 1
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "영양 만점의 맛있는 저녁2",
+    "on": {
+     "temp": "v__0xd9b341",
+     "cmp": ">=",
+     "fix": 2
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "영양 만점의 맛있는 저녁3",
+    "on": {
+     "temp": "v__0xd9b341",
+     "cmp": ">=",
+     "fix": 3
+    }
+   }
+  ]
+ }
+}

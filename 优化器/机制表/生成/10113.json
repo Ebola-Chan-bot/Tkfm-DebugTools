@@ -1,0 +1,317 @@
+{
+ "id": 10113,
+ "机动性": [
+  445,
+  4,
+  514,
+  4,
+  583,
+  4,
+  652,
+  4,
+  721,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "leader": [
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "섶"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 35,
+      "name": "내 전문적인 의료행위에 딴지 걸지 마!1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "섶"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 35,
+      "name": "내 전문적인 의료행위에 딴지 걸지 마!2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "힐"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 35,
+      "name": "내 전문적인 의료행위에 딴지 걸지 마!3",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "힐"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 35,
+      "name": "내 전문적인 의료행위에 딴지 걸지 마!4",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "암"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "hpUpAll": 20
+     },
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "<암흑요법>1",
+      "turn": "always"
+     },
+     {
+      "anbf": [
+       "all",
+       "궁",
+       "boss",
+       "받뎀증",
+       8,
+       "<암흑요법>2",
+       1,
+       5,
+       "always"
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "all",
+         "궁",
+         "$i",
+         "받속뎀",
+         8,
+         "<암흑요법>3",
+         1,
+         5,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁추가*",
+      "size": 100,
+      "name": "일침견혈(?)1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁추가*",
+      "size": 100,
+      "name": "일침견혈(?)2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "암"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "혼돈 요법1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "암"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "혼돈 요법2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "섶"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 15,
+      "name": "투여량 대폭 증가1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "섶"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 15,
+      "name": "투여량 대폭 증가2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "힐"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 15,
+      "name": "투여량 대폭 증가1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "힐"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 15,
+      "name": "투여량 대폭 증가2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ]
+ }
+}

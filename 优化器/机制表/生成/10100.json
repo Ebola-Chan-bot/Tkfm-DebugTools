@@ -1,0 +1,217 @@
+{
+ "id": 10100,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 15,
+      "name": "우사기 히메데스!",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 17.5,
+      "name": "우사기 히메데스!",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "우사기 히메데스!",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "ultafter": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 10,
+      "name": "우사기 히메데스!",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 12.5,
+      "name": "우사기 히메데스!",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": 10
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 30,
+    "name": "고유 결계 - 악토끼 왕국!1",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "공퍼증",
+     50,
+     "고유 결계 - 악토끼 왕국!2",
+     1,
+     4,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "탱",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "평추가*",
+      "size": 60,
+      "name": "<무다 무다 무다!>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "$i",
+      "type": "일뎀증",
+      "size": 60,
+      "name": "<무다 무다 무다!>2",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "평추가*",
+    "size": 60,
+    "name": "무한 찌찌!1",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "all",
+     "일뎀증",
+     15,
+     "무한 찌찌!2",
+     1,
+     3,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격력 증가",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "for": {
+         "kind": "全队"
+        },
+        "body": [
+         {
+          "cdChange": "$i",
+          "值": -2
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "turnover": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "nbf": [
+     "boss",
+     "받일뎀",
+     20,
+     "가라! 악토끼 삼전사!",
+     1,
+     5
+    ]
+   }
+  ]
+ }
+}

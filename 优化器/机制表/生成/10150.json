@@ -1,0 +1,521 @@
+{
+ "id": 10150,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "가뎀증",
+         10,
+         "무한 666666",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "가뎀증",
+         10,
+         "무한 666666",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "가뎀증",
+         15,
+         "무한 666666",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "가뎀증",
+         15,
+         "무한 666666",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "가뎀증",
+         20,
+         "무한 666666",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultafter": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 50,
+      "name": "무한 666666",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 57,
+      "name": "무한 666666",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 65,
+      "name": "무한 666666",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 72,
+      "name": "무한 666666",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 80,
+      "name": "무한 666666",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 80,
+    "name": "엔터테인먼트 시티의 용자 딜러1",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "광"
+     ],
+     "cmp": ">=",
+     "n": 4
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "궁뎀증",
+      "size": 40,
+      "name": "<섹시 딜러의 서비스>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "궁추가*",
+      "size": 66.6,
+      "name": "<섹시 딜러의 서비스>2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "광"
+     ],
+     "cmp": ">=",
+     "n": 4
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "flag": "NoCdChange",
+        "目标": "$i"
+       },
+       {
+        "tbf": "$i",
+        "type": "속상감",
+        "size": 100,
+        "name": "<타짜 입장>0",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "가뎀증",
+        "size": 30,
+        "name": "<타짜 입장>1",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "일뎀증",
+        "size": 50,
+        "name": "<타짜 입장>2",
+        "turn": "always"
+       },
+       {
+        "tbf": "$i",
+        "type": "평추가*",
+        "size": 18,
+        "name": "<타짜 입장>3",
+        "turn": "always"
+       },
+       {
+        "anbf": [
+         "$i",
+         "공격",
+         "boss",
+         "받뎀증",
+         0.4,
+         "<타짜 입장>4",
+         1,
+         50,
+         "always"
+        ]
+       },
+       {
+        "for": {
+         "kind": "element",
+         "mask": [
+          "광"
+         ]
+        },
+        "body": [
+         {
+          "anbf": [
+           {
+            "$i上": 1
+           },
+           "공격",
+           "$i",
+           "받속뎀",
+           0.6,
+           "<타짜 입장>5",
+           1,
+           50,
+           "always"
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "flag": "NoCdChange"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "날카로운 청각1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "광"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공퍼증",
+      "size": 30,
+      "name": "날카로운 청각2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 30,
+    "name": "용자의 가호1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "광"
+     ],
+     "排除self": true
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "평",
+       "$i",
+       "일뎀증",
+       40,
+       "용자의 가호2",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "광"
+     ],
+     "排除self": true
+    },
+    "body": [
+     {
+      "atbf": [
+       "$i",
+       "궁",
+       "self",
+       "가뎀증",
+       6.66,
+       "<손은 눈보다 빠르다>1",
+       4,
+       "always"
+      ]
+     },
+     {
+      "atbf": [
+       "$i",
+       "궁",
+       "self",
+       "궁뎀증",
+       18,
+       "<손은 눈보다 빠르다>2",
+       1,
+       "always"
+      ]
+     },
+     {
+      "atbf": [
+       "$i",
+       "궁",
+       "self",
+       "궁추가*",
+       25,
+       "<손은 눈보다 빠르다>3",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 7.5,
+    "name": "가하는 데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "元素计数",
+       "mask": [
+        "광"
+       ],
+       "cmp": ">=",
+       "n": 4
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "回合",
+         "cmp": "==",
+         "fix": 1
+        },
+        "then": [
+         {
+          "if": {
+           "kind": "boss字段",
+           "field": "element",
+           "cmp": "!=",
+           "undefined判定": true
+          },
+          "then": [
+           {
+            "if": {
+             "kind": "boss字段",
+             "field": "element",
+             "cmp": "==",
+             "val": 4
+            },
+            "then": [
+             {
+              "for": {
+               "kind": "element",
+               "mask": [
+                "광"
+               ]
+              },
+              "body": [
+               {
+                "tbf": "$i",
+                "type": "받속뎀",
+                "size": 50,
+                "name": "<섹시 딜러의 서비스>0",
+                "turn": 50
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

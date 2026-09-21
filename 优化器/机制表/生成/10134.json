@@ -1,0 +1,528 @@
+{
+ "id": 10134,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [
+  "TurnHealOff"
+ ],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁추가*",
+        "size": 65,
+        "name": "다들 함께 불러요~2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 30,
+      "name": "다들 함께 불러요~3",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁추가*",
+        "size": 75,
+        "name": "다들 함께 불러요~2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 37.5,
+      "name": "다들 함께 불러요~3",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁추가*",
+        "size": 75,
+        "name": "다들 함께 불러요~2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 45,
+      "name": "다들 함께 불러요~3",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁추가*",
+        "size": 75,
+        "name": "다들 함께 불러요~2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 52.5,
+      "name": "다들 함께 불러요~3",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "궁추가*",
+        "size": 75,
+        "name": "다들 함께 불러요~2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 60,
+      "name": "다들 함께 불러요~3",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "flag": "TurnHeal"
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "self",
+         "평",
+         "$i",
+         "공고증",
+         {
+          "atkRef": [
+           "myCurAtk",
+           "+selfId",
+           10
+          ]
+         },
+         "다들 함께 불러요~1",
+         1,
+         5
+        ]
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "self",
+         "궁",
+         "$i",
+         "공고증",
+         {
+          "atkRef": [
+           "myCurAtk",
+           "+selfId",
+           10
+          ]
+         },
+         "다들 함께 불러요~1",
+         1,
+         5
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "self",
+         "평",
+         "$i",
+         "공고증",
+         {
+          "atkRef": [
+           "myCurAtk",
+           "+selfId",
+           12.5
+          ]
+         },
+         "다들 함께 불러요~1",
+         1,
+         5
+        ]
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "self",
+         "궁",
+         "$i",
+         "공고증",
+         {
+          "atkRef": [
+           "myCurAtk",
+           "+selfId",
+           12.5
+          ]
+         },
+         "다들 함께 불러요~1",
+         1,
+         5
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "self",
+         "평",
+         "$i",
+         "공고증",
+         {
+          "atkRef": [
+           "myCurAtk",
+           "+selfId",
+           15
+          ]
+         },
+         "다들 함께 불러요~1",
+         1,
+         5
+        ]
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "self",
+         "궁",
+         "$i",
+         "공고증",
+         {
+          "atkRef": [
+           "myCurAtk",
+           "+selfId",
+           15
+          ]
+         },
+         "다들 함께 불러요~1",
+         1,
+         5
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "flag": "TurnHeal"
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 35
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "boss",
+     "받뎀증",
+     30,
+     "<슬픔을 몰아내는 빛>1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "궁추가*",
+       80,
+       "<슬픔을 몰아내는 빛>2",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素种类",
+     "cmp": "==",
+     "val": 4
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 125,
+      "name": "<아이돌 댄스팀>1",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 35,
+    "name": "입만 열면 터지는 flow1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         15
+        ]
+       },
+       "입만 열면 터지는 flow2",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         15
+        ]
+       },
+       "팬들은 wow",
+       1,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "turnover": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "单位字段",
+     "field": "turnHeal",
+     "目标": "self"
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": []
+     }
+    ]
+   },
+   {
+    "flag": "TurnHealOff"
+   }
+  ]
+ }
+}

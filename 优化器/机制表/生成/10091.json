@@ -1,0 +1,369 @@
+{
+ "id": 10091,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          40
+         ]
+        },
+        "name": "블링블링 노엘리빔",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          45
+         ]
+        },
+        "name": "블링블링 노엘리빔",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          45
+         ]
+        },
+        "name": "블링블링 노엘리빔",
+        "turn": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          50
+         ]
+        },
+        "name": "블링블링 노엘리빔",
+        "turn": 2
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          55
+         ]
+        },
+        "name": "블링블링 노엘리빔",
+        "turn": 2
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "cdChange": "$i",
+      "值": -1
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        40
+       ]
+      },
+      "name": "열정의 제창",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "여름의 운치 해변의 빛나는 별1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "평",
+       "$i",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         40
+        ]
+       },
+       "여름의 운치 해변의 빛나는 별2",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         25
+        ]
+       },
+       "여름의 운치 해변의 빛나는 별3",
+       10,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "$i",
+       "공격",
+       {
+        "comp": 0
+       },
+       "공퍼증",
+       25,
+       "아이돌 응원단!",
+       4,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "아머",
+     {
+      "hpExpr": {
+       "base": "self",
+       "N": 50
+      }
+     },
+     "떨어지는 유성 같은~",
+     1,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "궁뎀증",
+      "size": 35,
+      "name": "무대 위의 초신성",
+      "turn": 50
+     }
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "공격",
+     "all",
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       10
+      ]
+     },
+     "브릴리언트 블링블링 빅뱅1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "브릴리언트 블링블링 빅뱅2",
+      "turn": 50
+     }
+    ]
+   }
+  ]
+ }
+}

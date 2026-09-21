@@ -1,0 +1,1022 @@
+{
+ "id": 10158,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [
+  "<절묘한 비책>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 40,
+      "name": "크리스마스 팔진도",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 48.75,
+      "name": "크리스마스 팔진도",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 57.5,
+      "name": "크리스마스 팔진도",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 66.25,
+      "name": "크리스마스 팔진도",
+      "turn": 3
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 75,
+      "name": "크리스마스 팔진도",
+      "turn": 3
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "temp": [
+       "v__0x3ef19c",
+       {
+        "getNest": "<절묘한 비책>",
+        "目标": "$i"
+       }
+      ]
+     },
+     {
+      "setBuffOnExtra": "$i",
+      "act": "피격",
+      "div": "발동",
+      "name": "<신묘한 계략>",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": "==",
+       "fix": 3
+      }
+     },
+     {
+      "setBuffOnExtra": "$i",
+      "act": "피격",
+      "div": "발동",
+      "name": "<절묘한 비책>",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": "==",
+       "fix": 3
+      }
+     },
+     {
+      "setBuffOn": "$i",
+      "div": "기본",
+      "name": "<제2계-옹중착별>",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": "==",
+       "fix": 2
+      }
+     },
+     {
+      "setBuffOnExtra": "$i",
+      "act": "궁",
+      "div": "발동",
+      "name": "<신묘한 계략>",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": "==",
+       "fix": 2
+      }
+     },
+     {
+      "setBuffOnExtra": "$i",
+      "act": "궁",
+      "div": "발동",
+      "name": "<절묘한 비책>",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": "==",
+       "fix": 2
+      }
+     },
+     {
+      "setBuffOnExtra": "$i",
+      "act": "궁",
+      "div": "발동",
+      "name": "<제2계-옹중착별>",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": "==",
+       "fix": 2
+      }
+     },
+     {
+      "setBuffOn": "$i",
+      "div": "기본",
+      "name": "<제3계-천승추격>",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": "==",
+       "fix": 1
+      }
+     },
+     {
+      "setBuffOnExtra": "$i",
+      "act": "평",
+      "div": "발동",
+      "name": "<신묘한 계략>",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": "==",
+       "fix": 1
+      }
+     },
+     {
+      "setBuffOnExtra": "$i",
+      "act": "평",
+      "div": "발동",
+      "name": "<절묘한 비책>",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": "==",
+       "fix": 1
+      }
+     },
+     {
+      "setBuffOnExtra": "$i",
+      "act": "평",
+      "div": "발동",
+      "name": "<제3계-천승추격>",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": "==",
+       "fix": 1
+      }
+     },
+     {
+      "setBuffOnExtra": "$i",
+      "act": "평",
+      "div": "발동",
+      "name": "계략 총동원",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": "==",
+       "fix": 1
+      }
+     },
+     {
+      "setBuffOn": "$i",
+      "div": "기본",
+      "name": "계략 총동원",
+      "on": {
+       "temp": "v__0x3ef19c",
+       "cmp": ">=",
+       "fix": 1
+      }
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "anbf": [
+       "$i",
+       "공격",
+       "$i",
+       "<절묘한 비책>",
+       0,
+       "<절묘한 비책>",
+       3,
+       3,
+       1
+      ]
+     },
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "排除上层栈",
+         "cmp": "!=",
+         "上层": 1
+        },
+        "then": [
+         {
+          "if": {
+           "kind": "排除上层栈",
+           "cmp": "!=",
+           "上层": 0
+          },
+          "then": [
+           {
+            "atbf": [
+             {
+              "$i上": 1
+             },
+             "공격",
+             "$i",
+             "제거",
+             "발동",
+             "<절묘한 비책>",
+             1,
+             1
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "if": {
+     "kind": "元素种类",
+     "cmp": "==",
+     "val": 5
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "<결승천리지외>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 80,
+      "name": "<결승천리지외>2",
+      "turn": "always"
+     },
+     {
+      "anbf": [
+       "all",
+       "공격",
+       "boss",
+       "받뎀증",
+       1,
+       "<결승천리지외>3",
+       1,
+       50,
+       "always"
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "평추가*",
+      "size": 100,
+      "name": "<결승천리지외>4",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "궁추가*",
+      "size": 130,
+      "name": "<결승천리지외>5",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "anbf": [
+       "self",
+       "궁",
+       "$i",
+       "<절묘한 비책>",
+       0,
+       "<절묘한 비책>",
+       -3,
+       3,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "buff": [
+       "$i",
+       "피격",
+       "boss",
+       "받뎀증",
+       5,
+       "<신묘한 계략>",
+       1,
+       6,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "피격",
+       "$i",
+       "<절묘한 비책>",
+       0,
+       "<절묘한 비책>",
+       -1,
+       3,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "궁뎀증",
+       30,
+       "<제2계-옹중착별>",
+       "always",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "궁",
+       "boss",
+       "받뎀증",
+       5,
+       "<신묘한 계략>",
+       1,
+       6,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "궁",
+       "$i",
+       "<절묘한 비책>",
+       0,
+       "<절묘한 비책>",
+       -1,
+       3,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "궁",
+       "$i",
+       "off",
+       "기본",
+       "<제2계-옹중착별>",
+       1,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "일뎀증",
+       60,
+       "<제3계-천승추격>",
+       "always",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "평",
+       "boss",
+       "받뎀증",
+       5,
+       "<신묘한 계략>",
+       1,
+       6,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "평",
+       "$i",
+       "<절묘한 비책>",
+       0,
+       "<절묘한 비책>",
+       -1,
+       3,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "평",
+       "$i",
+       "off",
+       "기본",
+       "<제3계-천승추격>",
+       1,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "평",
+       "$i",
+       "off",
+       "기본",
+       "계략 총동원",
+       1,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "inject": {
+       "方法": "attack",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "temp": [
+          "v__0x3ef19c",
+          {
+           "getNest": "<절묘한 비책>",
+           "目标": "$i"
+          }
+         ]
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "피격",
+         "div": "발동",
+         "name": "<신묘한 계략>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 3
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "피격",
+         "div": "발동",
+         "name": "<절묘한 비책>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 3
+         }
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "<제2계-옹중착별>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "궁",
+         "div": "발동",
+         "name": "<신묘한 계략>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "궁",
+         "div": "발동",
+         "name": "<절묘한 비책>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "궁",
+         "div": "발동",
+         "name": "<제2계-옹중착별>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "<제3계-천승추격>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "<신묘한 계략>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "<절묘한 비책>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "<제3계-천승추격>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "계략 총동원",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "계략 총동원",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": ">=",
+          "fix": 1
+         }
+        }
+       ]
+      }
+     },
+     {
+      "inject": {
+       "方法": "ultimate",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "temp": [
+          "v__0x3ef19c",
+          {
+           "getNest": "<절묘한 비책>",
+           "目标": "$i"
+          }
+         ]
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "피격",
+         "div": "발동",
+         "name": "<신묘한 계략>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 3
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "피격",
+         "div": "발동",
+         "name": "<절묘한 비책>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 3
+         }
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "<제2계-옹중착별>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "궁",
+         "div": "발동",
+         "name": "<신묘한 계략>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "궁",
+         "div": "발동",
+         "name": "<절묘한 비책>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "궁",
+         "div": "발동",
+         "name": "<제2계-옹중착별>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "<제3계-천승추격>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "<신묘한 계략>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "<절묘한 비책>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "<제3계-천승추격>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "계략 총동원",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "계략 총동원",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": ">=",
+          "fix": 1
+         }
+        }
+       ]
+      }
+     },
+     {
+      "inject": {
+       "方法": "hit",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "temp": [
+          "v__0x3ef19c",
+          {
+           "getNest": "<절묘한 비책>",
+           "目标": "$i"
+          }
+         ]
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "피격",
+         "div": "발동",
+         "name": "<신묘한 계략>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 3
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "피격",
+         "div": "발동",
+         "name": "<절묘한 비책>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 3
+         }
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "<제2계-옹중착별>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "궁",
+         "div": "발동",
+         "name": "<신묘한 계략>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "궁",
+         "div": "발동",
+         "name": "<절묘한 비책>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "궁",
+         "div": "발동",
+         "name": "<제2계-옹중착별>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "<제3계-천승추격>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "<신묘한 계략>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "<절묘한 비책>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "<제3계-천승추격>",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOnExtra": "$i",
+         "act": "평",
+         "div": "발동",
+         "name": "계략 총동원",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": "==",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "계략 총동원",
+         "on": {
+          "temp": "v__0x3ef19c",
+          "cmp": ">=",
+          "fix": 1
+         }
+        }
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "buff": [
+       "$i",
+       "가뎀증",
+       20,
+       "계략 총동원",
+       "always",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -1
+     }
+    ]
+   }
+  ]
+ }
+}

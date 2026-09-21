@@ -1,0 +1,108 @@
+{
+  "id": 10177,
+  "机动性": [0, 3, 0, 3, 0, 3, 0, 3, 0, 3],
+  "槽位初值": {},
+  "排除伤害": ["<기내식엔 저도 포함♡>"],
+  "旗标": [],
+  "钩子": {
+    "ultbefore": [
+      { "tbf": "all", "type": "공퍼증", "size": { "perLib": [45, 52.5, 60, 67.5, 75] },
+        "name": { "perLib": ["가성비 좌석~!1", "이코노미 좌석~!!", "프리미엄 이코노미 좌석~!1", "비즈니스 좌석~!1", "품격 만점의 퍼스트 클래스~!1"] }, "turn": 1 },
+      { "for": { "kind": "role", "mask": ["딜"] }, "body": [
+        { "tbf": "$i", "type": "궁뎀증", "size": { "perLib": [24, 28, 32, 36, 40] },
+          "name": { "perLib": ["가성비 좌석~!2", "이코노미 좌석~!2", "프리미엄 이코노미 좌석~!2", "비즈니스 좌석~!2", "품격 만점의 퍼스트 클래스~!2"] }, "turn": 1 }
+      ] },
+      { "for": { "kind": "role", "mask": ["딜"] }, "body": [
+        { "tbf": "$i", "type": "가뎀증", "size": { "perLib": [null, null, 5, 10, 15] },
+          "name": { "perLib": [null, null, "프리미엄 이코노미 좌석~!3", "비즈니스 좌석~!3", "품격 만점의 퍼스트 클래스~!3"] }, "turn": 1 }
+      ] },
+      { "for": { "kind": "role", "mask": ["딜"] }, "body": [
+        { "tbf": "$i", "type": "궁추가*", "size": { "perLib": [null, null, 20, 40, 60] },
+          "name": { "perLib": [null, null, "프리미엄 이코노미 좌석~!4", "비즈니스 좌석~!4", "품격 만점의 퍼스트 클래스~!4"] }, "turn": 1 }
+      ] }
+    ],
+
+    "atkbefore": [
+      { "for": { "kind": "role", "mask": ["딜"] }, "body": [
+        { "tbf": "$i", "type": "공고증",
+          "size": { "atkRef": ["myCurAtk", "+selfId", 30] }, "name": "기내 서비스", "turn": 1 }
+      ] }
+    ],
+
+    "leader": [
+      { "hpUpAll": 40 },
+      { "tbf": "all", "type": "공퍼증", "size": 120, "name": "바알 항공에 탑승하신 여러분을 환영합니다~1", "turn": "always" },
+      { "for": { "kind": "element", "mask": ["광"] }, "body": [
+        { "anbf": ["$i", "궁", "$i", "<기내식엔 저도 포함♡>", 0, "<즐거운 여행 되시길 바랍니다>", 1, 3, "always"] },
+        { "buff": ["$i", "궁", "$i", "on", "기본", "<즐거운 여행 되시길 바랍니다>1", 1, "always", "발동", false] },
+        { "buff": ["$i", "궁", "$i", "on", "기본", "<즐거운 여행 되시길 바랍니다>2", 1, "always", "발동", false] },
+        { "buff": ["$i", "궁", "$i", "on", "기본", "<즐거운 여행 되시길 바랍니다>3", 1, "always", "발동", false] },
+        { "buff": ["$i", "궁뎀증", 50, "<즐거운 여행 되시길 바랍니다>1", "always", false] },
+        { "buff": ["$i", "궁뎀증", 50, "<즐거운 여행 되시길 바랍니다>2", "always", false] },
+        { "buff": ["$i", "궁추가*", 140, "<즐거운 여행 되시길 바랍니다>3", "always", false] },
+        { "inject": {
+          "方法": "ultimate", "目标": "$i", "模式": "环绕",
+          "快照": [ { "temp": ["v1", { "getNest": "<기내식엔 저도 포함♡>", "目标": "$i" }] } ],
+          "前置": [
+            { "if": { "kind": "temp", "var": "v1", "cmp": "==", "fix": 0 },
+              "then": [ { "setBuffOn": "$i", "div": "발동", "name": "<즐거운 여행 되시길 바랍니다>1", "on": true } ] },
+            { "if": { "kind": "temp", "var": "v1", "cmp": "==", "fix": 1 },
+              "then": [ { "setBuffOn": "$i", "div": "발동", "name": "<즐거운 여행 되시길 바랍니다>2", "on": true } ] },
+            { "if": { "kind": "temp", "var": "v1", "cmp": "==", "fix": 2 },
+              "then": [ { "setBuffOn": "$i", "div": "발동", "name": "<즐거운 여행 되시길 바랍니다>3", "on": true } ] }
+          ],
+          "后置": [
+            { "if": { "kind": "temp", "var": "v1", "cmp": "==", "fix": 0 },
+              "then": [ { "setBuffOn": "$i", "div": "발동", "name": "<즐거운 여행 되시길 바랍니다>1", "on": false } ] },
+            { "if": { "kind": "temp", "var": "v1", "cmp": "==", "fix": 1 },
+              "then": [ { "setBuffOn": "$i", "div": "발동", "name": "<즐거운 여행 되시길 바랍니다>2", "on": false } ] },
+            { "if": { "kind": "temp", "var": "v1", "cmp": "==", "fix": 2 },
+              "then": [ { "setBuffOn": "$i", "div": "발동", "name": "<즐거운 여행 되시길 바랍니다>3", "on": false } ] }
+          ]
+        } }
+      ] },
+      { "if": { "kind": "元素种类", "in": [3, 4, 5] },
+        "then": [ { "tbf": "self", "type": "공퍼증", "size": -500, "name": "<나나미는 바빠요>", "turn": "always" } ] }
+    ],
+
+    "passive": [
+      { "for": { "kind": "role", "mask": ["딜"] }, "body": [
+        { "atbf": ["self", "궁", "$i", "공고증", { "atkRef": ["myCurAtk", "+selfId", 30] }, "비행하기에 아주 좋은 날이네요~1", 1, "always"] }
+      ] },
+      { "for": { "kind": "role", "mask": ["딜"] }, "body": [
+        { "tbf": "$i", "type": "궁추가*", "size": 15, "name": "비행하기에 아주 좋은 날이네요~2", "turn": "always" }
+      ] },
+      { "for": { "kind": "role", "mask": ["딜"] }, "body": [
+        { "atbf": ["self", "궁", "$i", "공고증", { "atkRef": ["myCurAtk", "+selfId", 20] }, "나나미의 개인 서비스1", 1, "always"] }
+      ] },
+      { "for": { "kind": "role", "mask": ["딜"] }, "body": [
+        { "tbf": "$i", "type": "궁추가*", "size": 15, "name": "나나미의 개인 서비스3", "turn": "always" }
+      ] },
+      { "tbf": "self", "type": "공퍼증", "size": 10, "name": "공격+", "turn": "always" }
+    ],
+
+    "turnstart": [
+      { "if": { "kind": "队长", "cmp": "==", "val": true }, "then": [
+        { "if": { "kind": "回合", "cmp": "==", "fix": 1 }, "then": [
+          { "for": { "kind": "element", "mask": ["광"] }, "body": [
+            { "cdChange": "$i", "值": -3 }
+          ] }
+        ] },
+        { "if": { "kind": "回合模", "偏移": -1, "模": 3, "余": 0 }, "then": [
+          { "for": { "kind": "element", "mask": ["광"] }, "body": [
+            { "tbf": "$i", "type": "받속뎀", "size": 50, "name": "바알 항공에 탑승하신 여러분을 환영합니다~2", "turn": 1 }
+          ] },
+          { "tbf": "boss", "type": "받뎀증", "size": 25, "name": "바알 항공에 탑승하신 여러분을 환영합니다~3", "turn": 1 }
+        ] }
+      ] },
+      { "if": { "kind": "回合模", "偏移": -1, "模": 3, "余": 0 }, "then": [
+        { "for": { "kind": "element", "mask": ["광", "암"] }, "body": [
+          { "tbf": "$i", "type": "받속뎀", "size": 20, "name": "청순하고 달콤한 영업용 미소", "turn": 1 }
+        ] },
+        { "for": { "kind": "element", "mask": ["광", "암"] }, "body": [
+          { "tbf": "$i", "type": "받속뎀", "size": 20, "name": "나나미의 개인 서비스2", "turn": 1 }
+        ] }
+      ] }
+    ]
+  }
+}

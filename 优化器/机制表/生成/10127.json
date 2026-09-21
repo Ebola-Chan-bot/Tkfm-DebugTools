@@ -1,0 +1,402 @@
+{
+ "id": 10127,
+ "机动性": [
+  0,
+  30,
+  0,
+  30,
+  0,
+  30,
+  0,
+  30,
+  0,
+  30
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 10,
+      "name": "꿈나라의 왕1",
+      "turn": 15
+     },
+     {
+      "buff": [
+       "self",
+       "공격",
+       "all",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         20
+        ]
+       },
+       "꿈나라의 왕2",
+       1,
+       15,
+       "발동",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 15,
+      "name": "꿈나라의 왕1",
+      "turn": 15
+     },
+     {
+      "buff": [
+       "self",
+       "공격",
+       "all",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         22.5
+        ]
+       },
+       "꿈나라의 왕2",
+       1,
+       15,
+       "발동",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 20,
+      "name": "꿈나라의 왕1",
+      "turn": 15
+     },
+     {
+      "buff": [
+       "self",
+       "공격",
+       "all",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         25
+        ]
+       },
+       "꿈나라의 왕2",
+       1,
+       15,
+       "발동",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 25,
+      "name": "꿈나라의 왕1",
+      "turn": 15
+     },
+     {
+      "buff": [
+       "self",
+       "공격",
+       "all",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         27.5
+        ]
+       },
+       "꿈나라의 왕2",
+       1,
+       15,
+       "발동",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "꿈나라의 왕1",
+      "turn": 15
+     },
+     {
+      "buff": [
+       "self",
+       "공격",
+       "all",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         30
+        ]
+       },
+       "꿈나라의 왕2",
+       1,
+       15,
+       "발동",
+       false
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "cdChange": "self",
+    "值": -1
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "setBuffOnAll": "$i",
+      "div": "발동",
+      "name": "꿈나라의 왕2",
+      "on": true
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공퍼증",
+      "size": 40,
+      "name": "꿈의 거품",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "cdChange": "self",
+    "值": -1
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "전설의 환수1",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "수"
+     ],
+     "cmp": ">=",
+     "n": 4
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 80,
+      "name": "<영원한 꿈>1",
+      "turn": "always"
+     },
+     {
+      "anbf": [
+       "all",
+       "궁",
+       "all",
+       "가뎀증",
+       50,
+       "<영원한 꿈>2",
+       1,
+       1,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "평",
+       "$i",
+       "공발동*",
+       25,
+       "<강제 수면>1",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "defense": [
+   {
+    "actDefense": true
+   },
+   {
+    "cdChange": "self",
+    "值": -1
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": "==",
+       "fix": 10
+      },
+      "then": [
+       {
+        "tbf": "all",
+        "type": "궁뎀증",
+        "size": 150,
+        "name": "전설의 환수2",
+        "turn": 40
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -30
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 4
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "분노한 드림이터1",
+      "turn": 16
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 7
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "분노한 드림이터2",
+      "turn": 13
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 10
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 40,
+      "name": "분노한 드림이터3",
+      "turn": 10
+     }
+    ]
+   }
+  ]
+ }
+}

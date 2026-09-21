@@ -1,0 +1,861 @@
+{
+ "id": 10023,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<재편제>",
+  "<역공 타이밍>",
+  "<나약한 허상>",
+  "<방향 틀기>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 40,
+      "name": "광견의 충복1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          20
+         ]
+        },
+        "name": "광견의 충복2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "atbf": [
+       "self",
+       "방",
+       "all",
+       "아머",
+       {
+        "hpExpr": {
+         "base": "self",
+         "N": 15
+        }
+       },
+       "광견의 충복3",
+       4,
+       4
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 60,
+      "name": "광견의 충복1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          20
+         ]
+        },
+        "name": "광견의 충복2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "atbf": [
+       "self",
+       "방",
+       "all",
+       "아머",
+       {
+        "hpExpr": {
+         "base": "self",
+         "N": 17.5
+        }
+       },
+       "광견의 충복3",
+       4,
+       4
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 70,
+      "name": "광견의 충복1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          22.5
+         ]
+        },
+        "name": "광견의 충복2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "atbf": [
+       "self",
+       "방",
+       "all",
+       "아머",
+       {
+        "hpExpr": {
+         "base": "self",
+         "N": 17.5
+        }
+       },
+       "광견의 충복3",
+       4,
+       4
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 90,
+      "name": "광견의 충복1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          22.5
+         ]
+        },
+        "name": "광견의 충복2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "atbf": [
+       "self",
+       "방",
+       "all",
+       "아머",
+       {
+        "hpExpr": {
+         "base": "self",
+         "N": 20
+        }
+       },
+       "광견의 충복3",
+       4,
+       4
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "광견의 충복1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          25
+         ]
+        },
+        "name": "광견의 충복2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "atbf": [
+       "self",
+       "방",
+       "all",
+       "아머",
+       {
+        "hpExpr": {
+         "base": "self",
+         "N": 20
+        }
+       },
+       "광견의 충복3",
+       4,
+       4
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "temp": [
+     "v__0x79277f",
+     {
+      "slot": "stack"
+     }
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "추가",
+    "name": "<반서의 포효>1-1",
+    "on": {
+     "temp": "v__0x79277f",
+     "cmp": ">",
+     "fix": 0
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "추가",
+    "name": "<반서의 포효>1-2",
+    "on": {
+     "temp": "v__0x79277f",
+     "cmp": ">",
+     "fix": 0
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "추가",
+    "name": "<반서의 포효>1-3",
+    "on": {
+     "temp": "v__0x79277f",
+     "cmp": ">",
+     "fix": 0
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "추가",
+    "name": "<반서의 포효>1-4",
+    "on": {
+     "temp": "v__0x79277f",
+     "cmp": ">",
+     "fix": 0
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "추가",
+    "name": "<반서의 포효>2",
+    "on": {
+     "temp": "v__0x79277f",
+     "cmp": ">",
+     "fix": 0
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "추가",
+    "name": "<반서의 포효>3",
+    "on": {
+     "temp": "v__0x79277f",
+     "cmp": ">",
+     "fix": 0
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "추가",
+    "name": "<반서의 포효>4",
+    "on": {
+     "temp": "v__0x79277f",
+     "cmp": ">",
+     "fix": 0
+    }
+   },
+   {
+    "temp": [
+     "v__0x2610f0",
+     {
+      "getNest": "<역공 타이밍>"
+     }
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<역습의 포화>",
+    "on": {
+     "temp": "v__0x2610f0",
+     "cmp": ">",
+     "fix": 0
+    }
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "기본",
+    "name": "<역습의 총알 세례>",
+    "on": {
+     "temp": "v__0x2610f0",
+     "cmp": ">",
+     "fix": 0
+    }
+   },
+   {
+    "ultLogic": null
+   },
+   {
+    "setSlot": [
+     "stack",
+     0
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 25,
+    "name": "작전 지휘",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 10
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "광견의 시야1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "anbf": [
+       "$i",
+       "방",
+       {
+        "comp": 0
+       },
+       "<재편제>",
+       0,
+       "광견의 시야2",
+       1,
+       4,
+       50
+      ]
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     {
+      "comp": 1
+     },
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       25
+      ]
+     },
+     "<반서의 포효>1-1",
+     1,
+     "always",
+     "추가",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     {
+      "comp": 2
+     },
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       25
+      ]
+     },
+     "<반서의 포효>1-2",
+     1,
+     "always",
+     "추가",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     {
+      "comp": 3
+     },
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       25
+      ]
+     },
+     "<반서의 포효>1-3",
+     1,
+     "always",
+     "추가",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     {
+      "comp": 4
+     },
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       25
+      ]
+     },
+     "<반서의 포효>1-4",
+     1,
+     "always",
+     "추가",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "all",
+     "가뎀증",
+     50,
+     "<반서의 포효>2",
+     1,
+     "always",
+     "추가",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "all",
+     "궁뎀증",
+     50,
+     "<반서의 포효>3",
+     1,
+     "always",
+     "추가",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "boss",
+     "받뎀증",
+     50,
+     "<반서의 포효>4",
+     1,
+     "always",
+     "추가",
+     false
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "<방향 틀기>",
+     0,
+     "광견의 시야3",
+     -1,
+     1,
+     "always"
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "nbf": [
+     "self",
+     "<나약한 허상>",
+     0,
+     "전략적 후퇴",
+     1,
+     1
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "<나약한 허상>",
+     0,
+     "전략적 후퇴",
+     1,
+     1,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "방",
+     "self",
+     "<역공 타이밍>",
+     0,
+     "자신감의 계략",
+     1,
+     1,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     150,
+     "<역습의 포화>",
+     "always",
+     false
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "self",
+     "<역공 타이밍>",
+     0,
+     "자신감의 계략",
+     -1,
+     1,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     45.5,
+     "<역습의 총알 세례>",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     45.5,
+     "<역습의 총알 세례>",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     45.5,
+     "<역습의 총알 세례>",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     45.5,
+     "<역습의 총알 세례>",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     45.5,
+     "<역습의 총알 세례>",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     45.5,
+     "<역습의 총알 세례>",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     45.5,
+     "<역습의 총알 세례>",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     45.5,
+     "<역습의 총알 세례>",
+     "always",
+     false
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "defense": [
+   {
+    "actDefense": true
+   },
+   {
+    "deleteBuff": [
+     "self",
+     "발동",
+     "광견의 충복3"
+    ]
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "nest比较",
+       "type": "<재편제>",
+       "cmp": "==",
+       "fix": 4
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<방향 틀기>",
+         0,
+         "광견의 시야3",
+         1,
+         1
+        ]
+       },
+       {
+        "setSlot": [
+         "stack",
+         1
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "nest比较",
+     "type": "<나약한 허상>",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "atbf": [
+       "self",
+       "피격",
+       "all",
+       "가뎀증",
+       35,
+       "<반격>",
+       5,
+       1
+      ]
+     },
+     {
+      "anbf": [
+       "self",
+       "피격",
+       "self",
+       "<나약한 허상>",
+       0,
+       "전략적 후퇴",
+       -1,
+       1,
+       1
+      ]
+     }
+    ]
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": ">",
+       "fix": 1
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<재편제>",
+         0,
+         "광견의 시야2",
+         -4,
+         4
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "init": [
+   {
+    "inject": {
+     "方法": "hit",
+     "目标": "self",
+     "模式": "追加",
+     "后置": [
+      {
+       "deleteBuff": [
+        "self",
+        "발동",
+        "<반격>"
+       ]
+      }
+     ]
+    }
+   }
+  ]
+ }
+}

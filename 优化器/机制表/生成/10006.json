@@ -1,0 +1,296 @@
+{
+ "id": 10006,
+ "机动性": [
+  0,
+  5,
+  0,
+  5,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "섶"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          20
+         ]
+        },
+        "name": "모두 화이팅!",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "섶"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          20
+         ]
+        },
+        "name": "모두 화이팅!",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "섶"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          20
+         ]
+        },
+        "name": "모두 화이팅!",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "섶"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          20
+         ]
+        },
+        "name": "모두 화이팅!",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "섶"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "공고증",
+        "size": {
+         "atkRef": [
+          "myCurAtk",
+          "+selfId",
+          25
+         ]
+        },
+        "name": "모두 화이팅!",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 35
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "탱"
+     ]
+    },
+    "body": [
+     {
+      "hpUpMe": [
+       "$i",
+       15
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 40,
+    "name": "보호 욕구 자극1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "궁뎀증",
+    "size": 25,
+    "name": "보호 욕구 자극2",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "가뎀증",
+    "size": 20,
+    "name": "보호 욕구 자극3",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "평",
+     "lowestHp",
+     "힐",
+     40,
+     "추가 치료",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "공격",
+     "all",
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       25
+      ]
+     },
+     "전격 지원",
+     1,
+     "always"
+    ]
+   },
+   {
+    "tbf": "all",
+    "type": "궁뎀증",
+    "size": 30,
+    "name": "모두에게 노력의 성과를 보여주겠어!1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "풍"
+     ]
+    },
+    "body": [
+     {
+      "anbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       20,
+       "모두에게 노력의 성과를 보여주겠어!2",
+       1,
+       2,
+       "always"
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

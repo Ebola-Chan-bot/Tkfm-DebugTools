@@ -1,0 +1,431 @@
+{
+ "id": 10172,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "deleteBuff": [
+     "self",
+     "기본",
+     "물총 전쟁 시작~!1"
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 60,
+      "name": "물총 전쟁 시작~!1",
+      "turn": 4
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         18,
+         "물총 전쟁 시작~!2",
+         1,
+         1
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 20,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "물총 전쟁 시작~!4",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 70,
+      "name": "물총 전쟁 시작~!1",
+      "turn": 4
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         21,
+         "물총 전쟁 시작~!2",
+         1,
+         1
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 20,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "물총 전쟁 시작~!4",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 80,
+      "name": "물총 전쟁 시작~!1",
+      "turn": 4
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         24,
+         "물총 전쟁 시작~!2",
+         1,
+         1
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 20,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "물총 전쟁 시작~!4",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 90,
+      "name": "물총 전쟁 시작~!1",
+      "turn": 4
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         27,
+         "물총 전쟁 시작~!2",
+         1,
+         1
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 20,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "물총 전쟁 시작~!4",
+      "turn": 2
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "물총 전쟁 시작~!1",
+      "turn": 4
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         30,
+         "물총 전쟁 시작~!2",
+         1,
+         1
+        ]
+       }
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 20,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "물총 전쟁 시작~!4",
+      "turn": 2
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "프로 순록 가이드1",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "광"
+     ],
+     "cmp": ">=",
+     "n": 4
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "일뎀증",
+      "size": 75,
+      "name": "<출발 준비 완료>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "평추가*",
+      "size": 30,
+      "name": "<출발 준비 완료>2",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "평추가*",
+      "size": 30,
+      "name": "<출발 준비 완료>3",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "공격",
+     "all",
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       10
+      ]
+     },
+     "프로 순록 가이드2",
+     1,
+     "always"
+    ]
+   },
+   {
+    "nbf": [
+     "boss",
+     "받뎀증",
+     30,
+     "프로 순록 가이드3",
+     1,
+     1
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "광"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "평",
+       "$i",
+       "일뎀증",
+       85,
+       "시련의 안내인1",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "공격",
+     "all",
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       20
+      ]
+     },
+     "지속형 순록 보급1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "광"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "평추가*",
+      "size": 30,
+      "name": "지속형 순록 보급3",
+      "turn": "always"
+     }
+    ]
+   }
+  ]
+ }
+}

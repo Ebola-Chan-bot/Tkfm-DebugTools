@@ -1,0 +1,1078 @@
+{
+ "id": 10197,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [
+  "<상부상조>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 231,
+      "name": "천-요화유리1",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "self",
+       "궁뎀증",
+       15,
+       "천-요화유리2",
+       1,
+       3
+      ]
+     },
+     {
+      "bossDefOff": true
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 269.5,
+      "name": "천-요화유리1",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "self",
+       "궁뎀증",
+       17.5,
+       "천-요화유리2",
+       1,
+       3
+      ]
+     },
+     {
+      "bossDefOff": true
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 308,
+      "name": "천-요화유리1",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "self",
+       "궁뎀증",
+       20,
+       "천-요화유리2",
+       1,
+       3
+      ]
+     },
+     {
+      "bossDefOff": true
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         3,
+         "천-요화유리4",
+         1,
+         3
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 346.5,
+      "name": "천-요화유리1",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "self",
+       "궁뎀증",
+       22.5,
+       "천-요화유리2",
+       1,
+       3
+      ]
+     },
+     {
+      "bossDefOff": true
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         6,
+         "천-요화유리4",
+         1,
+         3
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 385,
+      "name": "천-요화유리1",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "self",
+       "궁뎀증",
+       25,
+       "천-요화유리2",
+       1,
+       3
+      ]
+     },
+     {
+      "bossDefOff": true
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         9,
+         "천-요화유리4",
+         1,
+         3
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "temp": [
+     "v__0x3a1dd4",
+     {
+      "bossField": "def"
+     }
+    ]
+   },
+   {
+    "ultLogic": 5
+   },
+   {
+    "if": {
+     "kind": "temp真值",
+     "var": "v__0x3a1dd4"
+    },
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       30,
+       "여우의 환영",
+       1,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "nbf": [
+     "self",
+     "<상부상조>",
+     0,
+     "<익자삼우>",
+     -3,
+     3
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "세상을 유영하다1",
+    "on": false
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "세상을 유영하다2",
+    "on": false
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "세상을 유영하다3",
+    "on": false
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "setBuffOnAll": "self",
+      "div": "기본",
+      "name": "<절대 매혹>3",
+      "on": false
+     },
+     {
+      "setBuffOnAll": "self",
+      "div": "기본",
+      "name": "<절대 매혹>4",
+      "on": false
+     },
+     {
+      "setBuffOnAll": "self",
+      "div": "기본",
+      "name": "<절대 매혹>5",
+      "on": false
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "탱",
+        "디"
+       ],
+       "排除self": true
+      },
+      "body": [
+       {
+        "temp": [
+         "v__0x320cde",
+         {
+          "getNest": "<상부상조>",
+          "目标": "$i"
+         }
+        ]
+       },
+       {
+        "setBuffOn": "$i",
+        "div": "기본",
+        "name": "<절대 매혹>3",
+        "on": {
+         "temp": "v__0x320cde",
+         "cmp": ">=",
+         "fix": 1
+        }
+       },
+       {
+        "setBuffOn": "$i",
+        "div": "기본",
+        "name": "<절대 매혹>4",
+        "on": {
+         "temp": "v__0x320cde",
+         "cmp": ">=",
+         "fix": 2
+        }
+       },
+       {
+        "setBuffOn": "$i",
+        "div": "기본",
+        "name": "<절대 매혹>5",
+        "on": {
+         "temp": "v__0x320cde",
+         "cmp": ">=",
+         "fix": 3
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "탱",
+        "디"
+       ],
+       "排除self": true
+      },
+      "body": [
+       {
+        "temp": [
+         "v__0x22dd50",
+         {
+          "getNest": "<상부상조>",
+          "目标": "$i"
+         }
+        ]
+       },
+       {
+        "setBuffOn": "$i",
+        "div": "기본",
+        "name": "<절대 매혹>3",
+        "on": {
+         "temp": "v__0x22dd50",
+         "cmp": ">=",
+         "fix": 1
+        }
+       },
+       {
+        "setBuffOn": "$i",
+        "div": "기본",
+        "name": "<절대 매혹>4",
+        "on": {
+         "temp": "v__0x22dd50",
+         "cmp": ">=",
+         "fix": 2
+        }
+       },
+       {
+        "setBuffOn": "$i",
+        "div": "기본",
+        "name": "<절대 매혹>5",
+        "on": {
+         "temp": "v__0x22dd50",
+         "cmp": ">=",
+         "fix": 3
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 50
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "경국경성-얀코1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "탱",
+      "디"
+     ],
+     "排除self": true
+    },
+    "body": [
+     {
+      "inject": {
+       "方法": "ultimate",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "nbf": [
+          "$i",
+          "<상부상조>",
+          0,
+          "<익자삼우>",
+          -3,
+          3
+         ]
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "<절대 매혹>3",
+         "on": false
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "<절대 매혹>4",
+         "on": false
+        },
+        {
+         "setBuffOn": "$i",
+         "div": "기본",
+         "name": "<절대 매혹>5",
+         "on": false
+        }
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "inject": {
+     "方法": "ultimate",
+     "目标": {
+      "comp": 3
+     },
+     "模式": "追加",
+     "后置": [
+      {
+       "for": {
+        "kind": "全队"
+       },
+       "body": [
+        {
+         "atbf": [
+          "$i",
+          "궁",
+          "boss",
+          "방어",
+          0,
+          "<호란신미>",
+          1,
+          1
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "if": {
+     "kind": "元素种类",
+     "cmp": "==",
+     "val": 1
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "탱",
+        "디"
+       ],
+       "排除self": true
+      },
+      "body": [
+       {
+        "anbf": [
+         "self",
+         "행동",
+         "$i",
+         "<상부상조>",
+         0,
+         "<익자삼우>",
+         1,
+         3,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "pnbf": [
+     "self",
+     "궁",
+     "boss",
+     "받뎀증",
+     2,
+     "<절대 매혹>1",
+     1,
+     15,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "광"
+     ]
+    },
+    "body": [
+     {
+      "pnbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       3,
+       "<절대 매혹>2",
+       1,
+       15,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁뎀증",
+     45,
+     "<절대 매혹>3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "가뎀증",
+     55,
+     "<절대 매혹>4",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     100,
+     "<절대 매혹>5",
+     "always",
+     false
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "탱",
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "pnbf": [
+       "$i",
+       "궁",
+       "boss",
+       "받뎀증",
+       2,
+       "<절대 매혹>1",
+       1,
+       15,
+       "always"
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "pnbf": [
+         {
+          "$i上": 1
+         },
+         "궁",
+         "$i",
+         "받속뎀",
+         3,
+         "<절대 매혹>2",
+         1,
+         15,
+         "always"
+        ]
+       }
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "궁뎀증",
+       45,
+       "<절대 매혹>3",
+       "always",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "가뎀증",
+       55,
+       "<절대 매혹>4",
+       "always",
+       false
+      ]
+     },
+     {
+      "buff": [
+       "$i",
+       "궁추가*",
+       100,
+       "<절대 매혹>5",
+       "always",
+       false
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "궁추가*",
+    "size": 100,
+    "name": "꽃속의 그림자1",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "anbf": [
+       "$i",
+       "궁",
+       "boss",
+       "받뎀증",
+       3.33,
+       "꽃속의 그림자2",
+       1,
+       12,
+       "always"
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "광"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         {
+          "$i上": 1
+         },
+         "궁",
+         "$i",
+         "받속뎀",
+         2.75,
+         "꽃속의 그림자3",
+         1,
+         12,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "딜",
+      "탱",
+      "디"
+     ],
+     "排除self": true
+    },
+    "body": [
+     {
+      "anbf": [
+       "$i",
+       "평",
+       "self",
+       "<상부상조>",
+       0,
+       "<익자삼우>",
+       1,
+       3,
+       "always"
+      ]
+     },
+     {
+      "inject": {
+       "方法": "attack",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "temp": [
+          "v__0x2248e5",
+          {
+           "getNest": "<상부상조>"
+          }
+         ]
+        },
+        {
+         "setBuffOn": "self",
+         "div": "기본",
+         "name": "세상을 유영하다1",
+         "on": {
+          "temp": "v__0x2248e5",
+          "cmp": ">=",
+          "fix": 1
+         }
+        },
+        {
+         "setBuffOn": "self",
+         "div": "기본",
+         "name": "세상을 유영하다2",
+         "on": {
+          "temp": "v__0x2248e5",
+          "cmp": ">=",
+          "fix": 2
+         }
+        },
+        {
+         "setBuffOn": "self",
+         "div": "기본",
+         "name": "세상을 유영하다3",
+         "on": {
+          "temp": "v__0x2248e5",
+          "cmp": ">=",
+          "fix": 3
+         }
+        },
+        {
+         "if": {
+          "kind": "队长",
+          "cmp": "==",
+          "val": true
+         },
+         "then": [
+          {
+           "setBuffOnAll": "self",
+           "div": "기본",
+           "name": "<절대 매혹>3",
+           "on": {
+            "temp": "v__0x2248e5",
+            "cmp": ">=",
+            "fix": 1
+           }
+          },
+          {
+           "setBuffOnAll": "self",
+           "div": "기본",
+           "name": "<절대 매혹>4",
+           "on": {
+            "temp": "v__0x2248e5",
+            "cmp": ">=",
+            "fix": 2
+           }
+          },
+          {
+           "setBuffOnAll": "self",
+           "div": "기본",
+           "name": "<절대 매혹>5",
+           "on": {
+            "temp": "v__0x2248e5",
+            "cmp": ">=",
+            "fix": 3
+           }
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁뎀증",
+     25,
+     "세상을 유영하다1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "가뎀증",
+     60,
+     "세상을 유영하다2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     100,
+     "세상을 유영하다3",
+     "always",
+     false
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "방",
+     "self",
+     "<상부상조>",
+     0,
+     "<익자삼우>",
+     1,
+     3,
+     "always"
+    ]
+   },
+   {
+    "if": {
+     "not": {
+      "kind": "队长",
+      "cmp": "==",
+      "val": true
+     }
+    },
+    "then": [
+     {
+      "inject": {
+       "方法": "ultimate",
+       "目标": {
+        "comp": 2
+       },
+       "模式": "追加",
+       "后置": [
+        {
+         "for": {
+          "kind": "全队"
+         },
+         "body": [
+          {
+           "atbf": [
+            "$i",
+            "궁",
+            "boss",
+            "방어",
+            0,
+            "<호란신미>",
+            1,
+            1
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 10,
+    "name": "궁극기+",
+    "turn": "always"
+   }
+  ],
+  "defense": [
+   {
+    "actDefense": true
+   },
+   {
+    "temp": [
+     "v__0x3b06d8",
+     {
+      "getNest": "<상부상조>"
+     }
+    ]
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "세상을 유영하다1",
+    "on": {
+     "temp": "v__0x3b06d8",
+     "cmp": ">=",
+     "fix": 1
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "세상을 유영하다2",
+    "on": {
+     "temp": "v__0x3b06d8",
+     "cmp": ">=",
+     "fix": 2
+    }
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "세상을 유영하다3",
+    "on": {
+     "temp": "v__0x3b06d8",
+     "cmp": ">=",
+     "fix": 3
+    }
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "setBuffOnAll": "self",
+      "div": "기본",
+      "name": "<절대 매혹>3",
+      "on": {
+       "temp": "v__0x3b06d8",
+       "cmp": ">=",
+       "fix": 1
+      }
+     },
+     {
+      "setBuffOnAll": "self",
+      "div": "기본",
+      "name": "<절대 매혹>4",
+      "on": {
+       "temp": "v__0x3b06d8",
+       "cmp": ">=",
+       "fix": 2
+      }
+     },
+     {
+      "setBuffOnAll": "self",
+      "div": "기본",
+      "name": "<절대 매혹>5",
+      "on": {
+       "temp": "v__0x3b06d8",
+       "cmp": ">=",
+       "fix": 3
+      }
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "탱",
+        "디"
+       ],
+       "排除self": true
+      },
+      "body": [
+       {
+        "temp": [
+         "v__0x1b5fcc",
+         {
+          "getNest": "<상부상조>",
+          "目标": "$i"
+         }
+        ]
+       },
+       {
+        "setBuffOn": "$i",
+        "div": "기본",
+        "name": "<절대 매혹>3",
+        "on": {
+         "temp": "v__0x1b5fcc",
+         "cmp": ">=",
+         "fix": 1
+        }
+       },
+       {
+        "setBuffOn": "$i",
+        "div": "기본",
+        "name": "<절대 매혹>4",
+        "on": {
+         "temp": "v__0x1b5fcc",
+         "cmp": ">=",
+         "fix": 2
+        }
+       },
+       {
+        "setBuffOn": "$i",
+        "div": "기본",
+        "name": "<절대 매혹>5",
+        "on": {
+         "temp": "v__0x1b5fcc",
+         "cmp": ">=",
+         "fix": 3
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

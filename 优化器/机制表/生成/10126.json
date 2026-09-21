@@ -1,0 +1,487 @@
+{
+ "id": 10126,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<연쇄 트랩>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 30,
+      "name": "사탕을 줘도 장난 칠거야!1",
+      "turn": 4
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 10,
+      "name": "사탕을 줘도 장난 칠거야!3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 30,
+      "name": "사탕을 줘도 장난 칠거야!1",
+      "turn": 4
+     },
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       10,
+       "사탕을 줘도 장난 칠거야!2",
+       1,
+       1
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 15,
+      "name": "사탕을 줘도 장난 칠거야!3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 40,
+      "name": "사탕을 줘도 장난 칠거야!1",
+      "turn": 4
+     },
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       10,
+       "사탕을 줘도 장난 칠거야!2",
+       1,
+       1
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 20,
+      "name": "사탕을 줘도 장난 칠거야!3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 40,
+      "name": "사탕을 줘도 장난 칠거야!1",
+      "turn": 4
+     },
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       20,
+       "사탕을 줘도 장난 칠거야!2",
+       1,
+       1
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 25,
+      "name": "사탕을 줘도 장난 칠거야!3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 45,
+      "name": "사탕을 줘도 장난 칠거야!1",
+      "turn": 4
+     },
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       20,
+       "사탕을 줘도 장난 칠거야!2",
+       1,
+       1
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "사탕을 줘도 장난 칠거야!3",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "찹쌀 끈적끈적탄",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 30
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "아머",
+     {
+      "hpExpr": {
+       "base": "self",
+       "N": 10
+      }
+     },
+     "참신한 말썽꾸러기1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "광",
+      "암"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       0,
+       "참신한 말썽꾸러기2",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "화",
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       0,
+       "참신한 말썽꾸러기3",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "职务种类",
+     "cmp": "==",
+     "val": 4
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 120,
+      "name": "<할로윈 장난 파티>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 50,
+      "name": "<할로윈 장난 파티>2",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       30
+      ]
+     },
+     "천방백계1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "받아증",
+     20,
+     "천방백계2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     20,
+     "천방백계3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     20,
+     "천방백계4",
+     "always",
+     false
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "화",
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       0,
+       "할로윈 미궁",
+       1,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "turnover": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "nbf": [
+     "self",
+     "<연쇄 트랩>",
+     0,
+     "작은 몸과 큰 머리",
+     1,
+     9
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 3
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "기본",
+      "name": "천방백계2",
+      "on": true
+     }
+    ],
+    "elif": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": "==",
+       "fix": 6
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "천방백계3",
+        "on": true
+       }
+      ],
+      "elif": [
+       {
+        "if": {
+         "kind": "slot比较",
+         "slot": "stack",
+         "cmp": "==",
+         "fix": 8
+        },
+        "then": [
+         {
+          "setBuffOn": "self",
+          "div": "기본",
+          "name": "천방백계4",
+          "on": true
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "<",
+     "fix": 9
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "队长",
+       "cmp": "==",
+       "val": true
+      },
+      "then": [
+       {
+        "setBuffSizeAll": "self",
+        "div": "발동",
+        "name": "참신한 말썽꾸러기2",
+        "size": {
+         "sizeExpr": {
+          "base": "stack",
+          "加": 1,
+          "K": 6
+         }
+        }
+       },
+       {
+        "setBuffSizeAll": "self",
+        "div": "발동",
+        "name": "참신한 말썽꾸러기3",
+        "size": {
+         "sizeExpr": {
+          "base": "stack",
+          "加": 1,
+          "K": 3
+         }
+        }
+       }
+      ]
+     },
+     {
+      "setBuffSizeAll": "self",
+      "div": "발동",
+      "name": "할로윈 미궁",
+      "size": {
+       "sizeExpr": {
+        "base": "stack",
+        "加": 1,
+        "K": 3
+       }
+      }
+     }
+    ]
+   },
+   {
+    "addSlot": [
+     "stack",
+     1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     9
+    ]
+   }
+  ]
+ }
+}

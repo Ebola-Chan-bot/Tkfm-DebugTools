@@ -1,0 +1,311 @@
+{
+ "id": 10075,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 30,
+      "name": "역전극 개연~ 깡총~1",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "역전극 개연~ 깡총~2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 35,
+      "name": "역전극 개연~ 깡총~1",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        30
+       ]
+      },
+      "name": "역전극 개연~ 깡총~2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 40,
+      "name": "역전극 개연~ 깡총~1",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        35
+       ]
+      },
+      "name": "역전극 개연~ 깡총~2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 45,
+      "name": "역전극 개연~ 깡총~1",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        35
+       ]
+      },
+      "name": "역전극 개연~ 깡총~2",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "역전극 개연~ 깡총~1",
+      "turn": 1
+     },
+     {
+      "tbf": "all",
+      "type": "공고증",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        40
+       ]
+      },
+      "name": "역전극 개연~ 깡총~2",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "role计数",
+       "mask": [
+        "딜"
+       ],
+       "cmp": ">=",
+       "n": 3
+      },
+      "then": [
+       {
+        "for": {
+         "kind": "role",
+         "mask": [
+          "딜"
+         ]
+        },
+        "body": [
+         {
+          "cdChange": "$i",
+          "值": -1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "all",
+    "type": "공고증",
+    "size": {
+     "atkRef": [
+      "myCurAtk",
+      "+selfId",
+      30
+     ]
+    },
+    "name": "역전극 개연~ 깡총~2",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 50,
+      "name": "<래빗의 팀워크>",
+      "turn": "always"
+     },
+     {
+      "hpUpAll": 30
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "평",
+     "all",
+     "일뎀증",
+     40,
+     "행운의 토끼 다리1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "궁뎀증",
+     15,
+     "행운의 토끼 다리2",
+     1,
+     "always"
+    ]
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": ">",
+       "fix": 1
+      },
+      "then": [
+       {
+        "for": {
+         "kind": "全队",
+         "排除self": true
+        },
+        "body": [
+         {
+          "atbf": [
+           "$i",
+           "평",
+           "self",
+           "공퍼증",
+           15,
+           "<깡총 깡총 깡깡총>",
+           5,
+           1
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "nbf": [
+       "all",
+       "공퍼증",
+       2.5,
+       "급하다 급해~",
+       1,
+       8
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

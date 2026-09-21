@@ -1,0 +1,383 @@
+{
+ "id": 10165,
+ "机动性": [
+  0,
+  8,
+  0,
+  8,
+  0,
+  8,
+  0,
+  8,
+  0,
+  8
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "deleteBuff": [
+     "self",
+     "기본",
+     "연심♡공명1"
+    ]
+   },
+   {
+    "deleteBuff": [
+     "self",
+     "기본",
+     "연심♡공명2"
+    ]
+   },
+   {
+    "deleteBuff": [
+     "self",
+     "기본",
+     "연심♡공명3"
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 60,
+      "name": "연심♡공명1",
+      "turn": 8
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 60,
+      "name": "연심♡공명2",
+      "turn": 8
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 40,
+      "name": "연심♡공명3",
+      "turn": 8
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 70,
+      "name": "연심♡공명1",
+      "turn": 8
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 70,
+      "name": "연심♡공명2",
+      "turn": 8
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 45,
+      "name": "연심♡공명3",
+      "turn": 8
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 80,
+      "name": "연심♡공명1",
+      "turn": 8
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 80,
+      "name": "연심♡공명2",
+      "turn": 8
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 50,
+      "name": "연심♡공명3",
+      "turn": 8
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 90,
+      "name": "연심♡공명1",
+      "turn": 8
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 90,
+      "name": "연심♡공명2",
+      "turn": 8
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 55,
+      "name": "연심♡공명3",
+      "turn": 8
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "연심♡공명1",
+      "turn": 8
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 100,
+      "name": "연심♡공명2",
+      "turn": 8
+     },
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 60,
+      "name": "연심♡공명3",
+      "turn": 8
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "슈퍼 언리쉬",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "화"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "<특화 무장α>1",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "화",
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "anbf": [
+         "self",
+         "평",
+         "$i",
+         "받속뎀",
+         4,
+         "<특화 무장α>2",
+         1,
+         10,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素种类",
+     "cmp": "==",
+     "val": 2
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 100,
+      "name": "<특화 무장β>1",
+      "turn": "always"
+     },
+     {
+      "anbf": [
+       "self",
+       "평",
+       "boss",
+       "받뎀증",
+       4,
+       "<특화 무장β>2",
+       1,
+       10,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 3
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 35,
+      "name": "<특화 무장γ>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 20,
+      "name": "<특화 무장γ>2",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 30,
+    "name": "실버아울1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 60,
+    "name": "실버아울2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 70,
+    "name": "핑크 토네이도1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 25,
+    "name": "핑크 토네이도2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 10,
+    "name": "일반 공격 데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": ">",
+     "fix": 1
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合模",
+       "偏移": -1,
+       "模": 2,
+       "余": 0
+      },
+      "then": [
+       {
+        "for": {
+         "kind": "range",
+         "上界": 7,
+         "下界": 1
+        },
+        "body": [
+         {
+          "tbf": "self",
+          "type": "평추가*",
+          "size": 30,
+          "name": {
+           "nameCat": {
+            "串": "<날개형 유도탄>",
+            "模式": "k"
+           }
+          },
+          "turn": 1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -3
+     }
+    ]
+   }
+  ]
+ }
+}

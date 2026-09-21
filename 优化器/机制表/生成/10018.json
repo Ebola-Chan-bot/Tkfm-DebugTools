@@ -1,0 +1,345 @@
+{
+ "id": 10018,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 30,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "용자 돌진 - 엉망진창1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "평추가+",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 150,
+        "field": "atk"
+       }
+      },
+      "name": "용자 돌진 - 엉망진창2",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "궁추가+",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 150,
+        "field": "atk"
+       }
+      },
+      "name": "용자 돌진 - 엉망진창3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 35,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "용자 돌진 - 엉망진창1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "평추가+",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 190,
+        "field": "atk"
+       }
+      },
+      "name": "용자 돌진 - 엉망진창2",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "궁추가+",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 190,
+        "field": "atk"
+       }
+      },
+      "name": "용자 돌진 - 엉망진창3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 40,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "용자 돌진 - 엉망진창1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "평추가+",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 190,
+        "field": "atk"
+       }
+      },
+      "name": "용자 돌진 - 엉망진창2",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "궁추가+",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 190,
+        "field": "atk"
+       }
+      },
+      "name": "용자 돌진 - 엉망진창3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 45,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "용자 돌진 - 엉망진창1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "평추가+",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 190,
+        "field": "atk"
+       }
+      },
+      "name": "용자 돌진 - 엉망진창2",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "궁추가+",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 190,
+        "field": "atk"
+       }
+      },
+      "name": "용자 돌진 - 엉망진창3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 50,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "용자 돌진 - 엉망진창1",
+      "turn": 1
+     },
+     {
+      "tbf": "self",
+      "type": "평추가+",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 230,
+        "field": "atk"
+       }
+      },
+      "name": "용자 돌진 - 엉망진창2",
+      "turn": 4
+     },
+     {
+      "tbf": "self",
+      "type": "궁추가+",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 230,
+        "field": "atk"
+       }
+      },
+      "name": "용자 돌진 - 엉망진창3",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "atkafter": [
+   {
+    "tbf": "self",
+    "type": "아머",
+    "size": {
+     "hpExpr": {
+      "base": "self",
+      "N": 15
+     }
+    },
+    "name": "생을 위한 투쟁",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 30,
+    "name": "우자의 마음 - 나만의 정의1",
+    "turn": "always"
+   },
+   {
+    "hpUpAll": 25
+   },
+   {
+    "addCd": -1
+   },
+   {
+    "addCurCd": -1
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 100,
+    "name": "우자의 마음 - 나만의 정의2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁뎀증",
+    "size": 40,
+    "name": "우자의 마음 - 나만의 정의3",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "평추가+",
+    "size": {
+     "hpExpr": {
+      "base": "self",
+      "N": 150,
+      "field": "atk"
+     }
+    },
+    "name": "바보의 직진1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "궁추가+",
+    "size": {
+     "hpExpr": {
+      "base": "self",
+      "N": 375,
+      "field": "atk"
+     }
+    },
+    "name": "바보의 직진2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "받아증",
+    "size": 35,
+    "name": "공존 불가1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 25,
+    "name": "공존 불가2",
+    "turn": "always"
+   }
+  ]
+ }
+}

@@ -1,0 +1,187 @@
+{
+ "id": 10025,
+ "机动性": [
+  0,
+  6,
+  0,
+  6,
+  0,
+  6,
+  0,
+  6,
+  0,
+  6
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "도트뎀",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        138.5
+       ]
+      },
+      "name": "달밤의 뜨거운 노래",
+      "turn": 6
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "도트뎀",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        160.4
+       ]
+      },
+      "name": "달밤의 뜨거운 노래",
+      "turn": 6
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "도트뎀",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        182.3
+       ]
+      },
+      "name": "달밤의 뜨거운 노래",
+      "turn": 6
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "도트뎀",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        204.2
+       ]
+      },
+      "name": "달밤의 뜨거운 노래",
+      "turn": 6
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "도트뎀",
+      "size": {
+       "atkRef": [
+        "myCurAtk",
+        "+selfId",
+        220
+       ]
+      },
+      "name": "달밤의 뜨거운 노래",
+      "turn": 6
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "boss",
+    "type": "도트뎀",
+    "size": {
+     "atkRef": [
+      "myCurAtk",
+      "+selfId",
+      50
+     ]
+    },
+    "name": "열창",
+    "turn": 4
+   }
+  ],
+  "leader": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "고귀하고 완벽한 마족 아이돌",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 20,
+    "name": "가창력",
+    "turn": "always"
+   },
+   {
+    "addCd": -2
+   },
+   {
+    "clampCurCd": {
+     "目标": "self",
+     "N": 2,
+     "X": 0,
+     "M": 2
+    }
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격력 증가",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "cdChange": "self",
+        "值": -6
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

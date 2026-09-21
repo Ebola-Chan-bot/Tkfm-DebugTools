@@ -1,0 +1,725 @@
+{
+ "id": 10210,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<진귀 버섯>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "temp": [
+     "v__0x4f27af",
+     {
+      "slot": "stack"
+     }
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "nbf": [
+       "all",
+       "<진귀 버섯>",
+       0,
+       "초간지 버섯 채집견",
+       12,
+       60
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       12
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       60
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 13.2,
+      "name": "초간지 버섯 채집견2",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "탱",
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环元素",
+         "cmp": "==",
+         "val": 4
+        },
+        "then": [
+         {
+          "tbf": "$i",
+          "type": "궁추가*",
+          "size": 44.1,
+          "name": "초간지 버섯 채집견3",
+          "turn": 1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "nbf": [
+       "all",
+       "<진귀 버섯>",
+       0,
+       "초간지 버섯 채집견",
+       15,
+       60
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       15
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       60
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 15.4,
+      "name": "초간지 버섯 채집견2",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "탱",
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环元素",
+         "cmp": "==",
+         "val": 4
+        },
+        "then": [
+         {
+          "tbf": "$i",
+          "type": "궁추가*",
+          "size": 51.5,
+          "name": "초간지 버섯 채집견3",
+          "turn": 1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "nbf": [
+       "all",
+       "<진귀 버섯>",
+       0,
+       "초간지 버섯 채집견",
+       15,
+       60
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       15
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       60
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 17.6,
+      "name": "초간지 버섯 채집견2",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "탱",
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环元素",
+         "cmp": "==",
+         "val": 4
+        },
+        "then": [
+         {
+          "tbf": "$i",
+          "type": "궁추가*",
+          "size": 58.8,
+          "name": "초간지 버섯 채집견3",
+          "turn": 1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "nbf": [
+       "all",
+       "<진귀 버섯>",
+       0,
+       "초간지 버섯 채집견",
+       20,
+       60
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       20
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       60
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 19.8,
+      "name": "초간지 버섯 채집견2",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "탱",
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环元素",
+         "cmp": "==",
+         "val": 4
+        },
+        "then": [
+         {
+          "tbf": "$i",
+          "type": "궁추가*",
+          "size": 66.2,
+          "name": "초간지 버섯 채집견3",
+          "turn": 1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "nbf": [
+       "all",
+       "<진귀 버섯>",
+       0,
+       "초간지 버섯 채집견",
+       20,
+       60
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       20
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       60
+      ]
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 22,
+      "name": "초간지 버섯 채집견2",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "role",
+       "mask": [
+        "딜",
+        "탱",
+        "디"
+       ]
+      },
+      "body": [
+       {
+        "if": {
+         "kind": "循环元素",
+         "cmp": "==",
+         "val": 4
+        },
+        "then": [
+         {
+          "tbf": "$i",
+          "type": "궁추가*",
+          "size": 73.5,
+          "name": "초간지 버섯 채집견3",
+          "turn": 1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "if": {
+       "kind": "temp",
+       "var": "v__0x4f27af",
+       "cmp": "<",
+       "fix": 20
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "slot比较",
+         "slot": "stack",
+         "cmp": ">=",
+         "fix": 20
+        },
+        "then": [
+         {
+          "setBuffOn": "$i",
+          "div": "기본",
+          "name": "<♡심장 박동 가속♡>1",
+          "on": true
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "if": {
+       "kind": "temp",
+       "var": "v__0x4f27af",
+       "cmp": "<",
+       "fix": 40
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "slot比较",
+         "slot": "stack",
+         "cmp": ">=",
+         "fix": 40
+        },
+        "then": [
+         {
+          "setBuffOn": "$i",
+          "div": "기본",
+          "name": "<♡심장 박동 가속♡>2",
+          "on": true
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "if": {
+       "kind": "temp",
+       "var": "v__0x4f27af",
+       "cmp": "<",
+       "fix": 60
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "slot比较",
+         "slot": "stack",
+         "cmp": ">=",
+         "fix": 60
+        },
+        "then": [
+         {
+          "setBuffOn": "$i",
+          "div": "기본",
+          "name": "<♡심장 박동 가속♡>3",
+          "on": true
+         },
+         {
+          "setBuffOn": "$i",
+          "div": "기본",
+          "name": "<♡심장 박동 가속♡>4",
+          "on": true
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "temp": [
+     "v__0x29592d",
+     {
+      "slot": "stack"
+     }
+    ]
+   },
+   {
+    "ultLogic": null
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x29592d",
+     "cmp": "<",
+     "fix": 40
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 40
+      },
+      "then": [
+       {
+        "setBuffOnAll": "self",
+        "div": "발동",
+        "name": "왕성한 번식욕1",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "왕성한 번식욕2",
+        "on": true
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "all",
+    "type": "공고증",
+    "size": {
+     "atkRef": [
+      "myCurAtk",
+      "+selfId",
+      30
+     ]
+    },
+    "name": "정찰 개시",
+    "turn": 1
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 55
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "풍"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 53,
+      "name": "<우리는 멍멍이의 꼬리다!>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 53,
+      "name": "<우리는 멍멍이의 꼬리다!>2",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "궁추가*",
+      "size": 105.5,
+      "name": "<우리는 멍멍이의 꼬리다!>3",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "암"
+     ],
+     "cmp": ">=",
+     "n": 2
+    },
+    "then": [
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "all",
+       "가뎀증",
+       31.7,
+       "<목표는 전설의 모험가 소대!>1",
+       1,
+       "always"
+      ]
+     },
+     {
+      "atbf": [
+       "self",
+       "궁",
+       "boss",
+       "받뎀증",
+       21.2,
+       "<목표는 전설의 모험가 소대!>2",
+       1,
+       "always"
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "atbf": [
+         "self",
+         "궁",
+         "$i",
+         "받속뎀",
+         76.7,
+         "<목표는 전설의 모험가 소대!>3",
+         1,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       30
+      ]
+     },
+     "복슬복슬한 게 정의다",
+     1,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "all",
+     "공퍼증",
+     16.7,
+     "<♡심장 박동 가속♡>1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "all",
+     "궁뎀증",
+     16.7,
+     "<♡심장 박동 가속♡>2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "all",
+     "공퍼증",
+     20,
+     "<♡심장 박동 가속♡>3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "all",
+     "궁뎀증",
+     20,
+     "<♡심장 박동 가속♡>4",
+     "always",
+     false
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "암"
+     ]
+    },
+    "body": [
+     {
+      "buff": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       22,
+       "왕성한 번식욕1",
+       1,
+       "always",
+       "발동",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "boss",
+     "받뎀증",
+     14.6,
+     "왕성한 번식욕2",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -3
+     }
+    ]
+   }
+  ]
+ }
+}

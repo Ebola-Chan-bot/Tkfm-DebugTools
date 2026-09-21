@@ -1,0 +1,1200 @@
+{
+ "id": 10198,
+ "机动性": [
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<붉은 장미>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       90,
+       "구음진경(위)-해방1",
+       1,
+       1
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "일뎀증",
+       30,
+       "구음진경(위)-해방2",
+       1,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       105,
+       "구음진경(위)-해방1",
+       1,
+       1
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "일뎀증",
+       35,
+       "구음진경(위)-해방2",
+       1,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       120,
+       "구음진경(위)-해방1",
+       1,
+       1
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "일뎀증",
+       40,
+       "구음진경(위)-해방2",
+       1,
+       1
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       20,
+       "구음진경(위)-해방3",
+       1,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       135,
+       "구음진경(위)-해방1",
+       1,
+       1
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "일뎀증",
+       45,
+       "구음진경(위)-해방2",
+       1,
+       1
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       22.5,
+       "구음진경(위)-해방3",
+       1,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       150,
+       "구음진경(위)-해방1",
+       1,
+       1
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "일뎀증",
+       50,
+       "구음진경(위)-해방2",
+       1,
+       1
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       25,
+       "구음진경(위)-해방3",
+       1,
+       1
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "deleteBuff": [
+     "self",
+     "발동",
+     "<질풍 세계>1"
+    ]
+   },
+   {
+    "deleteBuff": [
+     "self",
+     "발동",
+     "<질풍 세계>2"
+    ]
+   },
+   {
+    "flag": "StopCd"
+   }
+  ],
+  "attack": [
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 12
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "추가",
+      "name": "핏빛 꿰뚫기술1",
+      "on": true
+     },
+     {
+      "setBuffOn": "self",
+      "div": "추가",
+      "name": "핏빛 꿰뚫기술2",
+      "on": true
+     }
+    ]
+   },
+   {
+    "atkLogic": 2
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 12
+    },
+    "then": [
+     {
+      "setSlot": [
+       "stack",
+       0
+      ]
+     },
+     {
+      "setBuffOn": "self",
+      "div": "추가",
+      "name": "핏빛 꿰뚫기술1",
+      "on": false
+     },
+     {
+      "setBuffOn": "self",
+      "div": "추가",
+      "name": "핏빛 꿰뚫기술2",
+      "on": false
+     },
+     {
+      "setBuffOnAll": "self",
+      "div": "기본",
+      "name": "핏빛 꿰뚫기술3",
+      "on": false
+     },
+     {
+      "setBuffOnAll": "self",
+      "div": "추가",
+      "name": "핏빛 꿰뚫기술4",
+      "on": false
+     },
+     {
+      "setBuffOn": "self",
+      "div": "추가",
+      "name": "<장미의 잔영>",
+      "on": false
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 50
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "장미의 그림자1",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 5
+    },
+    "then": [
+     {
+      "tbf": "self",
+      "type": "가뎀증",
+      "size": 60,
+      "name": "<꽃잎의 춤>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "일뎀증",
+      "size": 60,
+      "name": "<꽃잎의 춤>2",
+      "turn": "always"
+     },
+     {
+      "tbf": "self",
+      "type": "평추가*",
+      "size": 30,
+      "name": "<꽃잎의 춤>3",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "딜"
+     ],
+     "cmp": ">=",
+     "n": 5
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "atbf": [
+         "$i",
+         "공격",
+         "self",
+         "공고증",
+         {
+          "atkRef": [
+           "myCurAtk",
+           "+$iId",
+           12.5
+          ]
+         },
+         "<장미의 잔영>1",
+         1,
+         "always"
+        ]
+       },
+       {
+        "anbf": [
+         "$i",
+         "공격",
+         "self",
+         "<붉은 장미>",
+         0,
+         "<장미의 잔영>",
+         2,
+         12,
+         "always"
+        ]
+       },
+       {
+        "inject": {
+         "方法": "ultimate",
+         "目标": "$i",
+         "模式": "追加",
+         "后置": [
+          {
+           "addSlot": [
+            "stack",
+            2
+           ]
+          },
+          {
+           "clampSlot": [
+            "stack",
+            null,
+            12
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "inject": {
+         "方法": "attack",
+         "目标": "$i",
+         "模式": "追加",
+         "后置": [
+          {
+           "addSlot": [
+            "stack",
+            2
+           ]
+          },
+          {
+           "clampSlot": [
+            "stack",
+            null,
+            12
+           ]
+          }
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "anbf": [
+       "$i",
+       "공격",
+       "self",
+       "<붉은 장미>",
+       0,
+       "<장미의 잔영>",
+       1,
+       12,
+       "always"
+      ]
+     },
+     {
+      "inject": {
+       "方法": "ultimate",
+       "目标": "$i",
+       "模式": "环绕",
+       "快照": [
+        {
+         "temp": [
+          "v__0x194195",
+          {
+           "slot": "stack"
+          }
+         ]
+        }
+       ],
+       "后置": [
+        {
+         "addSlot": [
+          "stack",
+          1
+         ]
+        },
+        {
+         "clampSlot": [
+          "stack",
+          null,
+          12
+         ]
+        },
+        {
+         "if": {
+          "kind": "temp",
+          "var": "v__0x194195",
+          "cmp": "<",
+          "fix": 4
+         },
+         "then": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": ">=",
+            "fix": 4
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "기본",
+             "name": "핏빛 꿰뚫기술1",
+             "on": true
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "if": {
+          "kind": "temp",
+          "var": "v__0x194195",
+          "cmp": "<",
+          "fix": 8
+         },
+         "then": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": ">=",
+            "fix": 8
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "기본",
+             "name": "핏빛 꿰뚫기술2",
+             "on": true
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "if": {
+          "kind": "temp",
+          "var": "v__0x194195",
+          "cmp": "<",
+          "fix": 12
+         },
+         "then": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": ">=",
+            "fix": 12
+           },
+           "then": [
+            {
+             "setBuffOnAll": "self",
+             "div": "기본",
+             "name": "핏빛 꿰뚫기술3",
+             "on": true
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "if": {
+          "kind": "temp",
+          "var": "v__0x194195",
+          "cmp": "<",
+          "fix": 12
+         },
+         "then": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": ">=",
+            "fix": 12
+           },
+           "then": [
+            {
+             "setBuffOnAll": "self",
+             "div": "추가",
+             "name": "핏빛 꿰뚫기술4",
+             "on": true
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "if": {
+          "kind": "temp",
+          "var": "v__0x194195",
+          "cmp": "<",
+          "fix": 12
+         },
+         "then": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": ">=",
+            "fix": 12
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "추가",
+             "name": "<장미의 잔영>",
+             "on": true
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "inject": {
+       "方法": "attack",
+       "目标": "$i",
+       "模式": "环绕",
+       "快照": [
+        {
+         "temp": [
+          "v__0x2d7406",
+          {
+           "slot": "stack"
+          }
+         ]
+        }
+       ],
+       "后置": [
+        {
+         "addSlot": [
+          "stack",
+          1
+         ]
+        },
+        {
+         "clampSlot": [
+          "stack",
+          null,
+          12
+         ]
+        },
+        {
+         "if": {
+          "kind": "temp",
+          "var": "v__0x2d7406",
+          "cmp": "<",
+          "fix": 4
+         },
+         "then": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": ">=",
+            "fix": 4
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "기본",
+             "name": "핏빛 꿰뚫기술1",
+             "on": true
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "if": {
+          "kind": "temp",
+          "var": "v__0x2d7406",
+          "cmp": "<",
+          "fix": 8
+         },
+         "then": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": ">=",
+            "fix": 8
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "기본",
+             "name": "핏빛 꿰뚫기술2",
+             "on": true
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "if": {
+          "kind": "temp",
+          "var": "v__0x2d7406",
+          "cmp": "<",
+          "fix": 12
+         },
+         "then": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": ">=",
+            "fix": 12
+           },
+           "then": [
+            {
+             "setBuffOnAll": "self",
+             "div": "기본",
+             "name": "핏빛 꿰뚫기술3",
+             "on": true
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "if": {
+          "kind": "temp",
+          "var": "v__0x2d7406",
+          "cmp": "<",
+          "fix": 12
+         },
+         "then": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": ">=",
+            "fix": 12
+           },
+           "then": [
+            {
+             "setBuffOnAll": "self",
+             "div": "추가",
+             "name": "핏빛 꿰뚫기술4",
+             "on": true
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "if": {
+          "kind": "temp",
+          "var": "v__0x2d7406",
+          "cmp": "<",
+          "fix": 12
+         },
+         "then": [
+          {
+           "if": {
+            "kind": "slot比较",
+            "slot": "stack",
+            "cmp": ">=",
+            "fix": 12
+           },
+           "then": [
+            {
+             "setBuffOn": "self",
+             "div": "추가",
+             "name": "<장미의 잔영>",
+             "on": true
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "일뎀증",
+     85,
+     "핏빛 꿰뚫기술1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "가뎀증",
+     30,
+     "핏빛 꿰뚫기술2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평추가*",
+     30,
+     "핏빛 꿰뚫기술3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평추가*",
+     30,
+     "핏빛 꿰뚫기술3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평추가*",
+     30,
+     "핏빛 꿰뚫기술3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평추가*",
+     30,
+     "핏빛 꿰뚫기술3",
+     "always",
+     false
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "암"
+     ]
+    },
+    "body": [
+     {
+      "buff": [
+       "self",
+       "평",
+       "$i",
+       "받속뎀",
+       37.5,
+       "핏빛 꿰뚫기술4",
+       1,
+       1,
+       "always",
+       "추가",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "self",
+     "<붉은 장미>",
+     0,
+     "<장미의 잔영>",
+     -12,
+     12,
+     "always",
+     "추가",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "self",
+     "off",
+     "기본",
+     "핏빛 꿰뚫기술1",
+     1,
+     "always",
+     "추가",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "self",
+     "off",
+     "기본",
+     "핏빛 꿰뚫기술2",
+     1,
+     "always",
+     "추가",
+     false
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "방",
+     "self",
+     "<붉은 장미>",
+     0,
+     "<장미의 잔영>",
+     4,
+     12,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "공퍼증",
+     110,
+     "<질풍 세계>1",
+     50,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "방뎀증",
+     110,
+     "<질풍 세계>2",
+     50,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "일뎀증",
+    "size": 10,
+    "name": "일반 공격 데미지+",
+    "turn": "always"
+   }
+  ],
+  "defense": [
+   {
+    "temp": [
+     "v__0x4ab9fa",
+     {
+      "slot": "stack"
+     }
+    ]
+   },
+   {
+    "actDefense": true
+   },
+   {
+    "addSlot": [
+     "stack",
+     4
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     12
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x4ab9fa",
+     "cmp": "<",
+     "fix": 4
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 4
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "핏빛 꿰뚫기술1",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x4ab9fa",
+     "cmp": "<",
+     "fix": 8
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 8
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "핏빛 꿰뚫기술2",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x4ab9fa",
+     "cmp": "<",
+     "fix": 12
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 12
+      },
+      "then": [
+       {
+        "setBuffOnAll": "self",
+        "div": "기본",
+        "name": "핏빛 꿰뚫기술3",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x4ab9fa",
+     "cmp": "<",
+     "fix": 12
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 12
+      },
+      "then": [
+       {
+        "setBuffOnAll": "self",
+        "div": "추가",
+        "name": "핏빛 꿰뚫기술4",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x4ab9fa",
+     "cmp": "<",
+     "fix": 12
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 12
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "추가",
+        "name": "<장미의 잔영>",
+        "on": true
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "role计数",
+         "mask": [
+          "딜"
+         ],
+         "cmp": ">=",
+         "n": 5
+        },
+        "then": [
+         {
+          "nbf": [
+           "boss",
+           "받뎀증",
+           15,
+           "<꽃잎의 춤>4",
+           1,
+           1
+          ]
+         },
+         {
+          "for": {
+           "kind": "全队"
+          },
+          "body": [
+           {
+            "nbf": [
+             "$i",
+             "받속뎀",
+             20,
+             "<꽃잎의 춤>5",
+             1,
+             1
+            ]
+           },
+           {
+            "cdChange": "$i",
+            "值": -4
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -1
+     },
+     {
+      "for": {
+       "kind": "countRole",
+       "mask": [
+        "딜",
+        "디",
+        "탱"
+       ],
+       "偏移": -1
+      },
+      "body": [
+       {
+        "nbf": [
+         "self",
+         "가뎀증",
+         15,
+         "암살자 길드의 엘리트1",
+         1,
+         2
+        ]
+       },
+       {
+        "nbf": [
+         "boss",
+         "받뎀증",
+         12.5,
+         "암살자 길드의 엘리트2",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

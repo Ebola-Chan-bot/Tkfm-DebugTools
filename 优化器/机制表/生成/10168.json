@@ -1,0 +1,614 @@
+{
+ "id": 10168,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<행운의 부적>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 12,
+      "name": "가득한 기운을 모두에게☆1",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       6,
+       "가득한 기운을 모두에게☆2",
+       1,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 14,
+      "name": "가득한 기운을 모두에게☆1",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       7,
+       "가득한 기운을 모두에게☆2",
+       1,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 16,
+      "name": "가득한 기운을 모두에게☆1",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       8,
+       "가득한 기운을 모두에게☆2",
+       1,
+       2
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 10,
+        "name": "가득한 기운을 모두에게☆3",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         5,
+         "가득한 기운을 모두에게☆4",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 18,
+      "name": "가득한 기운을 모두에게☆1",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       9,
+       "가득한 기운을 모두에게☆2",
+       1,
+       2
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 12,
+        "name": "가득한 기운을 모두에게☆3",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         6,
+         "가득한 기운을 모두에게☆4",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 20,
+      "name": "가득한 기운을 모두에게☆1",
+      "turn": 1
+     },
+     {
+      "nbf": [
+       "boss",
+       "받뎀증",
+       10,
+       "가득한 기운을 모두에게☆2",
+       1,
+       2
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 14,
+        "name": "가득한 기운을 모두에게☆3",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "받속뎀",
+         7,
+         "가득한 기운을 모두에게☆4",
+         1,
+         2
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 0
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<행운 더하기>1",
+      "on": true
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 2
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<행운 더하기>3",
+      "on": true
+     }
+    ]
+   },
+   {
+    "ultLogic": null
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 0
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<행운 더하기>1",
+      "on": false
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 2
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<행운 더하기>3",
+      "on": false
+     }
+    ]
+   },
+   {
+    "addSlot": [
+     "stack",
+     1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     3
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": [
+       {
+        "setBuffOn": "$i",
+        "div": "기본",
+        "name": "<행운 더하기>1",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 3
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": [
+       {
+        "setBuffOn": "$i",
+        "div": "기본",
+        "name": "<행운 더하기>3",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "풍"
+     ]
+    },
+    "body": [
+     {
+      "hpUpMe": [
+       "$i",
+       50
+      ]
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "풍"
+     ]
+    },
+    "body": [
+     {
+      "tbf": "$i",
+      "type": "공퍼증",
+      "size": 100,
+      "name": "전력을 다해 승리를 쟁취~!1",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "풍"
+     ]
+    },
+    "body": [
+     {
+      "anbf": [
+       "self",
+       "궁",
+       "$i",
+       "받속뎀",
+       10,
+       "전력을 다해 승리를 쟁취~!2",
+       1,
+       2,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "元素计数",
+     "mask": [
+      "풍"
+     ],
+     "cmp": ">=",
+     "n": 4
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "일뎀증",
+      "size": 80,
+      "name": "<플레이, 플레이, 필승!>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 50,
+      "name": "<플레이, 플레이, 필승!>2",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "all",
+     "<행운의 부적>",
+     0,
+     "부적은 많으면 많을수록 좋아!",
+     1,
+     3,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "all",
+     "공퍼증",
+     30,
+     "<행운 더하기>1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "on",
+     "기본",
+     "<행운 더하기>1",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "all",
+     "일뎀증",
+     30,
+     "<행운 더하기>3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁",
+     "self",
+     "on",
+     "기본",
+     "<행운 더하기>3",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "공격",
+     "all",
+     "공고증",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       10
+      ]
+     },
+     "컨디션 최고!1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "궁뎀증",
+     30,
+     "컨디션 최고!2",
+     1,
+     "always"
+    ]
+   },
+   {
+    "tbf": "all",
+    "type": "궁추가*",
+    "size": 25,
+    "name": "응원 만점!2",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -4
+     }
+    ]
+   }
+  ]
+ }
+}

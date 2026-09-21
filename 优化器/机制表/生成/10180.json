@@ -1,0 +1,417 @@
+{
+ "id": 10180,
+ "机动性": [
+  330,
+  4,
+  376,
+  4,
+  422,
+  4,
+  468,
+  4,
+  514,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "deleteBuff": [
+     "boss",
+     "기본",
+     "치명적인 연애3"
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 20,
+      "name": "치명적인 연애1",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "방경감",
+      "size": 5,
+      "name": "치명적인 연애3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 25,
+      "name": "치명적인 연애1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 5,
+        "name": "치명적인 연애2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "방경감",
+      "size": 5,
+      "name": "치명적인 연애3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 30,
+      "name": "치명적인 연애1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 10,
+        "name": "치명적인 연애2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "방경감",
+      "size": 10,
+      "name": "치명적인 연애3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 35,
+      "name": "치명적인 연애1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 15,
+        "name": "치명적인 연애2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "방경감",
+      "size": 10,
+      "name": "치명적인 연애3",
+      "turn": 4
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 40,
+      "name": "치명적인 연애1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 20,
+        "name": "치명적인 연애2",
+        "turn": 1
+       }
+      ]
+     },
+     {
+      "tbf": "boss",
+      "type": "방경감",
+      "size": 10,
+      "name": "치명적인 연애3",
+      "turn": 4
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "디"
+     ],
+     "cmp": ">=",
+     "n": 4
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "공퍼증",
+      "size": 50,
+      "name": "<유리만 있으면 돼♡>1",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": 20,
+      "name": "<유리만 있으면 돼♡>2",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "일뎀증",
+      "size": 50,
+      "name": "<유리만 있으면 돼♡>3",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "<유리만 있으면 돼♡>4",
+      "turn": "always"
+     },
+     {
+      "tbf": "all",
+      "type": "발효증",
+      "size": 30,
+      "name": "<유리만 있으면 돼♡>5",
+      "turn": "always"
+     },
+     {
+      "for": {
+       "kind": "全队"
+      },
+      "body": [
+       {
+        "atbf": [
+         "$i",
+         "공격",
+         "all",
+         "공고증",
+         {
+          "atkRef": [
+           "myCurAtk",
+           "+$iId",
+           20
+          ]
+         },
+         "<꼼짝 못 하게 해줄게♡>1",
+         1,
+         "always"
+        ]
+       },
+       {
+        "anbf": [
+         "$i",
+         "공격",
+         "boss",
+         "받뎀증",
+         0.4,
+         "<꼼짝 못 하게 해줄게♡>2",
+         1,
+         50,
+         "always"
+        ]
+       },
+       {
+        "for": {
+         "kind": "全队"
+        },
+        "body": [
+         {
+          "anbf": [
+           {
+            "$i上": 1
+           },
+           "공격",
+           "$i",
+           "받속뎀",
+           0.6,
+           "<꼼짝 못 하게 해줄게♡>3",
+           1,
+           50,
+           "always"
+          ]
+         }
+        ]
+       },
+       {
+        "for": {
+         "kind": "role",
+         "mask": [
+          "디"
+         ]
+        },
+        "body": [
+         {
+          "anbf": [
+           {
+            "$i上": 1
+           },
+           "공격",
+           "$i",
+           "받직뎀",
+           1.2,
+           "<꼼짝 못 하게 해줄게♡>4",
+           1,
+           50,
+           "always"
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "감정을 억제할 수가 없어1",
+    "turn": "always"
+   },
+   {
+    "tbf": "self",
+    "type": "방뎀증",
+    "size": 100,
+    "name": "감정을 억제할 수가 없어2",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "평",
+     "boss",
+     "받일뎀",
+     70,
+     "삼독오대1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "boss",
+     "받궁뎀",
+     35,
+     "삼독오대2",
+     1,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 30,
+    "name": "전용 간호사",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "공격",
+     "boss",
+     "받뎀증",
+     20,
+     "<밀착 간호>1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "수"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "self",
+       "공격",
+       "$i",
+       "받속뎀",
+       20,
+       "<밀착 간호>2",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ]
+ }
+}

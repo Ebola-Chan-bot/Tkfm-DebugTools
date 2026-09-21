@@ -1,0 +1,469 @@
+{
+ "id": 10162,
+ "机动性": [
+  0,
+  4,
+  0,
+  5,
+  0,
+  6,
+  0,
+  7,
+  0,
+  8
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<시저 대명신의 가호>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<시저 대명신의 가호>",
+       0,
+       "천지창조!1",
+       3,
+       7
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       3
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       7
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       35,
+       "천지창조!2",
+       1,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<시저 대명신의 가호>",
+       0,
+       "천지창조!1",
+       4,
+       7
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       4
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       7
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       45,
+       "천지창조!2",
+       1,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<시저 대명신의 가호>",
+       0,
+       "천지창조!1",
+       5,
+       7
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       5
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       7
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       55,
+       "천지창조!2",
+       1,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<시저 대명신의 가호>",
+       0,
+       "천지창조!1",
+       6,
+       7
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       6
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       7
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       65,
+       "천지창조!2",
+       1,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<시저 대명신의 가호>",
+       0,
+       "천지창조!1",
+       7,
+       7
+      ]
+     },
+     {
+      "addSlot": [
+       "stack",
+       7
+      ]
+     },
+     {
+      "clampSlot": [
+       "stack",
+       null,
+       7
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       75,
+       "천지창조!2",
+       1,
+       1
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<정화 작업>1",
+    "on": true
+   },
+   {
+    "setBuffOn": "self",
+    "div": "기본",
+    "name": "<정화 작업>2",
+    "on": true
+   },
+   {
+    "setBuffOn": "self",
+    "div": "발동",
+    "name": "<시저 대현신>1",
+    "on": true
+   },
+   {
+    "setBuffOnAll": "self",
+    "div": "발동",
+    "name": "<시저 대현신>2",
+    "on": true
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "nbf": [
+     "self",
+     "<시저 대명신의 가호>",
+     0,
+     "천지창조!1",
+     -1,
+     7
+    ]
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": "==",
+     "fix": 3
+    },
+    "then": [
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "<시저 대현신>1",
+      "on": false
+     },
+     {
+      "setBuffOnAll": "self",
+      "div": "발동",
+      "name": "<시저 대현신>2",
+      "on": false
+     }
+    ],
+    "elif": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "<정화 작업>1",
+        "on": false
+       },
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "<정화 작업>2",
+        "on": false
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "addSlot": [
+     "stack",
+     -1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     0,
+     null
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 40
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 80,
+    "name": "시저 대명신의 무녀1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "가뎀증",
+    "size": 50,
+    "name": "시저 대명신의 무녀2",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "일뎀증",
+    "size": 100,
+    "name": "시저 대명신의 무녀3",
+    "turn": "always"
+   },
+   {
+    "anbf": [
+     "all",
+     "평",
+     "boss",
+     "받뎀증",
+     1.5,
+     "시저 대명신의 무녀4",
+     1,
+     50,
+     "always"
+    ]
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "섶"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": -500,
+      "name": "<이교 신앙>",
+      "turn": "always"
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "buff": [
+     "self",
+     "일뎀증",
+     125,
+     "<정화 작업>1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평추가*",
+     150,
+     "<정화 작업>2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "boss",
+     "받뎀증",
+     3,
+     "<시저 대현신>1",
+     1,
+     5,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "암"
+     ]
+    },
+    "body": [
+     {
+      "buff": [
+       "self",
+       "평",
+       "$i",
+       "받속뎀",
+       3,
+       "<시저 대현신>2",
+       1,
+       5,
+       "always",
+       "발동",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -8
+     }
+    ]
+   }
+  ]
+ }
+}

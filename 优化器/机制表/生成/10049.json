@@ -1,0 +1,281 @@
+{
+ "id": 10049,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "tbf": "all",
+    "type": "공고증",
+    "size": {
+     "atkRef": [
+      "myCurAtk",
+      "+selfId",
+      20
+     ]
+    },
+    "name": "꿈이 하나 있어1",
+    "turn": 1
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "atbf": [
+       "self",
+       "평",
+       "all",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         15
+        ]
+       },
+       "꿈이 하나 있어2",
+       1,
+       4
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "atbf": [
+       "self",
+       "평",
+       "all",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         20
+        ]
+       },
+       "꿈이 하나 있어2",
+       1,
+       4
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "atbf": [
+       "self",
+       "평",
+       "all",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         20
+        ]
+       },
+       "꿈이 하나 있어2",
+       1,
+       4
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "atbf": [
+       "self",
+       "평",
+       "all",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         22.5
+        ]
+       },
+       "꿈이 하나 있어2",
+       1,
+       4
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "atbf": [
+       "self",
+       "평",
+       "all",
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+selfId",
+         25
+        ]
+       },
+       "꿈이 하나 있어2",
+       1,
+       4
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal2": "$i"
+     }
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "atkLogic": null
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "heal": "$i"
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 20
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 20,
+    "name": "강자의 자비1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "일뎀증",
+    "size": 40,
+    "name": "강자의 자비2",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "받아증",
+    "size": 30,
+    "name": "강자의 자비4",
+    "turn": "always"
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "평",
+     "all",
+     "아머",
+     {
+      "hpExpr": {
+       "base": "self",
+       "N": 20
+      }
+     },
+     "방해 마법",
+     1,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "평",
+     "all",
+     "받아증",
+     5,
+     "선한 마음1",
+     1,
+     6,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "궁",
+     "all",
+     "일뎀증",
+     22.5,
+     "귀족의 보호",
+     1,
+     2,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격력 증가",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -2
+     }
+    ]
+   }
+  ]
+ }
+}

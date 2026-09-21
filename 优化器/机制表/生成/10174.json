@@ -1,0 +1,1182 @@
+{
+ "id": 10174,
+ "机动性": [
+  120,
+  4,
+  140,
+  4,
+  160,
+  4,
+  180,
+  4,
+  200,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<수중 깊이>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "temp": [
+     "v__0x5e6590",
+     {
+      "slot": "stack"
+     }
+    ]
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "addSlot": [
+       "stack",
+       20
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       40,
+       "비기 - 소용돌이 폭포!2",
+       1,
+       4
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "addSlot": [
+       "stack",
+       20
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       56.66,
+       "비기 - 소용돌이 폭포!2",
+       1,
+       3
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "addSlot": [
+       "stack",
+       30
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       60,
+       "비기 - 소용돌이 폭포!2",
+       1,
+       3
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       10,
+       "비기 - 소용돌이 폭포!3",
+       1,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "addSlot": [
+       "stack",
+       30
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       95,
+       "비기 - 소용돌이 폭포!2",
+       1,
+       2
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       22.5,
+       "비기 - 소용돌이 폭포!3",
+       1,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "addSlot": [
+       "stack",
+       40
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "공퍼증",
+       100,
+       "비기 - 소용돌이 폭포!2",
+       1,
+       2
+      ]
+     },
+     {
+      "nbf": [
+       "self",
+       "가뎀증",
+       30,
+       "비기 - 소용돌이 폭포!3",
+       1,
+       2
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x5e6590",
+     "cmp": "<",
+     "fix": 33
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 33
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "심해 잠행1",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x5e6590",
+     "cmp": "<",
+     "fix": 66
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 66
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "심해 잠행2",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x5e6590",
+     "cmp": "<",
+     "fix": 99
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 99
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "심해 잠행3",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x5e6590",
+     "cmp": "<",
+     "fix": 100
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 100
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "<심해 밑바닥>2",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     100
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "temp": [
+     "v__0x2eb4e1",
+     {
+      "slot": "stack"
+     }
+    ]
+   },
+   {
+    "ultLogic": null
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<수중 깊이>",
+       0,
+       "비기 - 소용돌이 폭포!",
+       20,
+       100
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<수중 깊이>",
+       0,
+       "비기 - 소용돌이 폭포!",
+       20,
+       100
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<수중 깊이>",
+       0,
+       "비기 - 소용돌이 폭포!",
+       30,
+       100
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<수중 깊이>",
+       0,
+       "비기 - 소용돌이 폭포!",
+       30,
+       100
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<수중 깊이>",
+       0,
+       "비기 - 소용돌이 폭포!",
+       40,
+       100
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x2eb4e1",
+     "cmp": "<",
+     "fix": 100
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 100
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "<심해 밑바닥>3",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<심해 밑바닥>4",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<심해 밑바닥>5",
+        "on": true
+       },
+       {
+        "setBuffOnAll": "self",
+        "div": "발동",
+        "name": "<심해 밑바닥>6",
+        "on": true
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "tbf": "self",
+    "type": "아머",
+    "size": {
+     "atkRef": [
+      "myCurAtk",
+      "+selfId",
+      {
+       "armor乘子": {
+        "act": "평",
+        "mode": "추가",
+        "K": 25
+       }
+      }
+     ]
+    },
+    "name": "닻 휘두르기",
+    "turn": 1
+   }
+  ],
+  "attack": [
+   {
+    "temp": [
+     "v__0x2e9942",
+     {
+      "slot": "stack"
+     }
+    ]
+   },
+   {
+    "addSlot": [
+     "stack",
+     5
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x2e9942",
+     "cmp": "<",
+     "fix": 33
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 33
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "심해 잠행1",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x2e9942",
+     "cmp": "<",
+     "fix": 66
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 66
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "심해 잠행2",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x2e9942",
+     "cmp": "<",
+     "fix": 99
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 99
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "심해 잠행3",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x2e9942",
+     "cmp": "<",
+     "fix": 100
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 100
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<심해 밑바닥>2",
+        "on": true
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "atkLogic": null
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x2e9942",
+     "cmp": "<",
+     "fix": 33
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 33
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "심해 잠행1",
+        "on": false
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x2e9942",
+     "cmp": "<",
+     "fix": 66
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 66
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "심해 잠행2",
+        "on": false
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x2e9942",
+     "cmp": "<",
+     "fix": 99
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 99
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "심해 잠행3",
+        "on": false
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x2e9942",
+     "cmp": "<",
+     "fix": 100
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 100
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<심해 밑바닥>2",
+        "on": false
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x2e9942",
+     "cmp": "<",
+     "fix": 100
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 100
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "<심해 밑바닥>3",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<심해 밑바닥>4",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<심해 밑바닥>5",
+        "on": true
+       },
+       {
+        "setBuffOnAll": "self",
+        "div": "발동",
+        "name": "<심해 밑바닥>6",
+        "on": true
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpMe": [
+     "self",
+     60
+    ]
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 100,
+    "name": "배가 나고, 내가 배야1",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "가뎀증",
+    "size": 30,
+    "name": "배가 나고, 내가 배야2",
+    "turn": "always"
+   },
+   {
+    "tbf": "all",
+    "type": "일뎀증",
+    "size": 40,
+    "name": "배가 나고, 내가 배야3",
+    "turn": "always"
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": [
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "수",
+        "암"
+       ]
+      },
+      "body": [
+       {
+        "atbf": [
+         {
+          "$i上": 1
+         },
+         "공격",
+         "$i",
+         "받속뎀",
+         5,
+         "<닻을 올리고 출항>",
+         2,
+         "always"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "anbf": [
+     "self",
+     "평",
+     "self",
+     "<수중 깊이>",
+     0,
+     "비기 - 소용돌이 폭포!",
+     5,
+     100,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "self",
+     "on",
+     "기본",
+     "심해 잠행1",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "self",
+     "on",
+     "기본",
+     "심해 잠행2",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "self",
+     "on",
+     "기본",
+     "심해 잠행3",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평",
+     "self",
+     "on",
+     "기본",
+     "<심해 밑바닥>2",
+     1,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "피격",
+     "self",
+     "<수중 깊이>",
+     0,
+     "비기 - 소용돌이 폭포!",
+     3,
+     100,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     60,
+     "심해 잠행1",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "일뎀증",
+     60,
+     "심해 잠행2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "가뎀증",
+     30,
+     "심해 잠행3",
+     "always",
+     false
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "아머",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       {
+        "armor乘子": {
+         "act": "궁",
+         "mode": "발동",
+         "K": 50
+        }
+       }
+      ]
+     },
+     "<사냥 시작>",
+     1,
+     "always"
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "일뎀증",
+     60,
+     "<심해 밑바닥>2",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "평추가*",
+     30,
+     "<심해 밑바닥>3",
+     "always",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공격",
+     "boss",
+     "받뎀증",
+     20,
+     "<심해 밑바닥>4",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공격",
+     "boss",
+     "받일뎀",
+     50,
+     "<심해 밑바닥>5",
+     2,
+     "always",
+     "발동",
+     false
+    ]
+   },
+   {
+    "for": {
+     "kind": "element",
+     "mask": [
+      "암"
+     ]
+    },
+    "body": [
+     {
+      "buff": [
+       "self",
+       "공격",
+       "$i",
+       "받속뎀",
+       20,
+       "<심해 밑바닥>6",
+       2,
+       "always",
+       "발동",
+       false
+      ]
+     }
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "공퍼증",
+    "size": 10,
+    "name": "공격+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": []
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "cdChange": "self",
+      "值": -4
+     }
+    ]
+   }
+  ],
+  "init": [
+   {
+    "inject": {
+     "方法": "hit",
+     "目标": "self",
+     "模式": "环绕",
+     "快照": [
+      {
+       "temp": [
+        "v__0x297417",
+        {
+         "slot": "stack"
+        }
+       ]
+      }
+     ],
+     "前置": [
+      {
+       "addSlot": [
+        "stack",
+        3
+       ]
+      },
+      {
+       "if": {
+        "kind": "temp",
+        "var": "v__0x297417",
+        "cmp": "<",
+        "fix": 33
+       },
+       "then": [
+        {
+         "if": {
+          "kind": "slot比较",
+          "slot": "stack",
+          "cmp": ">=",
+          "fix": 33
+         },
+         "then": [
+          {
+           "setBuffOn": "self",
+           "div": "기본",
+           "name": "심해 잠행1",
+           "on": true
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "if": {
+        "kind": "temp",
+        "var": "v__0x297417",
+        "cmp": "<",
+        "fix": 66
+       },
+       "then": [
+        {
+         "if": {
+          "kind": "slot比较",
+          "slot": "stack",
+          "cmp": ">=",
+          "fix": 66
+         },
+         "then": [
+          {
+           "setBuffOn": "self",
+           "div": "기본",
+           "name": "심해 잠행2",
+           "on": true
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "if": {
+        "kind": "temp",
+        "var": "v__0x297417",
+        "cmp": "<",
+        "fix": 99
+       },
+       "then": [
+        {
+         "if": {
+          "kind": "slot比较",
+          "slot": "stack",
+          "cmp": ">=",
+          "fix": 99
+         },
+         "then": [
+          {
+           "setBuffOn": "self",
+           "div": "기본",
+           "name": "심해 잠행3",
+           "on": true
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "if": {
+        "kind": "temp",
+        "var": "v__0x297417",
+        "cmp": "<",
+        "fix": 100
+       },
+       "then": [
+        {
+         "if": {
+          "kind": "slot比较",
+          "slot": "stack",
+          "cmp": ">=",
+          "fix": 100
+         },
+         "then": [
+          {
+           "setBuffOn": "self",
+           "div": "기본",
+           "name": "<심해 밑바닥>2",
+           "on": true
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "后置": [
+      {
+       "if": {
+        "kind": "temp",
+        "var": "v__0x297417",
+        "cmp": "<",
+        "fix": 100
+       },
+       "then": [
+        {
+         "if": {
+          "kind": "slot比较",
+          "slot": "stack",
+          "cmp": ">=",
+          "fix": 100
+         },
+         "then": [
+          {
+           "setBuffOn": "self",
+           "div": "기본",
+           "name": "<심해 밑바닥>3",
+           "on": true
+          },
+          {
+           "setBuffOn": "self",
+           "div": "발동",
+           "name": "<심해 밑바닥>4",
+           "on": true
+          },
+          {
+           "setBuffOn": "self",
+           "div": "발동",
+           "name": "<심해 밑바닥>5",
+           "on": true
+          },
+          {
+           "setBuffOnAll": "self",
+           "div": "발동",
+           "name": "<심해 밑바닥>6",
+           "on": true
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,184 @@
+{
+ "id": 10056,
+ "机动性": [
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4,
+  0,
+  4
+ ],
+ "槽位初值": {},
+ "排除伤害": [],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 40,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "결정의 벽",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 45,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "결정의 벽",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 45,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "결정의 벽",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 50,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "결정의 벽",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "self",
+      "type": "아머",
+      "size": {
+       "hpExpr": {
+        "base": "self",
+        "N": 50,
+        "armorUp": {
+         "act": "궁",
+         "mode": "추가"
+        }
+       }
+      },
+      "name": "결정의 벽",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "addCd": -1
+   },
+   {
+    "addCurCd": -1
+   },
+   {
+    "hpUpMe": [
+     "self",
+     60
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "평",
+     "self",
+     "아머",
+     {
+      "hpExpr": {
+       "base": "self",
+       "N": 5
+      }
+     },
+     "결정과 공생",
+     50,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "self",
+     "반격*",
+     300,
+     "결정의 침식1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "atbf": [
+     "self",
+     "방",
+     "self",
+     "반격*",
+     100,
+     "결정의 침식2",
+     1,
+     "always"
+    ]
+   }
+  ]
+ }
+}

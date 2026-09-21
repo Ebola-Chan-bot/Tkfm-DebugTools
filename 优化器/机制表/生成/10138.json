@@ -1,0 +1,625 @@
+{
+ "id": 10138,
+ "机动性": [
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3,
+  0,
+  3
+ ],
+ "槽位初值": {},
+ "排除伤害": [
+  "<파티 사회자>",
+  "<파티 참가자>"
+ ],
+ "旗标": [
+  "StackFalse"
+ ],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁뎀증",
+      "size": 30,
+      "name": "마왕성 party time3",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁추가*",
+      "size": 60,
+      "name": "마왕성 party time4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁뎀증",
+      "size": 40,
+      "name": "마왕성 party time3",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁추가*",
+      "size": 70,
+      "name": "마왕성 party time4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁뎀증",
+      "size": 40,
+      "name": "마왕성 party time3",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁추가*",
+      "size": 80,
+      "name": "마왕성 party time4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁뎀증",
+      "size": 50,
+      "name": "마왕성 party time3",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁추가*",
+      "size": 90,
+      "name": "마왕성 party time4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁뎀증",
+      "size": 50,
+      "name": "마왕성 party time3",
+      "turn": 1
+     },
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "궁추가*",
+      "size": 100,
+      "name": "마왕성 party time4",
+      "turn": 1
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "ultLogic": null
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "tbf": {
+       "comp": 4
+      },
+      "type": "가뎀증",
+      "size": {
+       "nestByTypeVal": {
+        "type": "<파티 사회자>",
+        "K": 7.5
+       }
+      },
+      "name": "파자마 파티 스타트~3",
+      "turn": 1
+     },
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": {
+       "nestByTypeVal": {
+        "type": "<파티 참가자>",
+        "K": 7.5
+       }
+      },
+      "name": "파자마 파티 스타트~4",
+      "turn": 1
+     }
+    ]
+   },
+   {
+    "tbf": {
+     "comp": 4
+    },
+    "type": "가뎀증",
+    "size": {
+     "nestByTypeVal": {
+      "type": "<파티 사회자>",
+      "K": 8.75
+     }
+    },
+    "name": "스릴 넘치는 파티 게임3",
+    "turn": 1
+   },
+   {
+    "tbf": "boss",
+    "type": "받뎀증",
+    "size": {
+     "nestByTypeVal": {
+      "type": "<파티 참가자>",
+      "K": 8.75
+     }
+    },
+    "name": "스릴 넘치는 파티 게임4",
+    "turn": 1
+   },
+   {
+    "lib": 1,
+    "then": [
+     {
+      "if": {
+       "not": {
+        "kind": "单位字段",
+        "field": "stack",
+        "目标": "self"
+       }
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<파티 사회자>",
+         0,
+         "스릴 넘치는 파티 게임1",
+         1,
+         4
+        ]
+       }
+      ]
+     },
+     {
+      "if": {
+       "not": {
+        "kind": "单位字段",
+        "field": "stack",
+        "目标": "self"
+       }
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<파티 참가자>",
+         0,
+         "스릴 넘치는 파티 게임2",
+         1,
+         4
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "if": {
+       "not": {
+        "kind": "单位字段",
+        "field": "stack",
+        "目标": "self"
+       }
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<파티 사회자>",
+         0,
+         "스릴 넘치는 파티 게임1",
+         1,
+         4
+        ]
+       }
+      ]
+     },
+     {
+      "if": {
+       "not": {
+        "kind": "单位字段",
+        "field": "stack",
+        "目标": "self"
+       }
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<파티 참가자>",
+         0,
+         "스릴 넘치는 파티 게임2",
+         1,
+         4
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "if": {
+       "not": {
+        "kind": "单位字段",
+        "field": "stack",
+        "目标": "self"
+       }
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<파티 사회자>",
+         0,
+         "스릴 넘치는 파티 게임1",
+         2,
+         4
+        ]
+       }
+      ]
+     },
+     {
+      "if": {
+       "not": {
+        "kind": "单位字段",
+        "field": "stack",
+        "目标": "self"
+       }
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<파티 참가자>",
+         0,
+         "스릴 넘치는 파티 게임2",
+         2,
+         4
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "if": {
+       "not": {
+        "kind": "单位字段",
+        "field": "stack",
+        "目标": "self"
+       }
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<파티 사회자>",
+         0,
+         "스릴 넘치는 파티 게임1",
+         2,
+         4
+        ]
+       }
+      ]
+     },
+     {
+      "if": {
+       "not": {
+        "kind": "单位字段",
+        "field": "stack",
+        "目标": "self"
+       }
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<파티 참가자>",
+         0,
+         "스릴 넘치는 파티 게임2",
+         2,
+         4
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "if": {
+       "not": {
+        "kind": "单位字段",
+        "field": "stack",
+        "目标": "self"
+       }
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<파티 사회자>",
+         0,
+         "스릴 넘치는 파티 게임1",
+         3,
+         4
+        ]
+       }
+      ]
+     },
+     {
+      "if": {
+       "not": {
+        "kind": "单位字段",
+        "field": "stack",
+        "目标": "self"
+       }
+      },
+      "then": [
+       {
+        "nbf": [
+         "self",
+         "<파티 참가자>",
+         0,
+         "스릴 넘치는 파티 게임2",
+         3,
+         4
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "flag": "StackTrue"
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 30
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "파자마 파티 스타트~1",
+    "turn": "always"
+   },
+   {
+    "atbf": [
+     "self",
+     "궁",
+     {
+      "comp": 4
+     },
+     "궁뎀증",
+     30,
+     "파자마 파티 스타트~2",
+     1,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "섶"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "$i",
+       "궁",
+       {
+        "comp": 4
+       },
+       "공고증",
+       {
+        "atkRef": [
+         "myCurAtk",
+         "+$iId",
+         10
+        ]
+       },
+       "파자마 파티 스타트~5",
+       1,
+       "always"
+      ]
+     }
+    ]
+   },
+   {
+    "findMaxUnit": {
+     "槽": 0,
+     "field": "hp",
+     "role过滤": null,
+     "方向": "max"
+    }
+   },
+   {
+    "findMaxUnit": {
+     "槽": 1,
+     "field": "hp",
+     "role过滤": null,
+     "方向": "min"
+    }
+   },
+   {
+    "atbf": [
+     {
+      "find": 0
+     },
+     "방",
+     {
+      "find": 1
+     },
+     "아머",
+     {
+      "NaNVal": true
+     },
+     "파자마 파티 스타트~6",
+     1,
+     "always"
+    ]
+   },
+   {
+    "for": {
+     "kind": "role",
+     "mask": [
+      "디"
+     ]
+    },
+    "body": [
+     {
+      "atbf": [
+       "$i",
+       "궁",
+       {
+        "comp": 4
+       },
+       "궁추가*",
+       50,
+       "<파티 주인공>",
+       1,
+       "always"
+      ]
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "atbf": [
+     "self",
+     "궁",
+     "all",
+     "힐",
+     {
+      "atkRef": [
+       "myCurAtk",
+       "+selfId",
+       100
+      ]
+     },
+     "수줍은 연애 이야기1",
+     1,
+     "always"
+    ]
+   },
+   {
+    "nbf": [
+     "self",
+     "<파티 사회자>",
+     0,
+     "스릴 넘치는 파티 게임1",
+     {
+      "countVal": {
+       "fn": "getRoleCnt",
+       "mask": [
+        "섶"
+       ]
+      }
+     },
+     4
+    ]
+   },
+   {
+    "nbf": [
+     "self",
+     "<파티 참가자>",
+     0,
+     "스릴 넘치는 파티 게임2",
+     {
+      "countVal": {
+       "fn": "getRoleCnt",
+       "mask": [
+        "디"
+       ]
+      }
+     },
+     4
+    ]
+   }
+  ],
+  "defense": [
+   {
+    "actDefense": true
+   },
+   {
+    "for": {
+     "kind": "全队"
+    },
+    "body": []
+   }
+  ]
+ }
+}
