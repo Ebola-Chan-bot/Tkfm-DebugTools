@@ -19,6 +19,7 @@
 
 const 动作 = ['평', '궁', '방'];
 const 序先验 = require('./序先验.js');   // 回合内딜러伤害궁出手序静态先验（DB 挖掘，见 序先验.js 文件头）
+const 防守名单 = require('./防守名单.js');   // 剪枝A：按队构成禁用无防守机制角色的방分支（50名单캐+12授予者，实证见该文件头）
 
 // 角色静态特征缓存（role 用于优先级），进程级，构建一次
 function 建特征表() {
@@ -175,6 +176,8 @@ function 先验前瞻贪心(inst, ids, bonds, 设置) {
   const stopFlag = 设置.stopFlag || (() => false);
   const onProgress = 设置.onProgress || (() => {});
   const t0 = Date.now();
+  // 剪枝A：按队构成禁用无防守机制角色的방分支（设置.禁防守剪枝=false 可完全关闭，恢复全방枚举）
+  const 禁用防守 = (设置.禁防守剪枝 !== false) ? 防守名单.计算禁用防守(ids) : [false, false, false, false, false];
   const inc = inst.increment;
   if (!inc.initBattle(ids, bonds, -1, null)) return null;
   const comp = inst.internals.comp;
@@ -194,8 +197,8 @@ function 先验前瞻贪心(inst, ids, bonds, 设置) {
         const c = comp[i];
         if (!c || c.isActed) continue;
         // 평/방 恒合法，궁 需 CD 就绪（与 legalActs 同口径）
-        const 평分 = 先验分(i, '평'); if (평分 > bS) { bS = 평分; bI = i; bA = '평'; }
-        const 방分 = 先验分(i, '방'); if (방分 > bS) { bS = 방分; bI = i; bA = '방'; }
+        const 평분 = 先验分(i, '평'); if (평분 > bS) { bS = 평분; bI = i; bA = '평'; }
+        if (!禁用防守[i]) { const 방분 = 先验分(i, '방'); if (방분 > bS) { bS = 방분; bI = i; bA = '방'; } }   // 剪枝A：禁用槽位不选방
         if (c.curCd <= 0) { const 궁分 = 先验分(i, '궁'); if (궁分 > bS) { bS = 궁分; bI = i; bA = '궁'; } }
       }
       if (bI < 0) break;
@@ -208,9 +211,9 @@ function 先验前瞻贪心(inst, ids, bonds, 设置) {
   let 前瞻次数 = 0;
   for (let s = 0; s < 65; s++) {
     if (stopFlag()) return null;
-    // 枚举当前合法动作（引擎真实状态，快照栈 = s 深度）
+    // 枚举当前合法动作（引擎真实状态，快照栈 = s 深度）；剪枝A：禁用槽位的방不入候选
     const 候选 = [];
-    for (let i = 0; i < 5; i++) for (const a of inc.legalActs(i)) 候选.push({ idx: i, act: a });
+    for (let i = 0; i < 5; i++) for (const a of inc.legalActs(i)) { if (禁用防守[i] && a === '방') continue; 候选.push({ idx: i, act: a }); }
     if (!候选.length) break;
     let 最优候选 = null, 最优dmg = -1;
     for (const cand of 候选) {
@@ -457,6 +460,9 @@ function 束搜索(inst, ids, bonds, 设置) {
   const 时限 = 设置.时限秒 ? 设置.时限秒 * 1000 : Infinity;
   const 超时 = () => stopFlag() || (Date.now() - t0) > 时限;
 
+  // 剪枝A：按队构成禁用无防守机制角色的방分支（设置.禁防守剪枝=false 可完全关闭，恢复全방枚举）
+  const 禁用防守 = (设置.禁防守剪枝 !== false) ? 防守名单.计算禁用防守(ids) : [false, false, false, false, false];
+
   const inc = inst.increment;
   if (!inc.initBattle(ids, bonds, -1, null)) return null;
   // ⚠️ initBattle→start() 内部 `comp = []` 重新赋值数组，必须在其后才取 _comp 引用，否则野指针读到旧数组
@@ -474,8 +480,10 @@ function 束搜索(inst, ids, bonds, 设置) {
       // 평（딜러高），방（仅탱커略升），궁（buff궁最高、딜궁次之，需CD就绪）
       const 평分 = (f.role === 0 ? 500 : 100) + (f.atkMag || 0) * f.atk / 1000;
       if (평分 > bS) { bS = 평分; bI = i; bA = '평'; }
-      const 방分 = (f.role === 2 ? 30 : 1);
-      if (방分 > bS) { bS = 방分; bI = i; bA = '방'; }
+      if (!禁用防守[i]) {   // 剪枝A：禁用槽位不选방
+        const 방분 = (f.role === 2 ? 30 : 1);
+        if (방분 > bS) { bS = 방분; bI = i; bA = '방'; }
+      }
       if (c.curCd <= 0) {
         const 伤害궁 = (f.ultMag > 0 || f.atkMag > 0);
         if (禁딜궁 && 伤害궁 && f.role === 0) continue;
@@ -623,7 +631,7 @@ function 束搜索(inst, ids, bonds, 设置) {
       if (超时()) { 被打断 = true; break; }
       moveTo(节点.toks);                        // 引擎停在父前缀（栈深 s）
       const 合法 = [];
-      for (let i = 0; i < 5; i++) for (const a of inc.legalActs(i)) 合法.push({ idx: i, act: a });
+      for (let i = 0; i < 5; i++) for (const a of inc.legalActs(i)) { if (禁用防守[i] && a === '방') continue; 合法.push({ idx: i, act: a }); }   // 剪枝A：禁用槽位的방不入分支
       for (const cand of 合法) {
         if (超时()) { 被打断 = true; break; }
         // 候选评分（设置.评分）：

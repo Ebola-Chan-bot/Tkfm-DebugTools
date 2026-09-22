@@ -160,7 +160,7 @@ function 同站位(a, b) { for (let i = 0; i < 5; i++) if (a[i] !== b[i]) return
  * 参数：
  *   inst 引擎实例；起点 {ids, toks}（起点站位+起点指令集，均已过 isValidComp）；
  *   库 = 角色 id 数组（用户已拥有、可模拟的 SSR）；
- *   选项 {rtMax=5, K站位=5, 爬山预算=2000, 预算=∞, stopFlag, onResult, onProgress}。
+ *   选项 {rtMax=5, K站位=5, 爬山预算=10000, 预算=∞, stopFlag, onResult, onProgress}。
  * 行为：
  *   - onResult(全局最优快照) 在刷新最优时回调（供主程序心跳展示）；
  *   - 返回 {最优:{ids,toks,dmg}, 统计:{名单数,评估数,当前rt,名单层完备}}。
@@ -170,7 +170,7 @@ function 搜索(inst, 起点, 库, 选项) {
   选项 = 选项 || {};
   const rtMax = 选项.rtMax == null ? 5 : 选项.rtMax;
   const K站位 = 选项.K站位 == null ? 5 : 选项.K站位;
-  const 爬山预算 = 选项.爬山预算 == null ? 2000 : 选项.爬山预算;
+  const 爬山预算 = 选项.爬山预算 == null ? 10000 : 选项.爬山预算;   // 默认≥自然收敛所需（实验17实测难例~4000，留余量；旧值2000会中途截断）
   const 预算 = 选项.预算 == null ? Infinity : 选项.预算;
   // 可选：{N站位, width, R, 时限秒, 闸门}，对名单深搜 Top-N 站位启用 sync 束精修（默认关，成本 ~25-35s/站位）。
   //   闸门=true：用难例特征分级把'易'(buff富余)名单挡在束精修之外（海量名单省时）。
