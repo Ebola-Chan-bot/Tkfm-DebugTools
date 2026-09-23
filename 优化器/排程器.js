@@ -297,49 +297,177 @@ function 修复解码(inst, ids, toks, bonds) {
   return { dmg: inst.increment.dmgSoFar(), toks: out, 修复次数 };
 }
 
-/* ---------- 2) 爬山（first-improving） ---------- */
+/* ---------- 2) 爬山（first-improving + 可选相位邻域与谷底试探） ---------- */
 
-// 邻域：① 单 token 改为另一合法动作；② 相邻两 token（不同 idx）交换顺序。
-// 返回 { toks, dmg, 评估次数, 提升次数 }。预算 = 最大评估次数。
+// 邻域：① 单 token 改为另一合法动作；② 相邻两 token（不同 idx）交换顺序；
+//   ③ 相位移动（궁@s1 ↔ 同角色后1~2回合非궁@s2 成对交换，仅谷底试探>0 时启用）。
+// 默认谷底试探=0：纯 first-improving（旧行为），局部最优即返回，变差移动被彻底放弃。
+// 谷底试探=K>0 时（诊断N/O/R/S + 验证P2/T 实证，用户定策 2026-09-23："优先搜变好的，变差的容后再搜而不是彻底放弃"）：
+//   (a) 爬坡启用③相位移动上升邻域（队[4] 的目标移动属此类：92.53%→98.60% 无需跨谷）；
+//   (b) 到达局部最优后，从两类【语义变差邻域】收集候选（类A 相位移动 ~23条/点 + 类B 涉궁相邻次序交换
+//       ~21条/点），近平谷(|Δ|<0.1%)不入池，A/B 交替轮询、类内最不差优先，逐个试探：跨谷下降 → 谷底重爬
+//       → 超过全局最优则采纳续搜（"容后再搜"而非彻底放弃）。
+//       不用通用单token变差前沿（数百浅谷，−0.5~−7pp 语义深谷按最不差永远排不到 —— 验证P 失败实证）。
+//   两类谷的实证（缺口分层：先相位 91→97、再次序 97→100）：
+//     类A 相位谷（跨回合，t12궁→평 单步 −7.23pp，谷点 84.25% 重爬 97.29%；诊断R：类内最不差排名1/23）；
+//     类B 次序谷（齐射回合内 궁出手次序，5발궁 120 次序景观中 97.29% 为局部最优第4名，
+//       最优次序 99.98% 须两步相邻交换、中经 −0.55pp 变差态；验证T：4 个相邻交换邻居全部变差）。
+//   谷底重爬带【禁忌】（已试点集合）：队[7] 实证谷底的"交换回出发点"恢复移动按扫描序(p=61)先于
+//     通往 99.98% 的目标移动(p=62)，不禁忌则谷底重爬永远原路爬回、试探白费（P4：K=16 采纳恒为1）；
+//     试探未采纳则回到全局最优继续下一轮（防漂移到更差盆地耗尽试探预算）。
+//   选择策略为何是"A/B交替+类内最不差"：诊断U 池实测两头都不行——纯最不差优先会让浅次序谷(−0.01pp级)
+//     抢占预算、把 −7.23pp 相位深谷挤到 #13 之后（K=8 全耗在重爬回原点的浅谷上）；纯类优先（全A后全B）
+//     会让 97.29% 点剩余 22 个相位谷耗尽 K、永达不到次序谷层。交替轮询两头兼顾：粗结构第 1 次即试、
+//     细结构每隔一个试。
+//   实测（验证P2，K=2 已全收敛）：队[7] 91.48%→97.29%、队[4] 92.53%→98.60%、승나미 88.67%→98.16%、
+//   후지카 93.65%→100%、신이카 97.01%→99.98%、칼리버 100% 不动（相位上升邻域对已最优队无副作用）。
+//   试探预算 K 封顶"跨谷次数"（每次含谷底重爬，实测 ~1.2s/次），与总评估预算共同生效。
+// 返回 { toks, dmg, 评估次数, 提升次数, 谷底试探数, 谷底采纳数 }。
 // stopFlag(): 每次评估后调用，为真立即中止（让 Ctrl+C/--预算 有细粒度停止）。
 // onProgress(n): 每评估 n 次转发给上层（主程序心跳的"已搜索数目"靠它累加）。
-function 爬山(inst, ids, startToks, bonds, 预算, stopFlag, onProgress) {
+function 爬山(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷底试探) {
   bonds = bonds || [5, 5, 5, 5, 5];
   预算 = 预算 || 20000;
   stopFlag = stopFlag || (() => false);
   onProgress = onProgress || (() => {});
-  let cur = startToks.map(t => ({ idx: t.idx, act: t.act }));
-  let curDmg = 重放(inst, ids, cur, bonds);
-  let 评估 = 0, 提升 = 0;
-  let 改进 = true;
-  while (改进 && 评估 < 预算 && !stopFlag()) {
-    改进 = false;
-    // ① 单 token 改动作
-    for (let p = 0; p < 65 && 评估 < 预算 && !stopFlag(); p++) {
-      for (const a of 动作) {
-        if (a === cur[p].act) continue;
-        if (评估 >= 预算 || stopFlag()) break;
-        // 独立新数组，避免引用赋值污染 cur
+  谷底试探 = (谷底试探 == null) ? 0 : 谷底试探;
+  const 用相位 = 谷底试探 > 0;   // K=0 → 完全旧 first-improving 行为（零扰动现存达标队）
+
+  // 相位移动候选：궁@s1 ↔ 同角色后 1~2 回合的非궁@s2，成对交换动作（=궁相位后移）。
+  //   诊断N/O/R 实证的难例正解移动形态：队[4] 是唯一上升移动、队[7] 是最不差谷(相位邻域排名1/23)；
+  //   通用单token变差前沿有数百浅谷、−7pp 语义深谷永远排不到（验证P：队[7] K=8 采纳0）。
+  function 相位候选(toks) {
+    const 候 = [];
+    for (let s1 = 0; s1 < 65; s1++) {
+      if (toks[s1].act !== '궁') continue;
+      const ii = toks[s1].idx, t1 = (s1 / 5) | 0;
+      for (let s2 = s1 + 1; s2 < 65; s2++) {
+        if (((s2 / 5) | 0) - t1 > 2) break;         // 只考虑后 2 回合内（相位微调）
+        if (toks[s2].idx !== ii || toks[s2].act === '궁') continue;
+        const 移 = toks.map(t => ({ idx: t.idx, act: t.act }));
+        移[s1].act = toks[s2].act;                  // 原궁位改成 s2 动作（通常평）
+        移[s2].act = '궁';                           // 궁后移到 s2
+        候.push(移);
+      }
+    }
+    return 候;
+  }
+
+  // first-improving 爬坡：邻域 ①单token改动作 ②相邻交换 ③相位移动（启用相位时）；返回新数组不动入参。
+  // 禁忌（仅谷底重爬传入）：上升移动若落在 禁忌(toks键集合) 内则跳过——队[7] 实证：谷底(96.75%) 的
+  //   "交换回出发点"恢复移动按扫描序(p=61) 先于通往 99.98% 的目标移动(p=62)，不禁忌则谷底重爬
+  //   永远原路爬回、试探白费（P4 实测 K=16 采纳恒为 1）。
+  function 爬坡(toks, dmg, 禁忌) {
+    let cur = toks, curDmg = dmg;
+    let 改进 = true;
+    while (改进 && 评估 < 预算 && !stopFlag()) {
+      改进 = false;
+      // ① 单 token 改动作
+      for (let p = 0; p < 65 && 评估 < 预算 && !stopFlag(); p++) {
+        for (const a of 动作) {
+          if (a === cur[p].act) continue;
+          if (评估 >= 预算 || stopFlag()) break;
+          // 独立新数组，避免引用赋值污染 cur
+          const nb = cur.map(t => ({ idx: t.idx, act: t.act }));
+          nb[p].act = a;
+          评估++; onProgress(1);
+          const d = 重放(inst, ids, nb, bonds);
+          if (d > curDmg && !(禁忌 && 禁忌.has(toks键(nb)))) { cur = nb; curDmg = d; 提升++; 改进 = true; break; }
+        }
+        if (改进) break;
+      }
+      if (改进 || stopFlag() || 评估 >= 预算) continue;
+      // ② 相邻交换（仅当 idx 不同才有意义）
+      for (let p = 0; p < 64 && 评估 < 预算 && !stopFlag(); p++) {
+        if (cur[p].idx === cur[p + 1].idx) continue;
         const nb = cur.map(t => ({ idx: t.idx, act: t.act }));
-        nb[p].act = a;
+        const tmp = nb[p]; nb[p] = nb[p + 1]; nb[p + 1] = tmp;
         评估++; onProgress(1);
         const d = 重放(inst, ids, nb, bonds);
-        if (d > curDmg) { cur = nb; curDmg = d; 提升++; 改进 = true; break; }
+        if (d > curDmg && !(禁忌 && 禁忌.has(toks键(nb)))) { cur = nb; curDmg = d; 提升++; 改进 = true; break; }
       }
-      if (改进) break;
+      if (改进 || stopFlag() || 评估 >= 预算 || !用相位) continue;
+      // ③ 相位移动（궁后移成对交换，诊断R：队[4] 的目标移动属此类且为上升移动）
+      for (const nb of 相位候选(cur)) {
+        if (评估 >= 预算 || stopFlag()) break;
+        评估++; onProgress(1);
+        const d = 重放(inst, ids, nb, bonds);
+        if (d > curDmg && !(禁忌 && 禁忌.has(toks键(nb)))) { cur = nb; curDmg = d; 提升++; 改进 = true; break; }
+      }
     }
-    if (改进 || stopFlag() || 评估 >= 预算) continue;
-    // ② 相邻交换（仅当 idx 不同才有意义）
-    for (let p = 0; p < 64 && 评估 < 预算 && !stopFlag(); p++) {
-      if (cur[p].idx === cur[p + 1].idx) continue;
-      const nb = cur.map(t => ({ idx: t.idx, act: t.act }));
-      const tmp = nb[p]; nb[p] = nb[p + 1]; nb[p + 1] = tmp;
+    return { toks: cur, dmg: curDmg };
+  }
+
+  let 评估 = 0, 提升 = 0, 试探数 = 0, 采纳数 = 0;
+  let cur = startToks.map(t => ({ idx: t.idx, act: t.act }));
+  let curDmg = 重放(inst, ids, cur, bonds);
+  评估++; onProgress(1);
+  let 全局 = { toks: cur, dmg: curDmg };
+  if (谷底试探 <= 0) {
+    const r = 爬坡(cur, curDmg);
+    return { toks: r.toks, dmg: r.dmg, 评估, 提升, 谷底试探数: 0, 谷底采纳数: 0 };
+  }
+  const 已试 = new Set([toks键(cur)]);
+  while (试探数 < 谷底试探 && 评估 < 预算 && !stopFlag()) {
+    const r = 爬坡(cur, curDmg);
+    cur = r.toks; curDmg = r.dmg;
+    if (curDmg > 全局.dmg) 全局 = { toks: cur, dmg: curDmg };
+    if (!已试.has(toks键(cur))) 已试.add(toks键(cur));
+    // 收集当前局部最优点的两类变差【语义邻域】（上升移动已被爬坡①②③走光；已试点剔除）：
+    //   类A 相位移动（궁跨回合后移，~23条/点）：궁释放时机=伤害主因，修复 91.48%→97.29% 那一层缺口（诊断R：
+    //     目标谷类内"最不差"排名 1/23）；
+    //   类B 궁次序交换（相邻交换中涉及궁者，~21条/点）：齐射回合内 buff 叠加顺序=次因，修复
+    //     97.29%→99.98% 那一层（验证T：5발궁 120 次序景观中最优次序须两步相邻交换、中经 −0.54pp 谷）。
+    //   不用通用变差前沿（数百浅谷，−0.5~−7pp 语义谷排不到 —— 验证P 失败实证）。
+    // 近平谷阈值：|Δ|<0.1% 的变差候选重爬后大概率回当前局部最优（零信息、纯浪费试探预算）。
+    //   诊断U 实证：91.48%/97.29% 点的变差池里各有 4/2 个近平谷全挤在最前 → 不入池。
+    //   （跳过不违背"变差容后再搜"：这类谷重爬即回原点，不含任何未探索路径。）
+    const A池 = [], B池 = [];
+    const 近平线 = curDmg * 0.001;
+    for (const nb of 相位候选(cur)) {
+      if (评估 >= 预算 || stopFlag()) break;
+      if (已试.has(toks键(nb))) continue;
       评估++; onProgress(1);
       const d = 重放(inst, ids, nb, bonds);
-      if (d > curDmg) { cur = nb; curDmg = d; 提升++; 改进 = true; break; }
+      // 三重过滤：① d>0 非法候选不入池（验证W 实证：승나미 98.16% 点的 31 条相位候选里 30 条非法
+      //   ——궁后移出 CD 就绪窗口即非法；非法 toks 的谷底重爬 = 从废堆修复，纯浪费试探预算）；
+      //   ② 近平谷(|Δ|<0.1%)不入池（重爬即回原点，零信息）；③ 已试点剔除。
+      if (d > 0 && d <= curDmg - 近平线) A池.push({ toks: nb, dmg: d });
     }
+    for (let p = 0; p < 64 && 评估 < 预算 && !stopFlag(); p++) {
+      if (cur[p].idx === cur[p + 1].idx) continue;
+      if (cur[p].act !== '궁' && cur[p + 1].act !== '궁') continue;   // 只收涉及궁的次序交换（buff层叠顺序敏感处）
+      const nb = cur.map(t => ({ idx: t.idx, act: t.act }));
+      const tmp = nb[p]; nb[p] = nb[p + 1]; nb[p + 1] = tmp;
+      if (已试.has(toks键(nb))) continue;
+      评估++; onProgress(1);
+      const d = 重放(inst, ids, nb, bonds);
+      if (d > 0 && d <= curDmg - 近平线) B池.push({ toks: nb, dmg: d });
+    }
+    // 类内最不差优先（确定性：伤害降序，同伤 toks键 tie-break）
+    const 排序 = q => q.sort((x, y) => (y.dmg - x.dmg) || (toks键(x.toks) < toks键(y.toks) ? -1 : 1));
+    排序(A池); 排序(B池);
+    // A/B 轮转（试探序号奇偶交替，A 先行 = 粗结构相位优先；某类池空则跳到另一类）：
+    //   诊断U 池实测两头都不行——纯最不差优先会让浅次序谷(−0.01pp级)抢占预算、把 −7.23pp 相位深谷
+    //   挤到 #13 之后（K=8 全耗在重爬回原点的浅谷上）；纯类优先（队列恒取 A 头）会让 97.29% 点
+    //   剩余 22 个相位谷耗尽 K、永达不到次序谷层。轮转：91.48% 点试探1=A类目标谷→97.29%；
+    //   97.29% 点 A/B 交替，类B 目标谷（近平过滤后类内#3）在第 ~6 次试探即命中 → 99.98%。
+    const 取B = (试探数 % 2 === 1);
+    let 谷 = null;
+    if (取B && B池.length) 谷 = B池[0];
+    else if (!取B && A池.length) 谷 = A池[0];
+    else 谷 = A池.length ? A池[0] : (B池.length ? B池[0] : null);
+    if (!谷) break;
+    已试.add(toks键(谷.toks));
+    试探数++;
+    cur = 谷.toks; curDmg = 谷.dmg;
+    const r2 = 爬坡(cur, curDmg, 已试);   // 谷底重爬（禁忌=已试点：禁止"交换回出发点"的恢复移动——
+    cur = r2.toks; curDmg = r2.dmg;       //   队[7] 97.29% 点实证：谷底(96.75%)的恢复交换 p=61 按扫描序先于
+    if (curDmg > 全局.dmg) { 全局 = { toks: cur, dmg: curDmg }; 采纳数++; }   //   目标交换 p=62，不禁忌则原路爬回）
+    else { cur = 全局.toks; curDmg = 全局.dmg; }   // 试探未采纳 → 回全局最优继续下轮（防漂移到差盆地耗试探）
+    // 无论采纳与否都从当前点收集下一轮变差前沿（变差的容后再搜）
   }
-  return { toks: cur, dmg: curDmg, 评估, 提升 };
+  return { toks: 全局.toks, dmg: 全局.dmg, 评估, 提升, 谷底试探数: 试探数, 谷底采纳数: 采纳数 };
 }
 
 /* ---------- 3) 编辑球迭代加深（渐近完备） ---------- */
@@ -486,7 +614,10 @@ function 束搜索(inst, ids, bonds, 设置) {
       }
       if (c.curCd <= 0) {
         const 伤害궁 = (f.ultMag > 0 || f.atkMag > 0);
-        if (禁딜궁 && 伤害궁 && f.role === 0) continue;
+        // ⚠️ role 无关（2026-09-22 修复）：禁딜궁 重选必须排除**一切伤害궁**，不限 role===0。
+        //   引擎事实：getUltDmg/getAtkDmg 只用 atk/ultMag/li 通道，与 role 完全无关；旧限制导致
+        //   탱커/디버퍼的伤害궁在"憋궁重选"里依旧胜出（궁分 1e6+ ≫ 평分 100+ ＞ 방분 30），憋궁形同虚设。
+        if (禁딜궁 && 伤害궁) continue;
         // 伤害궁同档内按 DB 挖掘的序先验（首位命中 31%→79.5%）；buff궁仍 2e6 档优先于一切딜궁
         const 궁分 = 伤害궁 ? 伤害궁분(ids[i], f) : 2e6 + f.atk / 1e6;   // ⚠️变量名用中文"分"(U+5206)，与下两行一致，勿写成韩文분(U+BD84)同形字
         if (궁分 > bS) { bS = 궁分; bI = i; bA = '궁'; }
@@ -509,15 +640,31 @@ function 束搜索(inst, ids, bonds, 设置) {
   //     破坏 DB 的"딜러궁 CD 对齐 t13 终局三连爆"远程节奏；②评分的**相对排序一致性比绝对精度更重要**——
   //     固定优先级 sync 对所有前缀一致地低估续航（一致偏差），相对排序恰好利于 DB 憋型路径；试排不均匀地
   //     抬高各前缀分数，破坏了原排序。故默认关，仅留作离线分析/未来改进（如试排准则换成"剩余全场续航"）。
-  function 规则快填(已走步, 延迟확률, 模式) {
-    let 本回合buff = false, 当前回合 = -1;
+  function 规则快填(已走步, 延迟확률, 模式, 前缀toks) {
+    // ⚠️ 状态继承修复（2026-09-22，阶段5 评分器）：填充从 已走步 续走，本回合（已走步-1 所在回合）的
+    //   前缀可能已打了 buff궁。旧版硬置 本回合buff=false → sync 填充误判"本轮无 buff"而把当回合딜러궁
+    //   憋成평，续航暴跌（_诊断评分.js 实锤：승나미 s12 续航 27.73G→23.48G、DB 前缀排名 1→61 被剪，
+    //   正是 t3 [位1평,位3궁,位2궁(buff),...] 后填充无视已铺 buff、憋掉后续딜궁）。
+    //   修复：扫描前缀在本回合的部分，若已出现 buff궁(非伤害궁)出手则 本回合buff=true；
+    //   当前回合 初值对齐 已走步-1 的回合号，避免首轮 t!==当前回合 误触发重置。
+    let 当前回合 = 已走步 > 0 ? ((已走步 - 1) / 5) | 0 : -1;
+    let 本回合buff = false;
+    if (前缀toks && 模式 === 'sync') {
+      for (let k = 当前回合 * 5; k < 已走步 && k < 前缀toks.length; k++) {
+        const tk = 前缀toks[k];
+        if (!tk || tk.act !== '궁') continue;
+        const f = 特征.get(ids[tk.idx]);
+        if (f && !(f.ultMag > 0 || f.atkMag > 0)) { 本回合buff = true; break; }   // buff궁(非伤害)已出手
+      }
+    }
     const 憋计数 = {};      // sync 专用：每个딜러궁已连续憋的就绪窗口数
     const 最大憋 = 3;
     let 试排队列 = null, 试排完成 = false;   // sync 试排：本回合딜러궁最优出手序（执行一个 shift 一个）
-    const 딜伤궁就绪 = i => {
+    // 伤害궁就绪（role 无关，与 憋궁判据/禁딜궁重选 同口径；旧名 딜伤궁就绪 曾限定 role===0）
+    const 伤害궁就绪 = i => {
       const f = 特征.get(ids[i]);
       const c = _comp[i];
-      return f && f.role === 0 && (f.ultMag > 0 || f.atkMag > 0) && c && !c.isActed && c.curCd <= 0;
+      return f && (f.ultMag > 0 || f.atkMag > 0) && c && !c.isActed && c.curCd <= 0;
     };
     // 全排列试放：对 list 的每种顺序整体执行（step/undo 平衡），返回"即时伤害增量"最大的序
     const 试排 = list => {
@@ -541,7 +688,7 @@ function 束搜索(inst, ids, bonds, 设置) {
         for (const 序 of 序列表) {
           let 步 = 0, okAll = true;
           for (const i of 序) {
-            if (!딜伤궁就绪(i)) { okAll = false; break; }
+            if (!伤害궁就绪(i)) { okAll = false; break; }
             if (!inc.step(i, '궁')) { okAll = false; break; }
             步++;
           }
@@ -554,7 +701,7 @@ function 束搜索(inst, ids, bonds, 设置) {
         while (剩.length) {
           let bI = -1, b增 = -Infinity;
           for (const i of 剩) {
-            if (!딜伤궁就绪(i)) continue;
+            if (!伤害궁就绪(i)) continue;
             const before = inc.dmgSoFar();
             if (!inc.step(i, '궁')) continue;
             const 增 = inc.dmgSoFar() - before;
@@ -572,7 +719,7 @@ function 束搜索(inst, ids, bonds, 设置) {
       if (t !== 当前回合) { 当前回合 = t; 本回合buff = false; 试排队列 = null; 试排完成 = false; }   // 换回合重置
       let sel;
       // 试排在队 → 本回合딜러궁按已测最优序执行（队首就绪才跟随，否则丢弃队列走常规）
-      if (试排队列 && 试排队列.length && 딜伤궁就绪(试排队列[0])) {
+      if (试排队列 && 试排队列.length && 伤害궁就绪(试排队列[0])) {
         sel = { i: 试排队列[0], a: '궁' };
       } else {
         if (试排队列 && 试排队列.length) 试排队列 = null;   // 队首失效（CD 变动等）→ 弃队列
@@ -583,7 +730,17 @@ function 束搜索(inst, ids, bonds, 设置) {
           const 是buff궁 = !(f.ultMag > 0 || f.atkMag > 0);
           if (是buff궁) {
             本回合buff = true;                    // buff 서포터의 궁 出手 → 本回合已铺 buff，딜러궁可跟放
-          } else if (f.role === 0) {              // 딜러伤害궁
+          } else {                                // 伤害궁（⚠️ role 无关，2026-09-22 语义完备性修复）
+            // 旧版限定 f.role===0：탱커/디버퍼的伤害궁（全库 41/184，탱18/디20/섶3）不参与憋궁，就绪即放。
+            // 引擎事实：getUltDmg/getAtkDmg 只用 atk/ultMag/li 通道，与 role 无关 —— "伤害궁等 buff 才值得放"
+            //   本就是 role 无关的物理事实，role 限制是 DB 挖掘样本恰好딜러主力的历史偶然，此处泛化为正确语义。
+            // ⚠️ 但这**不是** 88% 缺口（如 10197,10152,10096,10193,10147）的解：实验I 实锤该队 buff궁与伤害궁
+            //   同为 cd4 同相位就绪 → 填充里 buff궁(先验2e6)永远先放 → 本回合buff 恒 true → 憋궁判据从不触发
+            //   → sync 填充逐位等价于即放填充，本次 role 泛化对其惰性（8 队 benchmark 达成率/扩展数逐位不变，
+            //   即放那路 max 保底亦使其零回退）。88% 的真正根因是"伤害궁释放相位错配"：位4=10193(탱,cd4)被队友
+            //   10197(每行动降1CD)催成每~3回合就绪，束从 t1 起就绪即放→궁锁死 t1/t4/t7/t10/t13 相位(4次孤立无buff释放)，
+            //   DB 推迟首发到 t2→궁落 t2/t5/t9/t13(t5/t9/t13 正是 buff 齐射回合,3次吃满buff)，次数少反高 3.6G。
+            //   相位规划超出 reactive 填充能力（需预知 buff 未来就绪回合），属评分器升级的独立课题。
             憋计数[sel.i] = 憋计数[sel.i] || 0;
             let 要憋 = false;
             if (模式 === 'sync') 要憋 = (!本回合buff && t < 11 && 憋计数[sel.i] < 最大憋);
@@ -595,7 +752,7 @@ function 束搜索(inst, ids, bonds, 设置) {
               憋计数[sel.i] = 0;                  // 放出딜러궁，清零憋计数
               // sync 试排（需显式开启）：首个放点触发，测出本回合全部就绪딜러伤害궁的最优出手序
               if (模式 === 'sync' && sync试排 && !试排完成) {
-                const 就绪 = []; for (let i = 0; i < 5; i++) if (딜伤궁就绪(i)) 就绪.push(i);
+                const 就绪 = []; for (let i = 0; i < 5; i++) if (伤害궁就绪(i)) 就绪.push(i);
                 试排队列 = 就绪.length >= 2 ? 试排(就绪) : 就绪.slice();
                 试排完成 = true;
                 if (试排队列.length) sel = { i: 试排队列[0], a: '궁' };
@@ -641,13 +798,18 @@ function 束搜索(inst, ids, bonds, 设置) {
         //   'mean'/'max'：随机延迟的均值/最大，作对照。
         let 评;
         if (评分 === 'sync') {
+          // 前缀toks = 节点前缀(s) + 本候选(1)，长度 s+1 = 填充起点已走步；供 规则快填 继承"本回合已铺 buff"状态
+          const 前缀toks = 节点.toks.concat([cand]);
           inc.step(cand.idx, cand.act);
           const d即 = 规则快填(s + 1, 0, 'rand');            // 即放填充（确定性基线）
           inc.undo();
           inc.step(cand.idx, cand.act);
-          const d同 = 规则快填(s + 1, 0, 'sync');            // sync 对齐填充（确定性）
+          const d同 = 规则快填(s + 1, 0, 'sync', 前缀toks);   // sync 对齐填充（确定性；继承前缀 buff 状态）
           inc.undo();
-          评 = Math.max(d即, d同);                           // 两确定性估计取 max（无赢家诅咒，方差为0）
+          // 设置.纯sync评分（诊断开关，默认 false 保持 max 双路）：强制 评=d同 单路。
+          //   用于判别 88% 缺口是"max(即放,同) 里即放主导、掩盖 sync 的正确延迟估值"（去掉 max 即恢复）
+          //   还是"sync 填充本身也表达不了伤害궁相位规划"（去掉 max 仍 88%）。见 _实验J。
+          评 = 设置.纯sync评分 === true ? d同 : Math.max(d即, d同);   // 两确定性估计取 max（无赢家诅咒，方差为0）
         } else {
           // MC 多策略 rollout：r=0 即放填充（确定性），r>=1 按 延迟p 延迟填充（随机）
           let 即放 = -1; const 延迟组 = [];
@@ -701,6 +863,103 @@ function 束搜索(inst, ids, bonds, 设置) {
   return { toks, dmg: 终验, 扩展数, 深度, ms: Date.now() - t0, 诊断报告 };
 }
 
+/* ---------- 5) 相位对齐构造（保守兜底：CD 节奏改写队） ---------- */
+
+/*
+ * 保守兜底（用户定策 2026-09-23）：简单规则（sync 填充）优化不了的队 —— 队内存在 CD 节奏改写者
+ *   （机制特征.需相位规划：注入数>0 或 CD操纵数>0）—— **不再依赖 rollout 估值排序**（那正是把正确路径
+ *   剪掉的剪枝），改为"相位对齐起点 + 真值爬山"，并与束搜索结果按真值取优（结构上不可能回退）。
+ *
+ * 为什么需要（实验 G/K/L 实证，队 10197,10152,10096,10193,10147，DB=29.90G）：
+ *   10197（注入4）每行动给队友降 1 CD → 位4=10193（伤害궁，名义 cd4）实际每 ~3 回合就绪；
+ *   束/填充从 t1 起"就绪即放" → 궁 锁死 t1/t4/t7/t10/t13（4 次落在无 buff 回合，孤立释放近零伤）；
+ *   DB = t2/t5/t9/t13（首发推迟 1 回合，后续全落 buff 齐射回合），次数少反而总伤高 3.6G
+ *   （缺口 3.57G 中 t9 单回合占 2.31G）。位5/位1（cd4 未被降 CD）两者完全一致 @t5/t9/t13 —— 只有被催 CD 者走偏。
+ *   排除记录：束宽无效（实验E）| 编辑球 r=2/8450 候选无效（实验H）| 去 max() 用纯 sync 反而更低（实验J）
+ *     | 改写 toks + 修复解码造变体全部被 CD 演化解回原样（实验K）。⇒ rollout 填充续航的表达力天花板。
+ *   实验L（本函数原型）：构造解自身仅 37.75%，但**从它出发真值爬山 → 92.53%**（束+爬仅 88.05%）
+ *     —— 构造的价值不在质量，而在给出**相位正确的起点**让爬山跳出 88% basin。승나미（构造+爬 88.67%
+ *     < 束+爬 98.16%）由取优保护，不回退。
+ *
+ * 构造规则（用引擎真实状态 legalActs/curCd 逐步推进，非事后改写 token）：
+ *   buff궁（非伤害궁）恒最高优先（2e6 档）→ 先铺 buff；伤害궁仅 1e6 档，
+ *   只在"本回合已有 buff궁 出手"时放，否则憋（改 평/buff 顶替），最多憋 最大憋 个就绪窗口，
+ *   t>=11 无条件放（避免憋到战斗结束浪费）。与 sync 填充同构，差别是 最大憋 可配。
+ *   保守起见不启用剪枝A（방 全可枚举）：宁可多算，不冒剪掉正确路径的风险。
+ *
+ * @param {object} 设置 {最大憋=99}（实验L 扫描 {3,5,8,99}：3 太紧→相位仍错、爬山停在 85~88% basin；
+ *   5/8/99 几乎相同 92.5% ⇒ 不赌单一常数，调用方对少量档位各构造+爬山、按真值取优）
+ * @returns {{toks, dmg}|null} dmg 为 fastReplay 真值（权威口径）
+ */
+function 相位对齐构造(inst, ids, bonds, 设置) {
+  bonds = bonds || [5, 5, 5, 5, 5];
+  设置 = 设置 || {};
+  const 最大憋 = 设置.最大憋 == null ? 99 : 设置.最大憋;
+  const stopFlag = 设置.stopFlag || (() => false);
+  const inc = inst.increment;
+  if (!inc.initBattle(ids, bonds, -1, null)) return null;
+  const comp = inst.internals.comp;   // initBattle 后才取引用（数组被重新赋值）
+  const 原 = inc.原语();
+  const 憋计数 = {};
+  const toks = [];
+  let 本回合buff = false, 当前回合 = -1;
+
+  // 选动作：buff궁(2e6) > 伤害궁(1e6, 除非被禁) > 딜러평(500) > 탱방(30) > 기타평(100) > 방(1)
+  function 选(禁伤궁) {
+    let bI = -1, bA = null, bS = -Infinity;
+    for (let i = 0; i < 5; i++) {
+      const c = comp[i];
+      if (!c || c.isActed) continue;
+      const f = 特征.get(ids[i]);
+      if (!f) continue;
+      const 평점 = (f.role === 0 ? 500 : 100) + (f.atkMag || 0) * f.atk / 1000;
+      if (평점 > bS) { bS = 평점; bI = i; bA = '평'; }
+      const 방점 = (f.role === 2 ? 30 : 1);   // 保守：不剪 방
+      if (방점 > bS) { bS = 방점; bI = i; bA = '방'; }
+      if (c.curCd <= 0) {
+        if (是伤害궁(f)) {
+          if (禁伤궁) continue;
+          const 궁점 = 1e6 + 4.5e5 + (f.atk * (f.ultMag > 0 ? f.ultMag : 1)) / 1000;   // 与 伤害궁분 回落同口径
+          if (궁점 > bS) { bS = 궁점; bI = i; bA = '궁'; }
+        } else {
+          const 궁점 = 2e6 + f.atk / 1e6;   // buff궁 恒先于伤害궁（与 sync 同铁律）
+          if (궁점 > bS) { bS = 궁점; bI = i; bA = '궁'; }
+        }
+      }
+    }
+    return bI < 0 ? null : { i: bI, a: bA };
+  }
+
+  for (let k = 0; k < 65; k++) {
+    if (stopFlag()) return null;
+    const t = (k / 5) | 0;
+    if (t !== 当前回合) { 当前回合 = t; 本回合buff = false; }
+    let sel = 选(false);
+    if (!sel) break;
+    if (sel.a === '궁') {
+      if (!是伤害궁(特征.get(ids[sel.i]))) {
+        本回合buff = true;                    // buff 서포터 궁 出手 → 本回合已铺 buff
+      } else {
+        憋计数[sel.i] = 憋计数[sel.i] || 0;
+        if (!本回合buff && t < 11 && 憋计数[sel.i] < 最大憋) {
+          const alt = 选(true);               // 伤害궁憋住：改평/buff顶替
+          if (alt) { 憋计数[sel.i]++; sel = alt; }
+        } else {
+          憋计数[sel.i] = 0;                  // 放出
+        }
+      }
+    }
+    const ok = sel.a === '평' ? 原.do_atk(sel.i) : (sel.a === '궁' ? 原.do_ult(sel.i) : 原.do_def(sel.i));
+    if (!ok) break;
+    toks.push({ idx: sel.i, act: sel.a });
+  }
+  if (toks.length < 65) {                     // 兜底：不足 65 步用修复解码补合法（真值仍由重放裁决）
+    const 修 = 修复解码(inst, ids, toks, bonds);
+    return 修 ? { toks: 修.toks, dmg: 修.dmg } : null;
+  }
+  return { toks, dmg: 重放(inst, ids, toks, bonds) };
+}
+
 /* ---------- 指令集 编解码（站点 description 格式 ⇄ toks） ---------- */
 
 // 解析用户输入的指令集文本（如 " 1턴 : 2평 > 3평 > 4평 > 1궁 > 5평\n 2턴 : ..."）→ toks
@@ -733,4 +992,4 @@ function toks键(toks) {
   return s;
 }
 
-module.exports = { 贪心基线, 先验贪心, 先验前瞻贪心, 是伤害궁, 修复解码, 可执行, 爬山, 束搜索, 编辑球层, 重放, 特征, 动作, 组合升序, 笛卡尔积, 解析指令集, 导出指令集, toks键 };
+module.exports = { 贪心基线, 先验贪心, 先验前瞻贪心, 是伤害궁, 修复解码, 可执行, 爬山, 束搜索, 编辑球层, 相位对齐构造, 重放, 特征, 动作, 组合升序, 笛卡尔积, 解析指令集, 导出指令集, toks键 };

@@ -15,9 +15,21 @@ const zlib = require('zlib');
 const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 const 适配 = require('D:/天下布魔/Tkfm-DebugTools/优化器/引擎适配.js');
 const 排程器 = require('D:/天下布魔/Tkfm-DebugTools/优化器/排程器.js');
+const 机制特征 = require('D:/天下布魔/Tkfm-DebugTools/优化器/机制特征.js');
 
 const BOND = [5, 5, 5, 5, 5];
 const CLIMB = Number(process.env.BENCH_CLIMB) || 3000; // 束后爬山精修预算（默认3000与hybrid基准同口径可比）
+// 保守兜底（与生产 团队搜索器 同口径）：需相位规划 队跑 相位对齐构造+爬山，按真值取优。
+//   BENCH_FALLBACK=0 可关（对照旧口径）。兜底档 {5,99}（实验L 实证：3太紧、5/8/99同解）。
+//   谷底试探=8（诊断N~U + 验证P5 实证 + 生产同口径）：难例正解隔着必降谷且缺口分层（相位→次序），
+//   纯上升爬山不可达。兜底爬山预算下限 30000（谷底试探评估消耗高：队[7] K=8 达 99.98% 需 14156 评估、
+//   승나미 需 18156，CLIMB=10000 会撞顶致试探跑不完 —— 验证P5/生产同口径）。
+const 兜底开关 = process.env.BENCH_FALLBACK !== '0';
+const 兜底档 = [5, 99];
+const 谷底试探 = process.env.BENCH_VALLEY == null ? 8 : Number(process.env.BENCH_VALLEY);
+const 兜底爬山预算 = process.env.BENCH_FALLBACK_CLIMB == null
+  ? (谷底试探 > 0 ? Math.max(CLIMB, 30000) : CLIMB)
+  : Number(process.env.BENCH_FALLBACK_CLIMB);
 const 特例ID = new Set([10162, 10205]);
 const DATA_JSON = path.resolve(适配.路径.autocalc, '..', '..', '..', 'tenkaassist_data', 'data', 'data.json');
 // 机制表开关：BENCH_MECH=1 时 createEngine 启用表驱动解释器（有表角色走表，无表回落原 setDefault）。
@@ -72,6 +84,21 @@ function 评一队(d, width, R, 评分) {
     if (h && h.dmg > out.束爬) out.束爬 = h.dmg;
     out.爬ms = Date.now() - t2;
   }
+  // 保守兜底（与生产链路同口径）：需相位规划 队，相位对齐构造给相位正确起点 → 真值爬山 → 按真值取优
+  out.终 = out.束爬;
+  out.来源 = out.束爬 >= out.束 ? '束+爬' : '束';
+  out.需相位规划 = 兜底开关 && 机制特征.需相位规划(d.ids);
+  if (out.需相位规划 && out.终 < d.recommend) {
+    const t3 = Date.now();
+    for (const 憋 of 兜底档) {
+      const g = 排程器.相位对齐构造(inst, d.ids, BOND, { 最大憋: 憋 });
+      if (!g || !(g.dmg > 0)) continue;
+      const gh = 排程器.爬山(inst, d.ids, g.toks, BOND, 兜底爬山预算, null, null, 谷底试探);
+      const 兜底终 = (gh && gh.dmg > g.dmg) ? gh.dmg : g.dmg;
+      if (兜底终 > out.终) { out.终 = 兜底终; out.来源 = '+对齐'; }
+    }
+    out.兜底ms = Date.now() - t3;
+  }
   out.ms = Date.now() - t0;
   return out;
 }
@@ -98,12 +125,14 @@ if (!isMainThread && workerData && workerData.队列) {
   const 收尾 = () => {
     const 前瞻率 = 结果.map(r => r.前瞻 / r.recommend);
     const 束率 = 结果.map(r => r.束 / r.recommend);
-    const 终率 = 结果.map(r => r.束爬 / r.recommend);
+    const 爬率 = 结果.map(r => r.束爬 / r.recommend);
+    const 终率 = 结果.map(r => r.终 / r.recommend);
     const 均 = a => (a.reduce((s, v) => s + v, 0) / a.length * 100).toFixed(1);
     console.log('\n=============== 汇总 ===============');
-    console.log(`先验前瞻: 平均${均(前瞻率)}% 最低${(Math.min(...前瞻率) * 100).toFixed(1)}%`);
-    console.log(`MC束搜索: 平均${均(束率)}% 最低${(Math.min(...束率) * 100).toFixed(1)}% ≥99.9%: ${束率.filter(x => x >= 0.999).length}/${束率.length}`);
-    console.log(`束+爬山:  平均${均(终率)}% 最低${(Math.min(...终率) * 100).toFixed(1)}% ≥99.9%: ${终率.filter(x => x >= 0.999).length}/${终率.length} =100%: ${终率.filter(x => x >= 1).length}/${终率.length}`);
+    console.log(`先验前瞻: 平均${均(前瞻率)}%`);
+    console.log(`MC束搜索: 平均${均(束率)}%`);
+    console.log(`束+爬山:  平均${均(爬率)}% 最低${(Math.min(...爬率) * 100).toFixed(1)}%`);
+    console.log(`+兜底终:  平均${均(终率)}% 最低${(Math.min(...终率) * 100).toFixed(1)}% ≥99.9%: ${终率.filter(x => x >= 0.999).length}/${终率.length} =100%: ${终率.filter(x => x >= 1).length}/${终率.length}`);
     console.log(`总耗时 ${(结果.reduce((s, r) => s + r.ms, 0) / 1000).toFixed(0)}s(串)`);
   };
 
@@ -117,7 +146,7 @@ if (!isMainThread && workerData && workerData.队列) {
       w.on('message', m => {
         if (m.done) { if (++完成数 >= 分组.filter(x => x.length).length) 收尾(); return; }
         结果.push(m);
-        console.log(`${m.队}: 前瞻${fmtPct(m.前瞻, m.recommend)} 束${fmtPct(m.束, m.recommend)}(+爬${fmtPct(m.束爬, m.recommend)}) DB=${m.recommend.toLocaleString()} [束${(m.束ms / 1000).toFixed(1)}s 扩${m.扩展}]`);
+        console.log(`${m.队}[${m.ids}]: 前瞻${fmtPct(m.前瞻, m.recommend)} 束${fmtPct(m.束, m.recommend)}+爬${fmtPct(m.束爬, m.recommend)} 终${fmtPct(m.终, m.recommend)}(${m.需相位规划 ? '兜底' : '—'}) DB=${m.recommend.toLocaleString()}`);
       });
       w.on('error', e => { console.error('worker错误', e); process.exit(1); });
     });
@@ -125,7 +154,7 @@ if (!isMainThread && workerData && workerData.队列) {
         for (const d of 队) {
       const out = 评一队(d, width, R, 评分);
       结果.push({ 队: d.队, ids: d.ids, recommend: d.recommend, ...out });
-      console.log(`${d.队}: 前瞻${fmtPct(out.前瞻, d.recommend)} 束${fmtPct(out.束, d.recommend)}(+爬${fmtPct(out.束爬, d.recommend)}) DB=${d.recommend.toLocaleString()} [束${(out.束ms / 1000).toFixed(1)}s 扩${out.扩展}]`);
+      console.log(`${d.队}[${d.ids}]: 前瞻${fmtPct(out.前瞻, d.recommend)} 束${fmtPct(out.束, d.recommend)}+爬${fmtPct(out.束爬, d.recommend)} 终${fmtPct(out.终, d.recommend)}(${out.需相位规划 ? '兜底' : '—'}) DB=${d.recommend.toLocaleString()}`);
     }
     收尾();
   }
