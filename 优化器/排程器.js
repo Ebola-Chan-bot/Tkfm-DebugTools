@@ -1039,7 +1039,259 @@ function 节拍对齐构造(inst, ids, bonds, 设置) {
   return 设置.全部 ? 出 : 出.slice(0, TopK);
 }
 
-/* ---------- 指令集 编解码（站点 description 格式 ⇄ toks） ---------- */
+/* ---------- 5c) 窗对齐构造（机制周期数据驱动：CD 改写队 + 周期窗 buff 队的齐射相位） ---------- */
+
+/*
+ * 为什么需要（2026-09-24，Top200 benchmark 实测：最差队 얀코덱[10197,10060,10177,10193,10208] 终仅 85.16%，
+ *   束+爬 82.57%；垫底 8 队全部含 10197(얀코) 与/或 10177(승나미) 组合，91~96% 一片）：
+ *   该队同时踩中既有两构造器的盲区——
+ *   ① CD 改写者使名义 cd 失真：10197 注入型每궁给队友 -3CD（<익자삼우>，走 inject 非 CdChange op）、
+ *     10060 每궁给 딜/탱 -1CD、10177 t1 给光队 -3CD → 节拍对齐构造的 T=max(名义cd) 与实际궁周期脱钩；
+ *   ② buff 供给是机制周期窗：10177 的 turnstart (t-1)%3=0（Gated）在 t{4,7,10,13} 铺全队 buff，
+ *     DB 解的三位伤害딜러 궁 相位 [1,4,7,10,13]/[4,7,10,13]/[7,10,13] 与窗完全一致；
+ *   ③ 相位对齐构造的判据"本回合已有 buff궁" 依赖 buff궁 自身相位正确，该队 buff궁 的 CD 也被 10197 改写
+ *     → 判据失效（实验实证：85 队相位构造终点仍 85.16%）。
+ *   窗对齐构造 = 取长补短：引擎真实 curCd 状态推进（CD 改写天然正确，与相位对齐构造同骨架）
+ *     + 憋招目标窗 S（静态数据驱动，非 reactive 判据）。
+ *
+ * 憋招规则（85 队 curCd 引擎轨迹逐位核对，_调试85队curcd.js）：
+ *   伤害궁/buff궁（窗憋模式）：回合∈S → 放；回合∉S 且 S 中还有 >t 的未来窗回合 → 憋(禁궁重选，평/방顶替)；
+ *     未来无窗 → 放（替代 t>=11 的武断兜底，"憋到最后一窗仍错过就放"是无悔决策）。
+ *   伤害궁次序：序先验档内分（伤害궁분同构），高于딜러평；buff궁 恒 2e6 档先手（既有铁律）。
+ *   buff策略两族（扫描维度，DB 位2相位 [8,13] 两族都不严格等于 → 交给爬山精修）：
+ *     '窗憋' = buff궁 同 S 窗对齐（85队实测构造相位 位3[4,7,10,13]✒DB 完全一致）；
+ *     '准点' = buff궁 就绪即放（旧语义，保守对照）。
+ *
+ * S 候选族（四族，全部静态可算、无角色专项判断，与节拍对齐构造同定位）：
+ *   ① 节拍族：队内出现的每个 cd 值 × t0=1..13，S={t0,t0+T,…}∩[1,13]（按集去重）；
+ *   ② 机制周期族：机制表 bin 的 CmpGTMod/CmpGTModGated 条件（off/mod/rem 定点 ÷1e4 还原）→
+ *     S={t∈1..13:(t+off)%mod==rem 且 (gated→t>1)}，及首发变体 S∪{1}；
+ *   ③ 联合窗（②×①两两并集，宽≤10）：DB"队内多相位"解的表达件（_实验M4 实证 92승나미：
+ *     DB 位1/3 落{1,4,7,10,13}、位4/5 落{3,7,13}，单一窗只 85.66% 且加大爬山预算无效(M3)，
+ *     联合窗下引擎真实 curCd 推进让各槽自然落在自己的节奏 → 爬山 100.12%）；
+ *   ④ 单点加扰（②窗 ∪ {t}, ∀t∉窗）：CD改写队的实际就绪点常偏离名义周期窗 ±1~2 回合（降CD buff 时机依赖），
+ *     {3,4,7,10,13} 这类"周期窗+一个非等差首发点"只有加扰族能生成。M6 实证 92승나미 生产内置路径
+ *     靠 ②+④ 组合的候选 → **100.17%**（同 M4 显式注入联合窗的水平）。
+ *   普查（_普查周期.js）：全库 42 角色有周期条件（(t-1)%3、%2、%4、%5、%6 等），提取零成本。
+ *
+ * 实测（端到端，_实验M2/M3/M4/M6，旧 Top200 口径现终为基线）：
+ *   85队얀코 85.16→**100.04**(+14.88) | 92승나미 91.92→**100.17**(+8.25,M6生产内置) | 93승나미 92.62→98.17(M4)
+ *   | 91队얀코 91.70→99.87 | 92얀코125 92.28→99.82 | 92나리 92.91→98.39 | 89队얀코 89.74→91.11(M4)
+ *   | **승나미本队 98.16→99.92(+1.76)**——该复合谷曾被诊断X(谷底试探池耗尽K=32)/验证Y(二层跨谷反降)/
+ *   实验Z(束扩宽w=50无效)三路实证为体系边界，窗对齐的相位正确起点直接突破 | 칼리버/85队 零回退。
+ *
+ * @param {object} 设置 {TopK=3, 爬山预算=null, 谷底试探=null, S族=null(默认静态全族), stopFlag, 全部=false}
+ *   S族 可显式传 [{S:[...], 来源:'...'}] 覆盖（诊断用）。返回的 TopK 个候选按“机制周期族优先+节拍族 dmg 补足”
+ *   选取（非纯 dmg 排序，实证依据见函数内注释）；全部=true 返回按 dmg 降序的全量列表。
+ *   爬山预算/谷底试探 给定时，对 TopK 构造各爬山并按真值取优（返回带 .toks/.dmg 的单最优）。
+ * @returns {{toks, dmg, S, 来源, buff窗}[]|{toks, dmg, 来源}} 设置.爬山预算 给定时返回单最优对象。
+ */
+function 窗对齐构造(inst, ids, bonds, 设置) {
+  bonds = bonds || [5, 5, 5, 5, 5];
+  设置 = 设置 || {};
+  const TopK = 设置.TopK == null ? 3 : 设置.TopK;
+  const stopFlag = 设置.stopFlag || (() => false);
+  const inc = inst.increment;
+
+  // 伤害궁序先验档内分（与 伤害궁분 同构；档 [1e6,2e6) 不越 buff궁 2e6 档）
+  const 伤害序分 = (id, f) => {
+    const sat = 序先验.饱和(id);
+    if (sat != null) return 1e6 + sat * 9e5;
+    return 1e6 + 4.5e5 + (f.atk * (f.ultMag > 0 ? f.ultMag : 1)) / 1000;
+  };
+
+  // S 候选族
+  function 生成S族() {
+    const 集 = new Map();
+    // 机制证据键集：含机制周期成分（周期窗/首发变体/联合窗/单点加扰）的 S 键。爬山候选优先级以此为准，
+    //   不看 来源 标签：加() 按 S 键去重，周期窗与同形节拍窗（如 (t-1)%3=0 → {4,7,10,13} = T3t0=4）碰撞时
+    //   返回既有条目、标签为节拍 → 纯标签判定会漏排机制证据（_实验M5 实证 92승나미 漏爬 100.12% 胜出窗）。
+    const 机制键 = new Set();
+    const 节拍集 = [];    // 节拍族条目（联合窗的另一操作数）
+    const 周期集 = [];    // 机制周期族条目（联合窗/单点加扰的机制证据操作数）
+    const 加 = (S, 来源, 是机制) => {
+      if (!S.length) return null;
+      const 정 = [...new Set(S)].sort((a, b) => a - b);
+      const 键 = 정.join(',');
+      if (是机制) 机制键.add(键);        // 碰撞时也要标：同形即同证据，爬山优先级应一致
+      if (!集.has(键)) { const e = { S: 정, 来源 }; 集.set(键, e); return e; }
+      return 集.get(键);
+    };
+    const cds = [...new Set(ids.map(id => { const f = 特征.get(id); return f ? f.cd : 4; }).filter(c => c >= 1 && c <= 12))];
+    for (const T of cds) for (let t0 = 1; t0 <= 13; t0++) {
+      const S = []; for (let t = t0; t <= 13; t += T) S.push(t);
+      const e = 加(S, `节拍T${T}t0=${t0}`, false);
+      if (e && !节拍集.includes(e)) 节拍集.push(e);
+    }
+    // 机制周期族（机制表 bin：CmpGTMod/CmpGTModGated 的 off/mod/rem）
+    try {
+      const 机制特征 = require('./机制特征.js');
+      const 数据 = require('./引擎适配.js').机制数据();
+      for (const id of ids) {
+        const rec = 数据.records.find(r => r.id === id);
+        if (!rec) continue;
+        for (const c of 机制特征.展开lib5(rec.cmds)) {
+          if (!c.cond) continue;
+          if (c.cond.kind !== 'CmpGTMod' && c.cond.kind !== 'CmpGTModGated') continue;
+          const off = c.cond.a / 1e4, mod = c.cond.b / 1e4, rem = c.cond.nameIdx / 1e4;
+          if (!(Number.isInteger(off) && Number.isInteger(mod) && mod >= 2 && mod <= 12 && Number.isInteger(rem))) continue;
+          const S = [];
+          for (let t = 1; t <= 13; t++) {
+            if ((t + off) % mod !== rem) continue;
+            if (c.cond.kind === 'CmpGTModGated' && t === 1) continue;
+            S.push(t);
+          }
+          if (S.length) {
+            const e = 加(S, `周期id${id}(t${off >= 0 ? '+' : ''}${off})%${mod}=${rem}`, true);
+            if (e && !周期集.includes(e)) 周期集.push(e);
+            const e2 = 加([...new Set([1, ...S])], `周期id${id}+首发`, true);
+            if (e2 && !周期集.includes(e2)) 周期集.push(e2);
+          }
+        }
+      }
+    } catch (e) { /* 机制表缺失时节拍族仍可用 */ }
+    // 联合窗（机制周期族 × 节拍族的两两并集）：DB"队内多相位"解的表达件（_实验M4 实证）。
+    //   92승나미[10177,10152,10208,10211,10197]：DB 位1/3 落周期3窗{1,4,7,10,13}、位4/5 落{3,7,13}，
+    //   单一窗 S 无法同时表达 → 窗对齐终点仅 85.66%（M3 实证加大爬山预算 120000 也无效）；联合窗下
+    //   引擎真实 curCd 推进让各槽自然落在自己的节奏，爬山 → **100.12%**。
+    //   只联合 周期族×节拍族，宽≤10 防"并集太宽→约束失效≈全放"。
+    if (周期集.length && 节拍集.length) {
+      for (const p of 周期集) for (const q of 节拍集) {
+        const 联 = [...new Set([...p.S, ...q.S])];
+        if (联.length > 10) continue;
+        加(联, `联${p.来源}∪${q.来源}`, true);
+      }
+    }
+    // 单点加扰（周期窗 ∪ {t}）：CD 改写队的实际就绪点常偏离名义周期窗 ±1~2 回合（降CD buff 时机依赖）。
+    //   M4 实证 92승나미 胜出窗 {3,4,7,10,13} = 周期窗{4,7,10,13}∪{3}：位4/5 的 t3 首发不在周期窗里，
+    //   而 {3,7,10,13} 非等差数列、节拍族/联合窗都生成不了 —— 加扰族是唯一生产化生成途径。
+    //   成本：周期集(~2-4) × 13 ≈ ≤52 个 S 键（dedupe 后更少），构造 ~0.3s。
+    for (const p of 周期集.slice()) {
+      if (p.S.length > 9) continue;
+      for (let t = 1; t <= 13; t++) {
+        if (p.S.includes(t)) continue;
+        加([...p.S, t], `${p.来源}+t${t}`, true);
+      }
+    }
+    return { 候选: [...集.values()], 机制键 };
+  }
+
+  // 单次构造：引擎真实状态推进 + S 窗憋招
+  //   방우선 变体（_诊断94方差 实证）：94.85队[10197,10152,10096,10177,10163] DB解 = 非窗回合五人全방
+  //   + t5/9/13 全员궁齐射；평우선构造의 궁窗与DB完全一致(差异0)但 평/방填充差31处、回合内序差13/13，
+  //   爬山 30k~150k预算 × K=8/16/32 全部卡死 94.85%（深局部谷，邻域不可达）。
+  //   故加 방优先填充变体：非궁顺位 방점≫평점，构造直接落在 DB 结构盆地内再由爬山精修。
+  function 构造一(S, buff窗, 방우선) {
+    if (!inc.initBattle(ids, bonds, -1, null)) return null;
+    const comp = inst.internals.comp;
+    const 原 = inc.原语();
+    const S集 = new Set(S);
+    const toks = [];
+    function 选(禁伤궁, 禁buff궁) {
+      let bI = -1, bA = null, bS = -Infinity;
+      for (let i = 0; i < 5; i++) {
+        const c = comp[i];
+        if (!c || c.isActed) continue;
+        const f = 特征.get(ids[i]);
+        if (!f) continue;
+        const 평점 = 방우선
+          ? (f.role === 0 ? 0.5 : 0.1) + (f.atkMag || 0) * f.atk / 1e7
+          : (f.role === 0 ? 500 : 100) + (f.atkMag || 0) * f.atk / 1000;
+        if (평점 > bS) { bS = 평점; bI = i; bA = '평'; }
+        const 방점 = 방우선 ? (600 + (f.role === 2 ? 30 : 0)) : (f.role === 2 ? 30 : 1);
+        if (방점 > bS) { bS = 방점; bI = i; bA = '방'; }
+        if (c.curCd <= 0) {
+          if (是伤害궁(f)) {
+            if (禁伤궁) continue;
+            const 궁점 = 伤害序分(ids[i], f);
+            if (궁점 > bS) { bS = 궁점; bI = i; bA = '궁'; }
+          } else {
+            if (禁buff궁) continue;
+            const 궁점 = 2e6 + f.atk / 1e6;
+            if (궁점 > bS) { bS = 궁점; bI = i; bA = '궁'; }
+          }
+        }
+      }
+      return bI < 0 ? null : { i: bI, a: bA };
+    }
+    for (let k = 0; k < 65; k++) {
+      if (stopFlag()) return null;
+      const t = ((k / 5) | 0) + 1;
+      let sel = 选(false, false);
+      if (!sel) break;
+      if (sel.a === '궁') {
+        const 伤害 = 是伤害궁(特征.get(ids[sel.i]));
+        const 要憋 = (伤害 || buff窗) && !S集.has(t) && S.some(x => x > t);   // 未来无窗 → 放（无悔）
+        if (要憋) {
+          const alt = 选(true, buff窗 || 伤害);   // 憋궁：禁伤害궁；窗憋模式的buff궁连buff궁一起禁（否则原样重选=没憋）
+          if (alt) sel = alt;
+        }
+      }
+      const ok = sel.a === '평' ? 原.do_atk(sel.i) : (sel.a === '궁' ? 原.do_ult(sel.i) : 原.do_def(sel.i));
+      if (!ok) break;
+      toks.push({ idx: sel.i, act: sel.a });
+    }
+    if (toks.length < 65) {
+      const 修 = 修复解码(inst, ids, toks, bonds);
+      return 修 ? { toks: 修.toks, dmg: 修.dmg } : null;
+    }
+    return { toks, dmg: 重放(inst, ids, toks, bonds) };
+  }
+
+  // 候选族与机制证据键（设置.S族 显式注入时无机制键 → 按 S 内是否命中周期窗近似，全部视为非机制走 dmg 序）
+  const 生成 = 设置.S族 ? { 候选: 设置.S族, 机制键: new Set(设置.S族.map(c => [...c.S].sort((a, b) => a - b).join(','))) } : 生成S族();
+  const 候选S = 生成.候选, 机制键集 = 生成.机制键;
+  const 出 = [];
+  for (const c of 候选S) {
+    for (const buff窗 of [true, false]) {
+      for (const 방우선 of [false, true]) {   // 방优先填充变体（_诊断94方差：全员방+窗内궁齐射型 DB解）
+        const r = 构造一(c.S, buff窗, 방우선);
+        if (r && r.dmg > 0) 出.push({ toks: r.toks, dmg: r.dmg, S: c.S, 来源: c.来源 + (방우선 ? '(방)' : ''), buff窗 });
+      }
+    }
+  }
+  出.sort((a, b) => b.dmg - a.dmg);
+
+  // 爬山候选选择：**dmg 全局 TopK ∪ 机制窗候选 Top6**（按 S 去重后的并集）。
+  //   两类胜者并存，不能二选一（_验证91队 实证教训）：
+  //   - 节拍窗胜者：91队[10197,10152,10196,10177,10147] 胜出窗 S={1,5,9,13}(节拍T4t0=1) 构造 dmg 全局第一(26.06G/118)，
+  //     爬山→99.87%（M2）；若“机制优先”把它挤出候选 → 只剩91.70%；
+  //   - 机制窗胜者：89队 胜出窗为机制加扰窗、dmg 排名不进前3；92승나미 胜出窗={3,4,7,10,13}(单点加扰)；
+  //     纯 dmg TopK 会漏掉它们（→86.40/85.66）。故 dmg TopK 保底 + 机制窗强制入选，取并集。
+  //   成本：候选≤(TopK+6)个×爬山；调用方按真值 max 取优 → 多爬候选只增不减，零回退。
+  //   ⚠ 数组模式与爬山预算模式同口径（都逐个爬山全量候选）；_实验M6 实证 slice(0,TopK) 截掉89队胜出窗致89.74%。
+  const 爬山候选 = [];
+  const 见S = new Set();
+  const 入选 = (r) => {
+    const 键S = r.S.join(',');
+    if (见S.has(键S)) return;
+    见S.add(键S); 爬山候选.push(r);
+  };
+  // ① dmg 全局 TopK（每 S 只取构造第一：出已按 dmg 降序，buff窗憋/准点二选一自然胜出）
+  for (const r of 出) { if (爬山候选.length >= TopK) break; 入选(r); }
+  // ② 机制窗（周期/联合/加扰，机制键集判定）按 dmg 降序取前 6 个 S
+  let 机制名额 = 6;
+  for (const r of 出) {
+    if (机制名额 <= 0) break;
+    if (机制键集.has(r.S.join(','))) { const 前 = 爬山候选.length; 入选(r); if (爬山候选.length > 前) 机制名额--; }
+  }
+
+  // 爬山+取优模式（设置.爬山预算 给定）：对爬山候选全量各爬山，按真值取优。
+  if (设置.爬山预算) {
+    let 终 = { toks: null, dmg: 0, 来源: '-' };
+    for (const r of 爬山候选) {
+      if (stopFlag()) break;
+      if (r.dmg > 终.dmg) 终 = { toks: r.toks, dmg: r.dmg, 来源: `窗对齐:${r.来源}${r.buff窗 ? '(窗憋)' : '(准点)'}` };
+      const h = 爬山(inst, ids, r.toks, bonds, 设置.爬山预算, stopFlag, null, 设置.谷底试探);
+      if (h && h.dmg > 终.dmg) 终 = { toks: h.toks, dmg: h.dmg, 来源: `窗对齐+爬:${r.来源}${r.buff窗 ? '(窗憋)' : '(准点)'}` };
+    }
+    return 终.toks ? 终 : null;
+  }
+  // 数组模式：返回爬山候选全量（调用方逐个爬山，与爬山预算模式同口径）；全部=true 返回按 dmg 降序的全量构造。
+  return 设置.全部 ? 出 : 爬山候选;
+}
+
+// ---------- 指令集 编解码（站点 description 格式 ⇄ toks） ----------
 
 // 解析用户输入的指令集文本（如 " 1턴 : 2평 > 3평 > 4평 > 1궁 > 5평\n 2턴 : ..."）→ toks
 // 经引擎 setCommandCustom 修正（무이카/수나미 的 CD 特例、궁 前置），与线上口径一致。
@@ -1071,4 +1323,4 @@ function toks键(toks) {
   return s;
 }
 
-module.exports = { 贪心基线, 先验贪心, 先验前瞻贪心, 是伤害궁, 修复解码, 可执行, 爬山, 束搜索, 编辑球层, 相位对齐构造, 节拍对齐构造, 重放, 特征, 动作, 组合升序, 笛卡尔积, 解析指令集, 导出指令集, toks键 };
+module.exports = { 贪心基线, 先验贪心, 先验前瞻贪心, 是伤害궁, 修复解码, 可执行, 爬山, 束搜索, 编辑球层, 相位对齐构造, 节拍对齐构造, 窗对齐构造, 重放, 特征, 动作, 组合升序, 笛卡尔积, 解析指令集, 导出指令集, toks键 };

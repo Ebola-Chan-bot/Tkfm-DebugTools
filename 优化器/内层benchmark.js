@@ -7,15 +7,16 @@
  * 全部算法从零构造（不用 DB toks 作起点，无种子），达成率 = dmg / DB最优。
  *
  * 用法: node 内层benchmark.js [N支] [width] [R]
- *   - 支持 worker 并行：设 环境变量 BENCH_THREADS>1 时用 worker_threads 按队并行
+ *   - 支持 worker 并行：默认 24 线程（动态任务队列：worker 完工即领下一队，无长尾空转）；
+ *     环境变量 BENCH_THREADS 可覆写（1=主线程串行）
  */
 const path = require('path');
 const fs = require('fs');
 const zlib = require('zlib');
 const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
-const 适配 = require('D:/天下布魔/Tkfm-DebugTools/优化器/引擎适配.js');
-const 排程器 = require('D:/天下布魔/Tkfm-DebugTools/优化器/排程器.js');
-const 机制特征 = require('D:/天下布魔/Tkfm-DebugTools/优化器/机制特征.js');
+const 适配 = require(path.join(__dirname, '引擎适配.js'));
+const 排程器 = require(path.join(__dirname, '排程器.js'));
+const 机制特征 = require(path.join(__dirname, '机制特征.js'));
 
 const BOND = [5, 5, 5, 5, 5];
 const CLIMB = Number(process.env.BENCH_CLIMB) || 3000; // 束后爬山精修预算（默认3000与hybrid基准同口径可比）
@@ -33,6 +34,11 @@ const 兜底爬山预算 = process.env.BENCH_FALLBACK_CLIMB == null
 // 节拍对齐兜底（2026-09-24，与生产 团队搜索器 同口径）：cd 混杂队的全员齐射相位起点+爬山。BENCH_BEAT=0 可关（对照旧口径）。TopK=3（希耶儿队实证：构造dmg排序与爬山终点排序不一致，只取Top1丢18pp）。
 const 节拍开关 = process.env.BENCH_BEAT !== '0';
 const 节拍TopK = process.env.BENCH_BEAT_TOPK == null ? 3 : Number(process.env.BENCH_BEAT_TOPK);
+// 窗对齐兜底（2026-09-24，与生产 团队搜索器 同口径）：机制周期窗+CD改写队（需窗规划）的齐射相位起点+爬山。
+//   BENCH_WINDOW=0 可关（对照）。TopK=3 同节拍教训（89队实证：构造dmg排序≠爬山终点排序，DB窗非Top1）。
+//   85.16% 最难队救回件（实验M2：→100.04%）。
+const 窗对齐开关 = process.env.BENCH_WINDOW !== '0';
+const 窗对齐TopK = process.env.BENCH_WINDOW_TOPK == null ? 3 : Number(process.env.BENCH_WINDOW_TOPK);
 const 特例ID = new Set([10162, 10205]);
 const DATA_JSON = path.resolve(适配.路径.autocalc, '..', '..', '..', 'tenkaassist_data', 'data', 'data.json');
 // 机制表开关：BENCH_MECH=1 时 createEngine 启用表驱动解释器（有表角色走表，无表回落原 setDefault）。
@@ -114,23 +120,43 @@ function 评一队(d, width, R, 评分) {
     }
     out.节拍ms = Date.now() - t4;
   }
+  // 窗对齐兜底（与生产同口径）：S族静态全扫 + TopK各爬山，按真值取优。同上不设闸门，仅 终<真值 时触发
+  //   （benchmark 口径为最坏情况压力测试；生产链路有 需窗规划 闸门控成本）。
+  if (窗对齐开关 && out.终 < d.recommend) {
+    const t5 = Date.now();
+    const 窗候选 = 排程器.窗对齐构造(inst, d.ids, BOND, { TopK: 窗对齐TopK });
+    for (const 构 of 窗候选) {
+      const gh = 排程器.爬山(inst, d.ids, 构.toks, BOND, 兜底爬山预算, null, null, 谷底试探);
+      const 窗终 = (gh && gh.dmg > 构.dmg) ? gh.dmg : 构.dmg;
+      if (窗终 > out.终) { out.终 = 窗终; out.来源 = '+窗对齐'; }
+    }
+    out.窗对齐ms = Date.now() - t5;
+  }
   out.ms = Date.now() - t0;
   return out;
 }
 
-// ---- worker 模式 ----
-if (!isMainThread && workerData && workerData.队列) {
-  for (const d of workerData.队列) {
-    const out = 评一队(d, workerData.width, workerData.R, workerData.评分);
-    parentPort.postMessage({ 队: d.队, ids: d.ids, recommend: d.recommend, ...out });
-  }
-  parentPort.postMessage({ done: true });
+// ---- worker 模式（动态任务队列：worker 完工即向主线程要下一队，消除静态分配的长尾空转）----
+if (!isMainThread && workerData && workerData.动态) {
+  parentPort.on('message', (m) => {
+    if (m.type === '任务') {
+      const out = 评一队(m.d, workerData.width, workerData.R, workerData.评分);
+      parentPort.postMessage({ type: '结果', 队: m.d.队, ids: m.d.ids, recommend: m.d.recommend, ...out });
+      parentPort.postMessage({ type: '要活' });
+    } else if (m.type === '收工') {
+      parentPort.postMessage({ type: 'done' });
+      // ⚠ 僵尸修复（2026-09-24 实测：汇总已打印但主进程永不退出）：收工后 parentPort 的 listener
+      //   仍 ref 住事件循环 → worker 线程不退 → 主线程永不退。close() 解除引用后线程自然结束。
+      parentPort.close();
+    }
+  });
+  parentPort.postMessage({ type: '要活' });   // 启动即领第一队
 } else if (isMainThread) {
   const N = Number(process.argv[2]) || 8;
   const width = Number(process.argv[3]) || 10;
   const R = Number(process.argv[4]) || 4;
   const 评分 = process.argv[5] || 'sync';
-  const 线程 = Number(process.env.BENCH_THREADS) || 1;
+  const 线程 = Number(process.env.BENCH_THREADS) || 24;
   console.log(`内层benchmark: N=${N} width=${width} R=${R} 评分=${评分} 线程=${线程}\n`);
   const 队 = 选队(N);
   console.log(`选队完成 ${队.length} 支（bit级复现）`);
@@ -152,19 +178,26 @@ if (!isMainThread && workerData && workerData.队列) {
   };
 
   if (线程 > 1) {
-    const 分组 = Array.from({ length: 线程 }, () => []);
-    队.forEach((d, i) => 分组[i % 线程].push(d));
-    let 完成数 = 0;
-    分组.forEach(q => {
-      if (!q.length) return;
-      const w = new Worker(__filename, { workerData: { 队列: q, width, R, 评分 } });
+    // 动态任务队列：主线程持有 待办，worker 每次完工发“要活”领取下一队；难队自然被空闲 worker 接手，无长尾空转。
+    const 待办 = 队.slice();
+    const 打印 = (m) => console.log(`${m.队}[${m.ids}]: 前瞻${fmtPct(m.前瞻, m.recommend)} 束${fmtPct(m.束, m.recommend)}+爬${fmtPct(m.束爬, m.recommend)} 终${fmtPct(m.终, m.recommend)}(${m.需相位规划 ? '兜底' : '—'}) DB=${m.recommend.toLocaleString()}`);
+    let 完工worker = 0;
+    const workers = [];
+    const 派发 = (w) => {
+      if (待办.length) w.postMessage({ type: '任务', d: 待办.shift() });
+      else w.postMessage({ type: '收工' });
+    };
+    const 开 = Math.min(线程, 队.length);
+    for (let k = 0; k < 开; k++) {
+      const w = new Worker(__filename, { workerData: { 动态: true, width, R, 评分 } });
+      workers.push(w);
       w.on('message', m => {
-        if (m.done) { if (++完成数 >= 分组.filter(x => x.length).length) 收尾(); return; }
-        结果.push(m);
-        console.log(`${m.队}[${m.ids}]: 前瞻${fmtPct(m.前瞻, m.recommend)} 束${fmtPct(m.束, m.recommend)}+爬${fmtPct(m.束爬, m.recommend)} 终${fmtPct(m.终, m.recommend)}(${m.需相位规划 ? '兜底' : '—'}) DB=${m.recommend.toLocaleString()}`);
+        if (m.type === '要活') { 派发(w); return; }
+        if (m.type === '结果') { 结果.push(m); 打印(m); return; }
+        if (m.type === 'done') { if (++完工worker >= 开) { 收尾(); workers.forEach(x => { try { x.terminate(); } catch (e) {} }); } }
       });
       w.on('error', e => { console.error('worker错误', e); process.exit(1); });
-    });
+    }
   } else {
         for (const d of 队) {
       const out = 评一队(d, width, R, 评分);

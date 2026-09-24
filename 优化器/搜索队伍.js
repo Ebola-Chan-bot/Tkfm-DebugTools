@@ -35,6 +35,10 @@ const zlib = require('zlib');
 const 适配 = require('./引擎适配.js');
 const 排程器 = require('./排程器.js');
 const 名单 = require('./防守名单.js');
+const 机制特征 = require('./机制特征.js');
+// 兜底口径与 团队搜索器.js（生产链路）一致：谷底试探 K=8、兜底爬山预算≥30000（验证P5：K=8 两轮谷需 ~14-18k 评估，旧预算会撞顶）
+const 谷底试探 = 8;
+function 兜底爬山预算(爬山预算) { return Math.max(爬山预算 || 0, 30000); }
 
 // ---- 工程内相对路径（随 DebugTools 仓库可移植，不硬编码盘符）----
 const 路径 = {
@@ -239,6 +243,42 @@ function 搜索队伍(inst, ids, 名称, 羁绊, 设置) {
     说(`\n束搜索(w${设置.束宽},${设置.束时限}s) = ${b ? b.dmg.toLocaleString() : '失败'} 扩展=${b ? b.扩展数 : 0} ${((Date.now() - t0) / 1000).toFixed(1)}s`);
     if (b) { 取优('束搜索', b); const h = 排程器.爬山(inst, ids, b.toks, 羁绊, 设置.爬山预算); 取优('束搜索+爬山', h); 说(`束搜索+爬山     = ${h.dmg.toLocaleString()} 评估=${h.评估}`); }
   } else 说('\n束搜索: 已跳过（--束时限=0）');
+
+  // ===== 构造兜底（与 团队搜索器.js 生产链路同口径，按真值 max 取优 → 只增不减零回退）=====
+  // 闸门同生产：需相位规划（注入/CD改写队）跑相位兜底；需窗规划（周期∧CD改写）跑窗对齐兜底。
+  // 窗对齐构造含 {憋,准}×{평,방} 四变体/S（방优先变体：_실험N/94队实证 94.85→99.65，生产TopK3下自动入选）。
+  const 兜底预算 = 兜底爬山预算(设置.爬山预算);
+  if (机制特征.需相位规划(ids)) {
+    for (const 憋 of [5, 99]) {   // 相位对齐档位（实验L：5/8/99几乎同解）
+      const t0 = Date.now();
+      const g2 = 排程器.相位对齐构造(inst, ids, 羁绊, { 最大憋: 憋 });
+      if (!g2 || !(g2.dmg > 0)) continue;
+      const gh = 排程器.爬山(inst, ids, g2.toks, 羁绊, 兜底预算, null, null, 谷底试探);
+      const 终 = (gh && gh.dmg > g2.dmg) ? gh.dmg : g2.dmg;
+      取优(`相位对齐(憋${憋})`, 终 > g2.dmg ? gh : g2);
+      说(`相位兜底(憋${憋})   = ${终.toLocaleString()} ${((Date.now() - t0) / 1000).toFixed(0)}s`);
+    }
+    // 节拍对齐兜底（与生产同闸门：需相位规划；节拍兜底=保守兜底子档，见 团队搜索器.js line130）
+    const t0b = Date.now();
+    const 节拍候选 = 排程器.节拍对齐构造(inst, ids, 羁绊, { TopK: 3 });
+    let 节拍最好 = 0;
+    for (const 构 of 节拍候选) {
+      const gh = 排程器.爬山(inst, ids, 构.toks, 羁绊, 兜底预算, null, null, 谷底试探);
+      const 终 = (gh && gh.dmg > 构.dmg) ? gh.dmg : 构.dmg;
+      if (终 > 节拍最好) 节拍最好 = 终;
+      取优('节拍对齐', 终 > 构.dmg ? gh : 构);
+    }
+    说(`节拍兜底(TopK${节拍候选.length}) = ${节拍最好.toLocaleString()} ${((Date.now() - t0b) / 1000).toFixed(0)}s`);
+  }
+  if (机制特征.需窗规划(ids)) {
+    const t0c = Date.now();
+    // 窗对齐爬山预算模式：内部对全部爬山候选({憋,准}×{평,방}四变体/S, dmgTopK∪机制窗Top6)逐个爬山取真值max（与内层benchmark/团队搜索器同口径）
+    const r = 排程器.窗对齐构造(inst, ids, 羁绊, { TopK: 3, 爬山预算: 兜底预算, 谷底试探 });
+    if (r && r.dmg > 0) {
+      取优('窗对齐', r);
+      说(`窗对齐兜底      = ${r.dmg.toLocaleString()} [${r.来源}] ${((Date.now() - t0c) / 1000).toFixed(0)}s`);
+    } else 说('窗对齐兜底      = 无有效构造');
+  } else 说('窗对齐兜底: 跳过（需窗规划=false，队内无周期∧CD改写机制）');
 
   // 全路径 0 伤害：不是排程问题，继续爬山/编辑球无意义，直接返回 null 由主流程给出可诊断提示
   if (!最好) {
