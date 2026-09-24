@@ -30,6 +30,9 @@ const 谷底试探 = process.env.BENCH_VALLEY == null ? 8 : Number(process.env.B
 const 兜底爬山预算 = process.env.BENCH_FALLBACK_CLIMB == null
   ? (谷底试探 > 0 ? Math.max(CLIMB, 30000) : CLIMB)
   : Number(process.env.BENCH_FALLBACK_CLIMB);
+// 节拍对齐兜底（2026-09-24，与生产 团队搜索器 同口径）：cd 混杂队的全员齐射相位起点+爬山。BENCH_BEAT=0 可关（对照旧口径）。TopK=3（希耶儿队实证：构造dmg排序与爬山终点排序不一致，只取Top1丢18pp）。
+const 节拍开关 = process.env.BENCH_BEAT !== '0';
+const 节拍TopK = process.env.BENCH_BEAT_TOPK == null ? 3 : Number(process.env.BENCH_BEAT_TOPK);
 const 特例ID = new Set([10162, 10205]);
 const DATA_JSON = path.resolve(适配.路径.autocalc, '..', '..', '..', 'tenkaassist_data', 'data', 'data.json');
 // 机制表开关：BENCH_MECH=1 时 createEngine 启用表驱动解释器（有表角色走表，无表回落原 setDefault）。
@@ -98,6 +101,18 @@ function 评一队(d, width, R, 评分) {
       if (兜底终 > out.终) { out.终 = 兜底终; out.来源 = '+对齐'; }
     }
     out.兜底ms = Date.now() - t3;
+  }
+  // 节拍对齐兜底（与生产同口径）：纯静态构造 + TopK各爬山，按真值取优（结构上不可能低于现状）。
+  //   不依赖 需相位规划 闸门独立跑（Top200 实测该闸门 200/200 全命中，判别力已失效），仅在 终<真值 时触发。
+  if (节拍开关 && out.终 < d.recommend) {
+    const t4 = Date.now();
+    const 节拍候选 = 排程器.节拍对齐构造(inst, d.ids, BOND, { TopK: 节拍TopK });
+    for (const 构 of 节拍候选) {
+      const gh = 排程器.爬山(inst, d.ids, 构.toks, BOND, 兜底爬山预算, null, null, 谷底试探);
+      const 节拍终 = (gh && gh.dmg > 构.dmg) ? gh.dmg : 构.dmg;
+      if (节拍终 > out.终) { out.终 = 节拍终; out.来源 = '+节拍'; }
+    }
+    out.节拍ms = Date.now() - t4;
   }
   out.ms = Date.now() - t0;
   return out;
