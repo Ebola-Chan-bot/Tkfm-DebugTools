@@ -249,10 +249,16 @@ function 搜索队伍(inst, ids, 名称, 羁绊, 设置) {
   // 窗对齐构造含 {憋,准}×{평,방} 四变体/S（방优先变体：_실험N/94队实证 94.85→99.65，生产TopK3下自动入选）。
   const 兜底预算 = 兜底爬山预算(设置.爬山预算);
   if (机制特征.需相位规划(ids)) {
+    // 档间去重（同 内层benchmark/团队搜索器）：实验L 实证 5/8/99 同解，_探针相位重复 坐实 toks 级相同
+    //   （5/5 样本队档5=档99 构造完全一致）⇒ 第二档爬山是纯重复。max 取优不变，只省时间。
+    const 见构 = new Set();
     for (const 憋 of [5, 99]) {   // 相位对齐档位（实验L：5/8/99几乎同解）
       const t0 = Date.now();
       const g2 = 排程器.相位对齐构造(inst, ids, 羁绊, { 最大憋: 憋 });
       if (!g2 || !(g2.dmg > 0)) continue;
+      const 键 = 排程器.toks键(g2.toks);
+      if (见构.has(键)) { 说(`相位兜底(憋${憋})   = 与憋5构造相同，跳过重复爬山`); continue; }
+      见构.add(键);
       const gh = 排程器.爬山(inst, ids, g2.toks, 羁绊, 兜底预算, null, null, 谷底试探);
       const 终 = (gh && gh.dmg > g2.dmg) ? gh.dmg : g2.dmg;
       取优(`相位对齐(憋${憋})`, 终 > g2.dmg ? gh : g2);
@@ -270,15 +276,19 @@ function 搜索队伍(inst, ids, 名称, 羁绊, 设置) {
     }
     说(`节拍兜底(TopK${节拍候选.length}) = ${节拍最好.toLocaleString()} ${((Date.now() - t0b) / 1000).toFixed(0)}s`);
   }
-  if (机制特征.需窗规划(ids)) {
+  if (机制特征.需相位规划(ids)) {   // 闸门放宽: 与保守兜底同闸门(97.9队实证需窗规划=false会漏窗对齐兜底)
     const t0c = Date.now();
     // 窗对齐爬山预算模式：内部对全部爬山候选({憋,准}×{평,방}四变体/S, dmgTopK∪机制窗Top6)逐个爬山取真值max（与内层benchmark/团队搜索器同口径）
-    const r = 排程器.窗对齐构造(inst, ids, 羁绊, { TopK: 3, 爬山预算: 兜底预算, 谷底试探 });
-    if (r && r.dmg > 0) {
+    const r0 = 排程器.窗对齐构造(inst, ids, 羁绊, { TopK: 3, 爬山预算: 兜底预算, 谷底试探 });
+    let r = r0;
+    if (r0 && r0.dmg > 0) {
+      // +终局整回合序重排（_实验O：窗对齐+爬山后仍卡的序深谷，~10s；真值max取优）
+      const o = 排程器.整回合序重排(inst, ids, r0.toks, 羁绊);
+      if (o && o.dmg > r0.dmg) r = { toks: o.toks, dmg: o.dmg, 来源: '窗对齐+序重排:' + r0.来源 };
       取优('窗对齐', r);
       说(`窗对齐兜底      = ${r.dmg.toLocaleString()} [${r.来源}] ${((Date.now() - t0c) / 1000).toFixed(0)}s`);
     } else 说('窗对齐兜底      = 无有效构造');
-  } else 说('窗对齐兜底: 跳过（需窗规划=false，队内无周期∧CD改写机制）');
+  } else 说('窗对齐兜底: 跳过（需相位规划=false，队内无CD改写/注入机制）');
 
   // 全路径 0 伤害：不是排程问题，继续爬山/编辑球无意义，直接返回 null 由主流程给出可诊断提示
   if (!最好) {

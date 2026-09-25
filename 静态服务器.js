@@ -49,7 +49,8 @@ http.createServer((请求, 响应) => {
     }
 
     const 类型 = 类型表[path.extname(文件).toLowerCase()] ?? 'application/octet-stream';
-    响应.writeHead(200, { 'Content-Type': 类型 });
+    // 开发期禁用缓存：本服务器服务的 js/css/html 常在一轮调试中被反复改写，启发式缓存会把旧字节喂给浏览器（Worker 脚本尤其隐蔽）
+    响应.writeHead(200, { 'Content-Type': 类型, 'Cache-Control': 'no-store' });
     fs.createReadStream(文件).pipe(响应);
 }).listen(端口, () => {
     console.log(`静态服务器已启动: http://localhost:${端口}`);

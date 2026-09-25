@@ -69,6 +69,49 @@ function 重放(inst, ids, toks, bonds) {
   return inst.increment.fastReplay(ids, toks, bonds, -1, null);
 }
 
+/* ---------- 检查点评估（captureState/restoreState 前缀复用） ----------
+ * _验证检查点.js 已证 bit 级零偏差（25队×66切点 失配=0，含 10134 turnHeal 动态字段覆盖断言）。
+ * 成本实测：capture≈41us、restore≈55us、单步 do_*≈82.6us、全场 fastReplay≈5.4ms：
+ *   restore(cp[t]) + 裸放后缀(65-5t 步) ≈ 0.06 + (65-5t)×0.083 ms，t≥1 起全面优于整场重放，
+ *   13 回合平均 ≈2.7ms → 候选评估约 ×2 提速；后缀中途非法 → 0（= fastReplay 非法语义）。
+ * cps[t] = 打完前 t 回合的状态快照；一次 initBattle 顺跑顺捕，成本 ≈1 次全场重放。 */
+// 增量参数（可选）：{ cps: 旧检查点数组, 有效深: d }——toks 前 d 回合与旧 cps 构建时完全一致时，
+// restore(cps[d]) 就地续跑只重建 cps[d+1..]（序重排懒重建用：改进只发生在回合 d 之后，前缀快照仍有效）。
+function 建回合检查点(inst, ids, toks, bonds, 增量) {
+  const 回合数 = Math.floor(toks.length / 5) + (toks.length % 5 ? 1 : 0);
+  const 原语 = inst.increment.原语();
+  let cps, 起点;
+  if (增量 && 增量.cps && 增量.有效深 > 0 && 增量.cps.length > 增量.有效深) {
+    inst.increment.restoreState(增量.cps[增量.有效深]);
+    cps = 增量.cps.slice(0, 增量.有效深 + 1);   // cps[0..有效深] 沿用，其后重建
+    起点 = 增量.有效深;
+  } else {
+    if (!inst.increment.initBattle(ids, bonds, -1, null)) return null;
+    cps = [inst.increment.captureState()];
+    起点 = 0;
+  }
+  for (let t = 起点; t < 回合数; t++) {
+    for (let k = 0; k < 5 && t * 5 + k < toks.length; k++) {
+      const { idx, act } = toks[t * 5 + k];
+      const o = act === '평' ? 原语.do_atk(idx) : act === '궁' ? 原语.do_ult(idx) : 原语.do_def(idx);
+      if (!o) return null;                       // 基线自身非法 → 调用方兜底走 fastReplay 路径
+    }
+    cps.push(inst.increment.captureState());
+  }
+  return cps;
+}
+// 从 cps[起点回合] 还原后裸放 toks[起点回合*5, toks.length)，返回 dmg（中途非法 → 0）
+function 检查点评估(inst, cps, toks, 起点回合) {
+  const 原语 = inst.increment.原语();
+  inst.increment.restoreState(cps[起点回合]);
+  for (let i = 起点回合 * 5; i < toks.length; i++) {
+    const { idx, act } = toks[i];
+    const o = act === '평' ? 原语.do_atk(idx) : act === '궁' ? 原语.do_ult(idx) : 原语.do_def(idx);
+    if (!o) return 0;
+  }
+  return inst.increment.dmgSoFar();
+}
+
 /* ---------- 1) 贪心基线 ---------- */
 
 // 逐步构造合法排程。优先级：궁就绪(curCd<=0) > 딜러(role0)평 > 有atkMag的평 > 방。
@@ -325,7 +368,52 @@ function 修复解码(inst, ids, toks, bonds) {
 // 返回 { toks, dmg, 评估次数, 提升次数, 谷底试探数, 谷底采纳数 }。
 // stopFlag(): 每次评估后调用，为真立即中止（让 Ctrl+C/--预算 有细粒度停止）。
 // onProgress(n): 每评估 n 次转发给上层（主程序心跳的"已搜索数目"靠它累加）。
+// ---------- 爬山全局 memo（2026-09-25，兜底链"重复爬山"的泛化终态）----------
+// 动机：R9g 分段账 81% 耗时是"对某构造 toks 爬一次山(30000+谷底8)"；窗/相位/节拍的段内重复已由各自 toks
+//   去重消除，剩**跨段重合**（_探针跨段重复 实测：四段全部爬山起点跨段去重 61→49，省 20%）。爬山是确定性纯
+//   函数（输入=ids/bonds/预算/谷底/起点toks → 输出确定；检查点机制已证 bit 级复现），按键缓存数学零行为变化。
+// 设计：键 = ids(序敏感)|bonds|预算|谷底|toks键(起点)；命中 → onProgress 转发缓存的评估总数（簿记口径近似
+//   保持，深评数字不因缓存失真）+ 返回深拷贝（调用方持有引用不被后续缓存共享污染）。
+//   ⚠️ stopFlag 中止的 run 不缓存（部分结果进缓存 = 之后所有命中都拿到残缺解，是静默毒化）。
+//   容量：worker 长跑多队会累积（每条 ~=1KB toks+键），到上限整体 clear（简单；命中率损失可忽略——
+//   跨段重复发生在同一队评估的相邻几十次调用内，clear 后很快重建）。
+// 开关：爬山memo设置.启用=false 完全回旧行为（A/B 对照）；爬山memo设置.统计 供验证脚本读命中数。
+// ⚠️ 默认关（2026-09-25 _AB全局memo.js 6难队实测证伪提速）：正确性 6/6 逐位一致 ✓，但窗/相位档/节拍三处
+//   局部去重已吃干净段内重复，跨段重合实测 5/6 队=0 次命中（探针 "61→49省20%" 的主体是段内重复，
+//   当时误算成 memo 增量）；其余队纯开销（建键+深拷贝 0.95~0.98x）。
+//   _探针memo判别 200队实证：碰撞 19/200=9.5%，13/19 同时含 {10213,10155}（후지카族供给锁核心），
+//   另 4 队含 10213 或 10155 之一 + 10194/10167/10108/10179 组合 ⇒ 判别特征=成员级供给锁，非队级静态画像
+//   （"全队无伤害궁"假说被证伪：碰撞组占比仅5%）。收益太小(全局碰撞率1.4%)不值得一行队特判，
+//   仅 후지카族专项攻关时 CLIMB_MEMO=1 手动开（该队实测 1.51x）。
+const 爬山memo = new Map();
+const 爬山memo设置 = { 启用: process.env.CLIMB_MEMO === '1', 上限: 20000, 统计: { 命中: 0, 存: 0 } };
+function 爬山结果复制(r) {
+  return {
+    toks: r.toks ? r.toks.map(t => ({ idx: t.idx, act: t.act })) : r.toks,
+    dmg: r.dmg, 评估: r.评估, 提升: r.提升, 谷底试探数: r.谷底试探数, 谷底采纳数: r.谷底采纳数,
+  };
+}
 function 爬山(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷底试探) {
+  bonds = bonds || [5, 5, 5, 5, 5];
+  预算 = 预算 || 20000;
+  stopFlag = stopFlag || (() => false);
+  onProgress = onProgress || (() => {});
+  谷底试探 = (谷底试探 == null) ? 0 : 谷底试探;
+  const 可缓存 = 爬山memo设置.启用 && Array.isArray(startToks) && startToks.length === 65
+    && startToks.every(t => t && Number.isInteger(t.idx));
+  if (!可缓存) return 爬山本体(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷底试探);
+  const mk = ids.join(',') + '|' + bonds.join(',') + '|' + 预算 + '|' + 谷底试探 + '|' + toks键(startToks);
+  const 中 = 爬山memo.get(mk);
+  if (中) { 爬山memo设置.统计.命中++; onProgress(中.评估); return 爬山结果复制(中); }
+  const r = 爬山本体(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷底试探);
+  if (r && r.toks && !stopFlag()) {
+    if (爬山memo.size >= 爬山memo设置.上限) 爬山memo.clear();
+    爬山memo.set(mk, 爬山结果复制(r));
+    爬山memo设置.统计.存++;
+  }
+  return r;
+}
+function 爬山本体(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷底试探) {
   bonds = bonds || [5, 5, 5, 5, 5];
   预算 = 预算 || 20000;
   stopFlag = stopFlag || (() => false);
@@ -347,7 +435,7 @@ function 爬山(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷�
         const 移 = toks.map(t => ({ idx: t.idx, act: t.act }));
         移[s1].act = toks[s2].act;                  // 原궁位改成 s2 动作（通常평）
         移[s2].act = '궁';                           // 궁后移到 s2
-        候.push(移);
+        候.push({ nb: 移, s1 });                    // 带最早改动位：检查点从 floor(s1/5) 起跑
       }
     }
     return 候;
@@ -359,6 +447,12 @@ function 爬山(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷�
   //   永远原路爬回、试探白费（P4 实测 K=16 采纳恒为 1）。
   function 爬坡(toks, dmg, 禁忌) {
     let cur = toks, curDmg = dmg;
+    // 检查点评估：cps 跟随 cur 版本（cur 每次改进后重建，成本≈1次全场重放+13次capture≈6ms，
+    // 对比每遍扫描 ~200 次评估 ×(5.4-3.0)ms 节省，改进次数再多也稳赚）。
+    // nb 与 cur 仅在改动位 s 之后分叉 → restore(cps[floor(s/5)]) + 裸放后缀，bit 级等值 fastReplay
+    //（_验证检查点.js 已证零偏差；含非法后缀返 0 语义）。建点失败/无 API → cps=null 回落全场重放。
+    let cps = typeof inst.increment.captureState === 'function' ? 建回合检查点(inst, ids, cur, bonds) : null;
+    const 评nb = (nb, s) => cps ? 检查点评估(inst, cps, nb, (s / 5) | 0) : 重放(inst, ids, nb, bonds);
     let 改进 = true;
     while (改进 && 评估 < 预算 && !stopFlag()) {
       改进 = false;
@@ -371,8 +465,8 @@ function 爬山(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷�
           const nb = cur.map(t => ({ idx: t.idx, act: t.act }));
           nb[p].act = a;
           评估++; onProgress(1);
-          const d = 重放(inst, ids, nb, bonds);
-          if (d > curDmg && !(禁忌 && 禁忌.has(toks键(nb)))) { cur = nb; curDmg = d; 提升++; 改进 = true; break; }
+          const d = 评nb(nb, p);
+          if (d > curDmg && !(禁忌 && 禁忌.has(toks键(nb)))) { cur = nb; curDmg = d; 提升++; 改进 = true; if (cps) cps = 建回合检查点(inst, ids, cur, bonds); break; }
         }
         if (改进) break;
       }
@@ -383,16 +477,16 @@ function 爬山(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷�
         const nb = cur.map(t => ({ idx: t.idx, act: t.act }));
         const tmp = nb[p]; nb[p] = nb[p + 1]; nb[p + 1] = tmp;
         评估++; onProgress(1);
-        const d = 重放(inst, ids, nb, bonds);
-        if (d > curDmg && !(禁忌 && 禁忌.has(toks键(nb)))) { cur = nb; curDmg = d; 提升++; 改进 = true; break; }
+        const d = 评nb(nb, p);
+        if (d > curDmg && !(禁忌 && 禁忌.has(toks键(nb)))) { cur = nb; curDmg = d; 提升++; 改进 = true; if (cps) cps = 建回合检查点(inst, ids, cur, bonds); break; }
       }
       if (改进 || stopFlag() || 评估 >= 预算 || !用相位) continue;
       // ③ 相位移动（궁后移成对交换，诊断R：队[4] 的目标移动属此类且为上升移动）
-      for (const nb of 相位候选(cur)) {
+      for (const 候 of 相位候选(cur)) {
         if (评估 >= 预算 || stopFlag()) break;
         评估++; onProgress(1);
-        const d = 重放(inst, ids, nb, bonds);
-        if (d > curDmg && !(禁忌 && 禁忌.has(toks键(nb)))) { cur = nb; curDmg = d; 提升++; 改进 = true; break; }
+        const d = 评nb(候.nb, 候.s1);
+        if (d > curDmg && !(禁忌 && 禁忌.has(toks键(候.nb)))) { cur = 候.nb; curDmg = d; 提升++; 改进 = true; if (cps) cps = 建回合检查点(inst, ids, cur, bonds); break; }
       }
     }
     return { toks: cur, dmg: curDmg };
@@ -424,11 +518,15 @@ function 爬山(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷�
     //   （跳过不违背"变差容后再搜"：这类谷重爬即回原点，不含任何未探索路径。）
     const A池 = [], B池 = [];
     const 近平线 = curDmg * 0.001;
-    for (const nb of 相位候选(cur)) {
+    // 池收集评估也走检查点：全部候选共享 cur 前缀，建点一次（≈6ms）换 ~44 次评估各省前缀重放。
+    const cps2 = typeof inst.increment.captureState === 'function' ? 建回合检查点(inst, ids, cur, bonds) : null;
+    const 评池nb = (nb, s) => cps2 ? 检查点评估(inst, cps2, nb, (s / 5) | 0) : 重放(inst, ids, nb, bonds);
+    for (const 候 of 相位候选(cur)) {
       if (评估 >= 预算 || stopFlag()) break;
+      const nb = 候.nb;
       if (已试.has(toks键(nb))) continue;
       评估++; onProgress(1);
-      const d = 重放(inst, ids, nb, bonds);
+      const d = 评池nb(nb, 候.s1);
       // 三重过滤：① d>0 非法候选不入池（验证W 实证：승나미 98.16% 点的 31 条相位候选里 30 条非法
       //   ——궁后移出 CD 就绪窗口即非法；非法 toks 的谷底重爬 = 从废堆修复，纯浪费试探预算）；
       //   ② 近平谷(|Δ|<0.1%)不入池（重爬即回原点，零信息）；③ 已试点剔除。
@@ -441,7 +539,7 @@ function 爬山(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷�
       const tmp = nb[p]; nb[p] = nb[p + 1]; nb[p + 1] = tmp;
       if (已试.has(toks键(nb))) continue;
       评估++; onProgress(1);
-      const d = 重放(inst, ids, nb, bonds);
+      const d = 评池nb(nb, p);
       if (d > 0 && d <= curDmg - 近平线) B池.push({ toks: nb, dmg: d });
     }
     // 类内最不差优先（确定性：伤害降序，同伤 toks键 tie-break）
@@ -468,6 +566,76 @@ function 爬山(inst, ids, startToks, bonds, 预算, stopFlag, onProgress, 谷�
     // 无论采纳与否都从当前点收集下一轮变差前沿（变差的容后再搜）
   }
   return { toks: 全局.toks, dmg: 全局.dmg, 评估, 提升, 谷底试探数: 试探数, 谷底采纳数: 采纳数 };
+}
+
+/* ---------- 2b) 整回合内序重排（爬山第④邻域的生产化，_实验O 实证） ---------- */
+
+// 整回合内序重排：对每个回合的5个token试全部5!=120种出手序（best-improving取该回合最优），
+//   迭代轮换直到全轮无改进（实测1-2轮收敛）。成本≈1547次重放/轮≈9s（重放5.5ms）。
+//   动机（_诊断979+_实验O 实证，얀코[10197,10167,10147,10163,10134]）：
+//   爬山三邻域（单token改动作+相邻交换+궁相位后移）修完填充(평/방差1)后仍卡95.87%，
+//   序差13/13且预算180k×K32全不敏感——DB整回合排列（如궁回合 2>5>4>3>1）与构造起点序
+//   隔着多个"变差"中间态，first-improving相邻交换结构性不可达（改进方向②挂账兑现）。
+//   叠加序重排1轮：95.87→**100.19%**（改进5回合，宫差0）。
+//   ⚠前提：只对"动作/填充已正确、仅剩序错"的解有效（窗对齐/节拍/相位构造+爬山终点）；
+//   对束搜索解无效（实验O路径B：96.10%不变，因其평/방动作本身错4处，重排只换序不改动作）。
+//   DB解参照：只做序重排100.19→100.18（不破坏已优解，dmg微动为重放同值舍入）。
+// @returns {{toks, dmg, 评估, 轮数}}
+function 整回合序重排(inst, ids, startToks, bonds, 设置) {
+  bonds = bonds || [5, 5, 5, 5, 5];
+  设置 = 设置 || {};
+  const 最大轮 = 设置.最大轮 == null ? 4 : 设置.最大轮;
+  const stopFlag = 设置.stopFlag || (() => false);
+  const 回合数 = Math.floor(startToks.length / 5);
+  // Heap算法全排列（模块级缓存，120个）
+  if (!整回合序重排._排5) {
+    const 结果 = []; const a = [0, 1, 2, 3, 4];
+    const rec = (arr, k) => {
+      if (k === arr.length) { 结果.push(arr.slice()); return; }
+      for (let i = k; i < arr.length; i++) { [arr[k], arr[i]] = [arr[i], arr[k]]; rec(arr, k + 1); [arr[k], arr[i]] = [arr[i], arr[k]]; }
+    };
+    rec(a, 0); 整回合序重排._排5 = 结果;
+  }
+  let cur = startToks.map(t => ({ idx: t.idx, act: t.act }));
+  let curDmg = 重放(inst, ids, cur, bonds);
+  let 评估 = 1, 轮数 = 0;
+  let 检查点可用 = typeof inst.increment.captureState === 'function' && 设置.检查点 !== false;
+  // 懒重建：cps[0..检查点深度] 对当前 cur 有效。改进发生在回合 t 时前缀 [0,t) 不变 →
+  //   cps[0..t] 仍有效，只标 检查点深度=t；到需要 t'>t 的检查点时才从 cps[t] 增量续建。
+  //   无改进的轮次/回合零重建成本（旧版每回合无条件全建，整轮 ≈13×6ms 纯浪费）。
+  let cps = null, 检查点深度 = -1;
+  for (let 轮 = 0; 轮 < 最大轮; 轮++) {
+    轮数 = 轮 + 1;
+    let 本轮改进 = 0;
+    for (let t = 0; t < 回合数 && !stopFlag(); t++) {
+      const 基 = cur.slice(t * 5, t * 5 + 5);
+      const 基键 = 基.map(x => x.idx + x.act).join('');
+      let 最优序 = null, 最优dmg = curDmg;
+      if (检查点可用 && 检查点深度 < t) {
+        const 新cps = 建回合检查点(inst, ids, cur, bonds, 检查点深度 >= 0 ? { cps, 有效深: 检查点深度 } : null);
+        评估++;
+        if (新cps) { cps = 新cps; 检查点深度 = 回合数; }   // 全建成功：覆盖所有回合
+        else 检查点可用 = false;                              // cur 非法（理论不应发生）→ 永久回落 fastReplay
+      }
+      const 用检查点 = 检查点可用 && cps && 检查点深度 >= t;
+      for (const p of 整回合序重排._排5) {
+        const 键 = p.map(k => 基[k].idx + 基[k].act).join('');
+        if (键 === 基键) continue;
+        const nb = cur.map(x => ({ idx: x.idx, act: x.act }));
+        for (let k = 0; k < 5; k++) nb[t * 5 + k] = { idx: 基[p[k]].idx, act: 基[p[k]].act };
+        评估++;
+        const d = 用检查点 ? 检查点评估(inst, cps, nb, t) : 重放(inst, ids, nb, bonds);
+        if (d > 最优dmg) { 最优dmg = d; 最优序 = p; }
+      }
+      if (最优序) {
+        for (let k = 0; k < 5; k++) cur[t * 5 + k] = { idx: 基[最优序[k]].idx, act: 基[最优序[k]].act };
+        curDmg = 最优dmg; 本轮改进++;
+        if (检查点可用) 检查点深度 = t;                       // cps[t+1..] 作废，cps[0..t] 仍是新 cur 的前缀状态
+      }
+    }
+    if (!本轮改进 || stopFlag()) break;
+  }
+  return { toks: cur, dmg: curDmg, 评估, 轮数 };
 }
 
 /* ---------- 3) 编辑球迭代加深（渐近完备） ---------- */
@@ -577,6 +745,14 @@ function 束搜索(inst, ids, bonds, 设置) {
   const 延迟p = 设置.延迟p == null ? 0.5 : 设置.延迟p;      // 随机延迟填充时 딜러伤害궁 降级为평 的概率（sync 下无用）
   const 评分 = 设置.评分 || 'sync';                        // 'sync'=定向对齐填充(默认,确定性最快); hybrid/mean/max=随机延迟对照
   const sync试排 = 设置.sync试排 === true;                 // 回合内딜러궁全排列试排（实测线上负收益，默认关，见规则快填注释）
+  // 无伤害궁队单路评分（数学等价剪枝，2026-09-25）：规则快填里 sync/rand 两路的全部差异只经由
+  //   "伤害궁憋궁判据"生效（sync 的前缀扫描只写 本回合buff，本回合buff 只被憋궁判据消费；试排默认关）。
+  //   全队无伤害궁（atkMag=ultMag=0，如 후지카 类궁供给队）⇒ 憋궁判据所在分支永不进入 ⇒ 两路逐步选择
+  //   完全一致 ⇒ d同===d即 ⇒ max 恒等，sync 路是纯冗余。跳过它省该队束段 ~50% rollout（rollout 占束
+  //   成本~85%，moveTo 快照仅~15%——快照栈换检查点细算只 ~12% 收益且是大改，不做，见 _测量重复评估 教训）。
+  //   ⚠️ 实验I 那类"有伤害궁但同相位就绪→判据从不触发"的队**不可**静态判等价（CD操纵使相位随时可破），不走此路。
+  //   设置.单路等价=false 可强制回到双路（A/B 对照用）。
+  const 无伤害궁 = (设置.单路等价 !== false) && !ids.some(id => { const f = 特征.get(id); return f && (f.ultMag > 0 || f.atkMag > 0); });
   // 只读诊断钩子（默认 null 零影响）：影子跟踪一条已知前缀（一般=DB 最优排程），逐层记其填充续航评分
   //   与在全部孩子里的排名，用于剖析“它在哪一层跌出 width 被剪、被剪时评分低估了多少”。不改变搜索行为。
   //   设置.诊断 = { 目标toks, 真值 }（真值=该前缀走完整 DB 后段的 dmg13，用于算低估率）。
@@ -798,18 +974,22 @@ function 束搜索(inst, ids, bonds, 设置) {
         //   'mean'/'max'：随机延迟的均值/最大，作对照。
         let 评;
         if (评分 === 'sync') {
-          // 前缀toks = 节点前缀(s) + 本候选(1)，长度 s+1 = 填充起点已走步；供 规则快填 继承"本回合已铺 buff"状态
-          const 前缀toks = 节点.toks.concat([cand]);
           inc.step(cand.idx, cand.act);
           const d即 = 规则快填(s + 1, 0, 'rand');            // 即放填充（确定性基线）
           inc.undo();
-          inc.step(cand.idx, cand.act);
-          const d同 = 规则快填(s + 1, 0, 'sync', 前缀toks);   // sync 对齐填充（确定性；继承前缀 buff 状态）
-          inc.undo();
-          // 设置.纯sync评分（诊断开关，默认 false 保持 max 双路）：强制 评=d同 单路。
-          //   用于判别 88% 缺口是"max(即放,同) 里即放主导、掩盖 sync 的正确延迟估值"（去掉 max 即恢复）
-          //   还是"sync 填充本身也表达不了伤害궁相位规划"（去掉 max 仍 88%）。见 _实验J。
-          评 = 设置.纯sync评分 === true ? d同 : Math.max(d即, d同);   // 两确定性估计取 max（无赢家诅咒，方差为0）
+          if (无伤害궁) {
+            评 = d即;                                        // 单路（=双路 max，数学等价见 无伤害궁 注释），省 sync rollout+step/undo
+          } else {
+            // 前缀toks = 节点前缀(s) + 本候选(1)，长度 s+1 = 填充起点已走步；供 规则快填 继承"本回合已铺 buff"状态
+            const 前缀toks = 节点.toks.concat([cand]);
+            inc.step(cand.idx, cand.act);
+            const d同 = 规则快填(s + 1, 0, 'sync', 前缀toks);   // sync 对齐填充（确定性；继承前缀 buff 状态）
+            inc.undo();
+            // 设置.纯sync评分（诊断开关，默认 false 保持 max 双路）：强制 评=d同 单路。
+            //   用于判别 88% 缺口是"max(即放,同) 里即放主导、掩盖 sync 的正确延迟估值"（去掉 max 即恢复）
+            //   还是"sync 填充本身也表达不了伤害궁相位规划"（去掉 max 仍 88%）。见 _实验J。
+            评 = 设置.纯sync评分 === true ? d同 : Math.max(d即, d同);   // 两确定性估计取 max（无赢家诅咒，方差为0）
+          }
         } else {
           // MC 多策略 rollout：r=0 即放填充（确定性），r>=1 按 延迟p 延迟填充（随机）
           let 即放 = -1; const 延迟组 = [];
@@ -1036,7 +1216,17 @@ function 节拍对齐构造(inst, ids, bonds, 设置) {
     }
   }
   出.sort((a, b) => b.dmg - a.dmg);
-  return 设置.全部 ? 出 : 出.slice(0, TopK);
+  if (设置.全部) return 出;
+  // 先按旧口径 slice(0,TopK)（可能含重复 toks），再对该子列表去重 —— **严格零行为变化**：
+  //   节拍段占 R9g 兜底链 16.8%，调用方对返回的每个候选各跑一次 30000+谷底8 爬山。若 TopK3 内含相同 toks
+  //   （후지카 实测 distinct=1、승나미/나리=2：不同 t0/序策 命中同一齐射排程 → 重放同 dmg 的重复项），旧口径
+  //   对同一起点重复爬 2~3 次。去重后 max(f(x),…,f(x))=f(x) 逐位不变（爬山确定性纯函数），只省重复爬山。
+  //   ⚠️ 顺序必须是"先 slice 再去重"：若反过来先去重填满 TopK 名额，会把原本被重复项挡在 TopK 外的更低 dmg
+  //   distinct 候选放进来，改变爬山的候选集 = 行为变化（需端到端回归），那不是本节的目标。设置.去重=false 关闭。
+  const 前TopK = 出.slice(0, TopK);
+  if (设置.去重 === false) return 前TopK;
+  const 见 = new Set();
+  return 前TopK.filter(c => { const k = toks键(c.toks); if (见.has(k)) return false; 见.add(k); return true; });
 }
 
 /* ---------- 5c) 窗对齐构造（机制周期数据驱动：CD 改写队 + 周期窗 buff 队的齐射相位） ---------- */
@@ -1275,11 +1465,23 @@ function 窗对齐构造(inst, ids, bonds, 设置) {
     if (机制名额 <= 0) break;
     if (机制键集.has(r.S.join(','))) { const 前 = 爬山候选.length; 入选(r); if (爬山候选.length > 前) 机制名额--; }
   }
+  // 爬山候选 toks 级去重（2026-09-25，_探针窗出 实测）：**这才是省时点**。①②按 S 选出 ≤TopK+6=9 个候选，但不同 S 窗
+  //   经引擎真实 curCd 推进后常塌缩成**完全相同**的排程（궁 有 CD 约束，窗 {1,5,9,13} 与 {1,3,5,7,9,11,13} 都只在 CD
+  //   就绪的 t1/5/9/13 出궁）→ 94队实测 9 个候选 toks 全同（distinct=1）；调用方窗段对爬山候选逐个爬山，等于**对同一起点
+  //   爬 9 次**（窗对齐段占 benchmark 总耗时 44.8%/R9g实测 15354s，大头即此）。这里对最终爬山候选按 toks 去重，令窗段
+  //   只爬不同起点各一次。零行为变化（数学guaranteed）：爬山确定性 ⇒ 相同 toks+相同预算 ⇒ 结果逐位一致；调用方 max 取优
+  //   对重复候选不敏感（max(x,…,x)=max(x)），故去重后终值 bit 级不变，只省重复爬山次数。保留首次出现（出已 dmg 降序，
+  //   即各 distinct toks 的 dmg 最高代表）。设置.去重=false 关闭（A/B 对照 / 复现旧行为）。
+  let 最终候选 = 爬山候选;
+  if (设置.去重 !== false) {
+    const 见toks = new Set();
+    最终候选 = 爬山候选.filter(r => { const k = toks键(r.toks); if (见toks.has(k)) return false; 见toks.add(k); return true; });
+  }
 
   // 爬山+取优模式（设置.爬山预算 给定）：对爬山候选全量各爬山，按真值取优。
   if (设置.爬山预算) {
     let 终 = { toks: null, dmg: 0, 来源: '-' };
-    for (const r of 爬山候选) {
+    for (const r of 最终候选) {
       if (stopFlag()) break;
       if (r.dmg > 终.dmg) 终 = { toks: r.toks, dmg: r.dmg, 来源: `窗对齐:${r.来源}${r.buff窗 ? '(窗憋)' : '(准点)'}` };
       const h = 爬山(inst, ids, r.toks, bonds, 设置.爬山预算, stopFlag, null, 设置.谷底试探);
@@ -1288,7 +1490,7 @@ function 窗对齐构造(inst, ids, bonds, 设置) {
     return 终.toks ? 终 : null;
   }
   // 数组模式：返回爬山候选全量（调用方逐个爬山，与爬山预算模式同口径）；全部=true 返回按 dmg 降序的全量构造。
-  return 设置.全部 ? 出 : 爬山候选;
+  return 设置.全部 ? 出 : 最终候选;
 }
 
 // ---------- 指令集 编解码（站点 description 格式 ⇄ toks） ----------
@@ -1323,4 +1525,4 @@ function toks键(toks) {
   return s;
 }
 
-module.exports = { 贪心基线, 先验贪心, 先验前瞻贪心, 是伤害궁, 修复解码, 可执行, 爬山, 束搜索, 编辑球层, 相位对齐构造, 节拍对齐构造, 窗对齐构造, 重放, 特征, 动作, 组合升序, 笛卡尔积, 解析指令集, 导出指令集, toks键 };
+module.exports = { 贪心基线, 先验贪心, 先验前瞻贪心, 是伤害궁, 修复解码, 可执行, 爬山, 整回合序重排, 束搜索, 编辑球层, 相位对齐构造, 节拍对齐构造, 窗对齐构造, 重放, 特征, 动作, 组合升序, 笛卡尔积, 解析指令集, 导出指令集, toks键, 爬山memo, 爬山memo设置 };

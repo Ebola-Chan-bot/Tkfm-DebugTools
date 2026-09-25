@@ -333,8 +333,12 @@ function getSize(_0x2d6cf1) {
     return 0;
   }
 }
+// [perf] 热路径改写（self time 37%）：Array.from(arguments) → 直接使用 arguments。
+//   工厂体在 new Function 下编译（非 strict，多例引擎.js 顶层 'use strict' 不传导字符串体），
+//   arguments 非映射但可索引读写；全函数仅 all 分支改写 _0x10b5eb[0]（调用者数组与 arguments 均丢弃，无别名依赖）。
+//   buff(..._0x10b5eb) 的 spread 对 arguments 对象同样适用（iterable）。
 function buff() {
-  const _0x10b5eb = Array.from(arguments);
+  const _0x10b5eb = arguments;
   if (_0x10b5eb[0] == all) {
     for (let _0x26de4f of comp) {
       _0x10b5eb[0] = _0x26de4f;
@@ -361,7 +365,9 @@ function buff() {
         on: _0x10b5eb[5]
       });
     } else if (_0x10b5eb[1] == "도트뎀") {
-      const _0x367594 = comp.find(_0x2f6192 => _0x2f6192.id == _0x4af266);
+      // [perf] 闭包 find → for（语义同：首个命中即返，无命中 undefined）
+      let _0x367594;
+      for (let _0xj = 0; _0xj < comp.length; _0xj++) { if (comp[_0xj].id == _0x4af266) { _0x367594 = comp[_0xj]; break; } }
       _0x10b5eb[0].buff.push({
         div: "기본",
         type: _0x10b5eb[1],
@@ -387,7 +393,12 @@ function buff() {
     if (typeof _0x10b5eb[2] == "string") {
       _0x10b5eb[2] = getSize(_0x10b5eb[2]).size;
     }
-    const _0x475b88 = _0x10b5eb[0].buff.find(_0x4938b4 => _0x4938b4.div == "기본" && isNest(_0x4938b4) && _0x4938b4.name == _0x10b5eb[3]);
+    // [perf] 闭包 find → for（语义同）
+    let _0x475b88;
+    for (let _0xj = 0; _0xj < _0x10b5eb[0].buff.length; _0xj++) {
+      const _0x4938b4 = _0x10b5eb[0].buff[_0xj];
+      if (_0x4938b4.div == "기본" && isNest(_0x4938b4) && _0x4938b4.name == _0x10b5eb[3]) { _0x475b88 = _0x4938b4; break; }
+    }
     if (_0x475b88) {
       _0x475b88.nest += _0x10b5eb[4];
       if (_0x475b88.nest > _0x475b88.maxNest) {
@@ -440,31 +451,47 @@ const actSet = new Set(["평추가*", "평발동*", "궁추가*", "궁발동*", 
 const actList2 = ["공발동*", "공발동+"];
 const actList3 = ["행발동*", "행발동+"];
 const blessList = ["<빛의 축복>", "<바람의 축복>", "<불의 축복>"];
+// [perf] 不可变列表的 Set 镜像（仅热路径 includes 替换用；列表全库无 push，恒等成立）
+const actSet2 = new Set(actList2), actSet3 = new Set(actList3), blessSet = new Set(blessList);
 const actionMap = new Map([["평추가평추가+", (_0x52ad49, _0x516508, _0x789d70) => applyAddDmg(_0x516508.size / 100 * _0x52ad49.atkAddCoef(_0x789d70) * getInt(_0x52ad49, boss, _0x789d70))], ["평추가평추가*", (_0x5e468a, _0x5a65d0, _0x312c86) => applyAddDmg(_0x5a65d0.size / 100 * _0x5e468a.getCurAtk(_0x312c86) * _0x5e468a.atkAddCoef(_0x312c86) * getInt(_0x5e468a, boss, _0x312c86))], ["평발동평발동+", (_0x275356, _0x35d4cd, _0x1829eb) => applyAtvDmg(_0x35d4cd.size / 100 * _0x275356.atkAtvCoef(_0x1829eb) * getInt(_0x275356, boss, _0x1829eb))], ["평발동평발동*", (_0x160d05, _0x427fcb, _0x2d16b8) => applyAtvDmg(_0x427fcb.size / 100 * _0x160d05.getCurAtk(_0x2d16b8) * _0x160d05.atkAtvCoef(_0x2d16b8) * getInt(_0x160d05, boss, _0x2d16b8))], ["궁추가궁추가+", (_0x538feb, _0x1a699a, _0x2e19db) => applyAddDmg(_0x1a699a.size / 100 * _0x538feb.ultAddCoef(_0x2e19db) * getInt(_0x538feb, boss, _0x2e19db))], ["궁추가궁추가*", (_0x146e67, _0x2d7bac, _0x49527) => applyAddDmg(_0x2d7bac.size / 100 * _0x146e67.getCurAtk(_0x49527) * _0x146e67.ultAddCoef(_0x49527) * getInt(_0x146e67, boss, _0x49527))], ["궁발동궁발동+", (_0x3b4dab, _0x59f565, _0x201f9d) => applyAtvDmg(_0x59f565.size / 100 * _0x3b4dab.ultAtvCoef(_0x201f9d) * getInt(_0x3b4dab, boss, _0x201f9d))], ["궁발동궁발동*", (_0x24b83f, _0x4350f4, _0x48291a) => applyAtvDmg(_0x4350f4.size / 100 * _0x24b83f.getCurAtk(_0x48291a) * _0x24b83f.ultAtvCoef(_0x48291a) * getInt(_0x24b83f, boss, _0x48291a))], ["방발동방발동+", (_0x3a3929, _0x137e10, _0x119e1a) => applyAtvDmg(_0x137e10.size / 100 * _0x3a3929.ultAtvCoef(_0x119e1a) * getInt(_0x3a3929, boss, _0x119e1a))], ["방발동방발동*", (_0xc2e8a4, _0x3e17ca, _0x3a7d46) => applyAtvDmg(_0x3e17ca.size / 100 * _0xc2e8a4.getCurAtk(_0x3a7d46) * _0xc2e8a4.ultAtvCoef(_0x3a7d46) * getInt(_0xc2e8a4, boss, _0x3a7d46))], ["피격발동반격+", (_0x1237fa, _0x495799, _0xf76c0c) => applyRefDmg(_0x495799.size / 100 * _0x1237fa.ultAtvCoef(_0xf76c0c) * getInt(_0x1237fa, boss, _0xf76c0c), _0x1237fa)], ["피격발동반격*", (_0x3eb255, _0x9f2cf1, _0x26ec91) => applyRefDmg(_0x9f2cf1.size / 100 * _0x3eb255.getCurAtk(_0x26ec91) * _0x3eb255.ultAtvCoef(_0x26ec91) * getInt(_0x3eb255, boss, _0x26ec91), _0x3eb255)], ["공격발동공발동+", (_0x87de60, _0x354406, _0x51fcdb) => applyAtvDmg(_0x354406.size / 100 * _0x87de60.ultAtvCoef(_0x51fcdb) * getInt(_0x87de60, boss, _0x51fcdb))], ["공격발동공발동*", (_0x457034, _0x134535, _0x520d7b) => applyAtvDmg(_0x134535.size / 100 * _0x457034.getCurAtk(_0x520d7b) * _0x457034.ultAtvCoef(_0x520d7b) * getInt(_0x457034, boss, _0x520d7b))], ["행동발동행발동+", (_0x4ee778, _0x14aeb5, _0x28a9c1) => applyAtvDmg(_0x14aeb5.size / 100 * _0x4ee778.ultAtvCoef(_0x28a9c1) * getInt(_0x4ee778, boss, _0x28a9c1))], ["행동발동행발동*", (_0x90b401, _0x52c798, _0x19766b) => applyAtvDmg(_0x52c798.size / 100 * _0x90b401.getCurAtk(_0x19766b) * _0x90b401.ultAtvCoef(_0x19766b) * getInt(_0x90b401, boss, _0x19766b))]]);
+// [perf] 热路径改写（self time 12%）：
+//   ① filter+闭包 → for+push（选中集合与顺序同）；
+//   ② sort(힐/bless 后置比较器) → 两遍稳定分区（比较器只分 힐/bless 与非两类，Array.prototype.sort 稳定性
+//     保证组内原序，两遍分区产出与稳定排序逐位置等价）；
+//   ③ actList2/3、blessList 的 includes → Set.has（元素全为字符串，无语义差异）。
 function addBuff(_0x139bc4, _0x2a12d3, _0x41fa97) {
-  let _0x3807a8;
+  let _0x3807a8 = [];
+  const _0x1b = _0x139bc4.buff;
   if (_0x41fa97 == "추가") {
-    _0x3807a8 = _0x139bc4.buff.filter(_0x129276 => _0x129276.div == "추가" && _0x2a12d3.includes(_0x129276.act) || _0x129276.div == "기본" && actSet.has(_0x129276.type));
+    for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
+      const _0x129276 = _0x1b[_0xj];
+      if (_0x129276.div == "추가" && _0x2a12d3.includes(_0x129276.act) || _0x129276.div == "기본" && actSet.has(_0x129276.type)) _0x3807a8.push(_0x129276);
+    }
   } else if (_0x41fa97 == "발동") {
     if (_0x2a12d3.includes("공격")) {
-      _0x3807a8 = _0x139bc4.buff.filter(_0x2cfb38 => _0x2cfb38.div == "발동" && _0x2cfb38.act == "공격" || _0x2cfb38.div == "기본" && actList2.includes(_0x2cfb38.type));
+      for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
+        const _0x2cfb38 = _0x1b[_0xj];
+        if (_0x2cfb38.div == "발동" && _0x2cfb38.act == "공격" || _0x2cfb38.div == "기본" && actSet2.has(_0x2cfb38.type)) _0x3807a8.push(_0x2cfb38);
+      }
     } else if (_0x2a12d3.includes("행동")) {
-      _0x3807a8 = _0x139bc4.buff.filter(_0xc1cbbd => _0xc1cbbd.div == "발동" && _0xc1cbbd.act == "행동" || _0xc1cbbd.div == "기본" && actList3.includes(_0xc1cbbd.type));
+      for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
+        const _0xc1cbbd = _0x1b[_0xj];
+        if (_0xc1cbbd.div == "발동" && _0xc1cbbd.act == "행동" || _0xc1cbbd.div == "기본" && actSet3.has(_0xc1cbbd.type)) _0x3807a8.push(_0xc1cbbd);
+      }
     } else {
-      _0x3807a8 = _0x139bc4.buff.filter(_0x2ed8ba => _0x2ed8ba.div == "발동" && _0x2a12d3.includes(_0x2ed8ba.act) || _0x2ed8ba.div == "기본" && actSet.has(_0x2ed8ba.type));
+      for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
+        const _0x2ed8ba = _0x1b[_0xj];
+        if (_0x2ed8ba.div == "발동" && _0x2a12d3.includes(_0x2ed8ba.act) || _0x2ed8ba.div == "기본" && actSet.has(_0x2ed8ba.type)) _0x3807a8.push(_0x2ed8ba);
+      }
     }
   }
-  _0x3807a8.sort((_0x2d520b, _0x2d040f) => {
-    const _0x450390 = _0x2d520b.type === "힐" || blessList.includes(_0x2d520b.type);
-    const _0x49f4df = _0x2d040f.type === "힐" || blessList.includes(_0x2d040f.type);
-    if (_0x450390 && !_0x49f4df) {
-      return 1;
-    } else if (!_0x450390 && _0x49f4df) {
-      return -1;
-    } else {
-      return 0;
-    }
-  });
+  // 稳定两遍分区：非힐/bless 在前、힐/bless 在后、组内原序（== 旧比较器的稳定 sort 结果）
+  const _전 = [], _후 = [];
+  for (let _0xj = 0; _0xj < _0x3807a8.length; _0xj++) {
+    const _b = _0x3807a8[_0xj];
+    (_b.type === "힐" || blessSet.has(_b.type) ? _후 : _전).push(_b);
+  }
+  _0x3807a8 = _전.concat(_후);
   const _0x107ae8 = [];
   for (const _0xff73c0 of _0x3807a8) {
     if (!_0xff73c0.on) {
@@ -513,7 +540,7 @@ function addBuff(_0x139bc4, _0x2a12d3, _0x41fa97) {
       } else {
         _0xff73c0.who.heal();
       }
-    } else if (blessList.includes(_0xff73c0.type)) {
+    } else if (blessSet.has(_0xff73c0.type)) {
       if (_0xff73c0.who == all) {
         for (let _0x4a1ae4 of comp) {
           _0x4a1ae4.bless(_0xff73c0.type);
@@ -683,10 +710,15 @@ function isActTurn(_0x70edf5) {
 const buff_ex = ["도트뎀"];
 const txts = ["공퍼증", "공고증", "받뎀증", "일뎀증", "받일뎀", "궁뎀증", "받궁뎀", "발뎀증", "받발뎀", "가뎀증", "속뎀증", "받속뎀", "발효증", "받직뎀", "받캐뎀", "아머", "가아증", "받아증", "받지뎀", "속상감", "가지증", "방경감", "방뎀증"];
 const txtsMap = new Map([["공퍼증", 0], ["공고증", 1], ["받뎀증", 2], ["일뎀증", 3], ["받일뎀", 4], ["궁뎀증", 5], ["받궁뎀", 6], ["발뎀증", 7], ["받발뎀", 8], ["가뎀증", 9], ["속뎀증", 10], ["받속뎀", 11], ["발효증", 12], ["받직뎀", 13], ["받캐뎀", 14], ["아머", 15], ["가아증", 16], ["받아증", 17], ["받지뎀", 18], ["속상감", 19], ["가지증", 20], ["방경감", 21], ["방뎀증", 22]]);
+// [perf] 热路径改写（self time 10%）：filter 中间数组+闭包 → 单趟 for（div!="기본" 跳）；
+//   actList2/3.includes → Set.has；buff_ex.includes 保持原样（buff_ex 是运行期可 push 的可变数组，
+//   Set 镜像需失效钩子，风险大于收益——长度仅 1~5，线性扫已是常数级）。求和顺序同 → bit-exact。
 function getBuffSizeList(_0x1a6d3d) {
-  const _0x425688 = _0x1a6d3d.buff.filter(_0x2387e9 => _0x2387e9.div == "기본");
   const _0x176af3 = Array(txts.length).fill(0);
-  for (const _0x59757c of _0x425688) {
+  const _0x1b = _0x1a6d3d.buff;
+  for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
+    const _0x59757c = _0x1b[_0xj];
+    if (_0x59757c.div != "기본") continue;
     if (!_0x59757c.on) {
       continue;
     }
@@ -697,7 +729,7 @@ function getBuffSizeList(_0x1a6d3d) {
       continue;
     }
     let _0x2f3151 = txtsMap.get(_0x59757c.type);
-    if (_0x2f3151 == undefined && !actSet.has(_0x59757c.type) && !actList2.includes(_0x59757c.type) && !actList3.includes(_0x59757c.type)) {
+    if (_0x2f3151 == undefined && !actSet.has(_0x59757c.type) && !actSet2.has(_0x59757c.type) && !actSet3.has(_0x59757c.type)) {
       alert("버프 누락 : " + _0x59757c.type);
     } else {
       _0x176af3[_0x2f3151] += isTurn(_0x59757c) ? _0x59757c.size / 100 : _0x59757c.size * _0x59757c.nest / 100;
@@ -709,10 +741,13 @@ function getBuffSizeList(_0x1a6d3d) {
   }
   return _0x176af3;
 }
+// [perf] 同 getBuffSizeList：filter → 单趟 for，includes → Set.has（求和顺序同 → bit-exact）
 function getBossBuffSizeList(_0x3d744a) {
-  const _0x4a37de = _0x3d744a.buff.filter(_0xdb84b => _0xdb84b.div == "기본");
   const _0x5c95e5 = Array(txts.length).fill(0);
-  for (const _0x177700 of _0x4a37de) {
+  const _0x1b = _0x3d744a.buff;
+  for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
+    const _0x177700 = _0x1b[_0xj];
+    if (_0x177700.div != "기본") continue;
     if (!_0x177700.on) {
       continue;
     }
@@ -723,7 +758,7 @@ function getBossBuffSizeList(_0x3d744a) {
       continue;
     }
     let _0x1e58c8 = txtsMap.get(_0x177700.type);
-    if (_0x1e58c8 == undefined && !actSet.has(_0x177700.type) && !actList2.includes(_0x177700.type) && !actList3.includes(_0x177700.type)) {
+    if (_0x1e58c8 == undefined && !actSet.has(_0x177700.type) && !actSet2.has(_0x177700.type) && !actSet3.has(_0x177700.type)) {
       alert("버프 누락 : " + _0x177700.type);
     } else {
       _0x5c95e5[_0x1e58c8] += isTurn(_0x177700) ? _0x177700.size / 100 : _0x177700.size * _0x177700.nest / 100;
@@ -824,15 +859,17 @@ function cdChange(_0x5381aa, _0x3d2c36) {
     _0x5381aa.curCd = _0x5381aa.cd;
   }
 }
+// [perf] 双 filter+闭包 → 双趟 for（求和顺序同：先全部 turn 型再全部 nest 型 → bit-exact）
 function buffSizeByType(_0x22691d, _0x277bbc) {
-  const _0x5987ac = _0x22691d.buff.filter(_0x392ce7 => isTurn(_0x392ce7) && _0x392ce7.type == _0x277bbc);
-  const _0x25f0f4 = _0x22691d.buff.filter(_0xc5e4f9 => isNest(_0xc5e4f9) && _0xc5e4f9.type == _0x277bbc);
   let _0x311283 = 0;
-  for (let _0x4fe614 of _0x5987ac) {
-    _0x311283 += _0x4fe614.size;
+  const _0x1b = _0x22691d.buff;
+  for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
+    const _0x392ce7 = _0x1b[_0xj];
+    if (isTurn(_0x392ce7) && _0x392ce7.type == _0x277bbc) _0x311283 += _0x392ce7.size;
   }
-  for (let _0x20d588 of _0x25f0f4) {
-    _0x311283 += _0x20d588.size * _0x20d588.nest;
+  for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
+    const _0x20d588 = _0x1b[_0xj];
+    if (isNest(_0x20d588) && _0x20d588.type == _0x277bbc) _0x311283 += _0x20d588.size * _0x20d588.nest;
   }
   return _0x311283 / 100;
 }

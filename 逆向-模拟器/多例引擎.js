@@ -221,6 +221,55 @@ function fastReplay(idList, toks, bondList, bossElement, optionList) {
 // 供排程器直接驱动原语（避免字符串往返）：在 fastReplay 外的特殊场合使用
 function 原语() { return { do_atk: do_atk, do_ult: do_ult, do_def: do_def }; }
 
+/* —— 轻量状态快照 / 还原（token 级检查点，供爬山/序重排做前缀复用）——
+ * 与引擎自带 saveCur/loadBefore 的三点区别（都是为"当搜索信号、无 fastReplay 终验兜底"而生）：
+ *   ① 覆盖面：动态 for..in 扫描每个 comp/boss 的**所有非函数自有字段**，因而自动纳入 stack/turnHeal/
+ *      isFirstTurnActed/check/canCDChange/stopCd/isSealed 等 setDefault 运行期挂载的数据字段——
+ *      characterToJson 的固定字段集**漏掉这些**（step/undo 路径的既有隐患），故其回滚对含此类角色的队
+ *      可能与真值有偏差；另显式带上闭包全局 whoActed/hitAll/last*5路计数/dmg13/GLOBAL_TURN/isOverflowed。
+ *   ② 无 JSON 往返：boss.li 是 setBuff() 每次重算的派生量，存 slice 即可，省掉 JSON.parse(JSON.stringify)。
+ *   ③ 原地写回**同一** comp[i]/boss 对象（绝不替换引用）：钩子闭包 capture 了原对象，替换会让 passive/
+ *      attack/ultimate 指向旧对象。buff 数组 restore 时赋独立副本（snapshot 保持不可变，防引擎 push 污染）。
+ * 正确性由 _验证检查点.js 对 fastReplay 做 bit 级差分背书；成本（capture/restore 单次 vs 一步 do_*）由同脚本实测。 */
+function _拷buff(src) {
+  const a = new Array(src.length);
+  for (let i = 0; i < src.length; i++) { const b = src[i]; const o = {}; for (const k in b) o[k] = b[k]; a[i] = o; }
+  return a;
+}
+function _浅拷字段(src) {
+  const o = {};
+  for (const k in src) {
+    const v = src[k];
+    if (typeof v === 'function') continue;
+    if (k === 'buff') { o.buff = _拷buff(v || []); continue; }
+    o[k] = Array.isArray(v) ? v.slice() : v;
+  }
+  return o;
+}
+function _写回字段(dst, o) {
+  for (const k in o) {
+    if (k === 'buff') { dst.buff = _拷buff(o.buff); continue; }   // 独立副本：引擎后续 push 不污染 snapshot
+    dst[k] = Array.isArray(o[k]) ? o[k].slice() : o[k];
+  }
+}
+function captureState() {
+  const cs = new Array(5);
+  for (let i = 0; i < 5; i++) cs[i] = _浅拷字段(comp[i]);
+  return {
+    comp: cs, boss: _浅拷字段(boss), turn: GLOBAL_TURN, whoActed: whoActed, hitAll: hitAll, dmg13: dmg13,
+    lastDmg: lastDmg, lastAddDmg: lastAddDmg, lastAtvDmg: lastAtvDmg, lastDotDmg: lastDotDmg, lastRefDmg: lastRefDmg,
+    overflow: isOverflowed.slice()
+  };
+}
+function restoreState(s) {
+  for (let i = 0; i < 5; i++) _写回字段(comp[i], s.comp[i]);
+  _写回字段(boss, s.boss);
+  GLOBAL_TURN = s.turn; whoActed = s.whoActed; hitAll = s.hitAll; dmg13 = s.dmg13;
+  lastDmg = s.lastDmg; lastAddDmg = s.lastAddDmg; lastAtvDmg = s.lastAtvDmg; lastDotDmg = s.lastDotDmg; lastRefDmg = s.lastRefDmg;
+  for (let i = 0; i < 5; i++) isOverflowed[i] = s.overflow[i];
+  savedData.length = 0;   // 清 step/undo 残留栈：restore 后旧快照全部失效，防误 undo 到陈旧状态
+}
+
 return {
   battle: battle,
   getState: getState,
@@ -235,7 +284,9 @@ return {
     actNum: actNum,
     isFinished: isFinished,
     fastReplay: fastReplay,
-    原语: 原语
+    原语: 原语,
+    captureState: captureState,
+    restoreState: restoreState
   },
   internals: {
     get boss() { return boss; },
