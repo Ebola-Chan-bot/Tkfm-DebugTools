@@ -49,6 +49,8 @@ http.createServer((请求, 响应) => {
         const 目标路径 = 请求.url.slice('/api'.length) || '/';
         const 转发头 = { ...请求.headers };
         delete 转发头.host; delete 转发头.origin; delete 转发头.referer;
+        // 逐跳连接头（hop-by-hop）不属代理转发内容，与响应侧同样剥离：连接行为统一由本服务器的 Connection: close 决定
+        delete 转发头.connection; delete 转发头['keep-alive']; delete 转发头['proxy-connection'];
         const 转发 = https.request({ hostname: 云端API主机, path: 目标路径, method: 请求.method, headers: 转发头 }, (回) => {
             const 回头 = { ...回.headers };
             delete 回头['access-control-allow-origin']; delete 回头['access-control-allow-credentials'];
@@ -56,7 +58,7 @@ http.createServer((请求, 响应) => {
             响应.writeHead(回.statusCode, 回头);
             回.pipe(响应);
         });
-        转发.on('error', () => { if (!响应.headersSent) { 响应.writeHead(502, { 'Content-Type': 'text/plain; charset=utf-8' }); 响应.end('proxy error'); } else { try { 响应.destroy(); } catch (e) {} } });
+        转发.on('error', (错误) => { if (!响应.headersSent) { 响应.writeHead(502, { 'Content-Type': 'text/plain; charset=utf-8' }); 响应.end('502 云端 API 转发失败: ' + 错误.message); } else { try { 响应.destroy(); } catch (e) {} } });
         // 浏览器 reload/取消时请求与响应都会中断：不挂 error 处理会让 pipe 抛未捕获异常并杀死整个服务器，页面后续资源全部悬空
         请求.on('error', () => { try { 转发.destroy(); } catch (e) {} });
         响应.on('error', () => { try { 转发.destroy(); } catch (e) {} });
