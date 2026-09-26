@@ -3,8 +3,12 @@
 //   --no-spa 关闭 SPA 回退，未命中路径返回 404，适用于 tenkaassist 这类多页面站点（回退会把 404 掩盖成首页）
 // 默认带 SPA 回退（找不到文件时返回根 index.html），满足 nuxt generate 产物的前端路由需求
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
+
+// 本地开发反向代理的目标云端 API（tenkaassist 的后端）：它按 Origin 白名单只放行 GitHub Pages，本地页面直连会被 403 Invalid CORS request 拒绝，故经本代理去掉 Origin/Referer 后转发，浏览器侧表现为同源请求、不触发跨源限制
+const 云端API主机 = 'port-0-tenkafuma-assistant-server-1272llx2xidhk.sel5.cloudtype.app';
 
 const 参数 = process.argv.slice(2);
 const 无回退 = 参数.includes('--no-spa');
@@ -31,6 +35,34 @@ const 类型表 = {
 };
 
 http.createServer((请求, 响应) => {
+    // 每个响应都关闭 keep-alive（Connection: close）：VS Code Remote-SSH 端口转发隧道会吞掉服务端关闭空闲连接的 FIN，浏览器不知情、把已死连接留在保活池里；location.reload()（语言切换）复用这些死连接 → 请求永不返回 → 页面持续加载。关闭保活后每个请求都走全新隧道连接，reload 不再踩雷
+    响应.setHeader('Connection', 'close');
+    // 每请求日志：finish=正常完成 close 未完成=中途断开；带时间戳用于对齐浏览器 reload 时序，定位哪个资源没到达/被截断
+    const 起点 = Date.now();
+    const 原始url = 请求.url;
+    const 戳 = () => new Date().toISOString().slice(11, 23);
+    const 对端 = () => `←${请求.socket.remoteAddress}:${请求.socket.remotePort}`;
+    响应.on('finish', () => console.log(`${戳()} OK ${响应.statusCode} ${Date.now() - 起点}ms ${请求.method} ${原始url} ${对端()}`));
+    响应.on('close', () => { if (!响应.writableEnded) console.log(`${戳()} CUT ${Date.now() - 起点}ms ${请求.method} ${原始url}`); });
+    // /api/* 反向代理：原样转发 method/body/头（去掉 host/origin/referer 让云端按无来源放行），响应去掉 CORS 头后原样回传
+    if (请求.url === '/api' || 请求.url.startsWith('/api/')) {
+        const 目标路径 = 请求.url.slice('/api'.length) || '/';
+        const 转发头 = { ...请求.headers };
+        delete 转发头.host; delete 转发头.origin; delete 转发头.referer;
+        const 转发 = https.request({ hostname: 云端API主机, path: 目标路径, method: 请求.method, headers: 转发头 }, (回) => {
+            const 回头 = { ...回.headers };
+            delete 回头['access-control-allow-origin']; delete 回头['access-control-allow-credentials'];
+            delete 回头['connection']; delete 回头['keep-alive']; // 统一由上面的 Connection: close 决定客户端侧连接行为
+            响应.writeHead(回.statusCode, 回头);
+            回.pipe(响应);
+        });
+        转发.on('error', () => { if (!响应.headersSent) { 响应.writeHead(502, { 'Content-Type': 'text/plain; charset=utf-8' }); 响应.end('proxy error'); } else { try { 响应.destroy(); } catch (e) {} } });
+        // 浏览器 reload/取消时请求与响应都会中断：不挂 error 处理会让 pipe 抛未捕获异常并杀死整个服务器，页面后续资源全部悬空
+        请求.on('error', () => { try { 转发.destroy(); } catch (e) {} });
+        响应.on('error', () => { try { 转发.destroy(); } catch (e) {} });
+        请求.pipe(转发);
+        return;
+    }
     let 路径 = decodeURIComponent(请求.url.split('?')[0]);
     let 文件 = path.join(站点目录, 路径);
 

@@ -63,6 +63,20 @@ function 工厂体源码(calcSrc, autocalcSrc, headerFrag) {
     'const lang = deps.lang === undefined ? "ko" : deps.lang;',
     'const alert = deps.alert || function(){};',
     'const updateAll = deps.updateAll || function(){};',
+    // [perf] R2-D：buff 派生量（getBuffSizeList/getBossBuffSizeList）缓存基础设施。
+    //   定义在工厂体头部（任何 calcSrc 变体都可见）：deobfuscated.js 的 mutation 点与缓存读写引用它们；
+    //   线上混淆版 calcSrc 无缓存逻辑，这里的定义与驱动器侧 bump 调用对其无副作用。
+    //   语义：_buffGen 单调递增，任何 buff 数组/元素变更点 bump；缓存条目 {gen, turn, out} 命中条件
+    //   gen 与 GLOBAL_TURN 双匹配——turn 过期判定依赖 GLOBAL_TURN，双键避免漏失效。
+    'let _buffGen = 0;',
+    'function _bumpBuffGen() { _buffGen++; }',
+    'const _bslCache = new WeakMap();',   // champ → {gen, turn, out}
+    'const _gbslCache = new WeakMap();',  // boss  → {gen, turn, out}
+    // [perf] R3-B：buff_ex 的 Set 镜像（includes O(n) 线性扫 → O(1)）。buff_ex 全部变更 = push（长度+1）
+    //   或 start() 里 length=0 重置；长度键捕捉所有内容变更，唯一致盲窗是"重置后无查询又涨回原长度"——
+    //   由 battle()/initBattle 入口强制 _buffExSetLen=-1 封死（驱动器侧，两种 calcSrc 都安全）。
+    'let _buffExSetLen = -1;',
+    'const _buffExSet = new Set();',
     headerFrag,
     ';',
     calcSrc,
@@ -87,6 +101,9 @@ function battle(idList, commandText, bondList, bossElement, optionList) {
   command.length = 0;
   boss.element = undefined;
   try { isOverflowed.fill(false); } catch (e) {}
+  _bumpBuffGen();   // [perf] R2-D：autoCalc→start() 会重置 boss.buff/li 并重建 comp（新对象天然无缓存，
+                    //   但 boss 是单例）→ 全量失效防跨场脏命中
+  _buffExSetLen = -1;   // [perf] R3-B：同场重灌 buff_ex → Set 镜像强制重建
   return autoCalc(idList, commandText, bondList, bossElement, optionList);
 }
 
@@ -163,7 +180,10 @@ function initBattle(idList, bondList, bossElement, optionList) {
   GLOBAL_BOND_LIST = bondList;
   boss.maxHp = 10854389981;
   if (bossElement != null && bossElement !== -1) boss.element = bossElement;
-  start(idList);                               // 建 5 角色并跑 leader/passive/turnstart；auto() 不消费命令
+  _bumpBuffGen();                              // [perf] R2-D 硬化：start() 会 boss.buff=[]（未过封装函数的 mutation）
+  start(idList);                               //   且跑 leader/passive/turnstart 钩子（可能读派生量）——前后双 bump
+  _bumpBuffGen();                              //   封住 boss 单例的跨场脏命中窗口（champ 每场新建天然无旧缓存）
+  _buffExSetLen = -1;                          // [perf] R3-B：start() 重置+重灌 buff_ex → Set 镜像强制重建
   if (!comp || comp.length !== 5) return false;
   for (var i = 0; i < 5; i++) if (comp[i] == null) return false;  // N/R 卡等无 hp/atk → setDefault 返回 null
   return true;
@@ -264,6 +284,7 @@ function captureState() {
 function restoreState(s) {
   for (let i = 0; i < 5; i++) _写回字段(comp[i], s.comp[i]);
   _写回字段(boss, s.boss);
+  _bumpBuffGen();   // [perf] 快照写回替换 buff 数组 → 派生量缓存全失效
   GLOBAL_TURN = s.turn; whoActed = s.whoActed; hitAll = s.hitAll; dmg13 = s.dmg13;
   lastDmg = s.lastDmg; lastAddDmg = s.lastAddDmg; lastAtvDmg = s.lastAtvDmg; lastDotDmg = s.lastDotDmg; lastRefDmg = s.lastRefDmg;
   for (let i = 0; i < 5; i++) isOverflowed[i] = s.overflow[i];

@@ -312,7 +312,6 @@ function nextTurn() {
     dmg13 = Math.floor(boss.maxHp - boss.hp);
   }
   boss.def = false;
-  _bumpBuffGen();   // [perf] R2-D：filter 重赋值 comp/boss buff 数组 → 派生量缓存全失效
 }
 function getSize(_0x2d6cf1) {
   let _0x349d2a = _0x2d6cf1.slice(1);
@@ -358,28 +357,23 @@ function buff() {
     }
     if (_0x10b5eb[1] == "아머") {
       _0x10b5eb[0].buff.push({
-        div: "기본", act: undefined, who: undefined,
+        div: "기본",
         type: _0x10b5eb[1],
         size: _0x10b5eb[2] * (1 + buffSizeByType(_0x10b5eb[0], "받아증")),
         name: _0x10b5eb[3],
-        nest: undefined, maxNest: undefined,
         turn: _0x10b5eb[4] + GLOBAL_TURN,
-        ex: undefined,
-        on: _0x10b5eb[5],
-        from: undefined
+        on: _0x10b5eb[5]
       });
     } else if (_0x10b5eb[1] == "도트뎀") {
       // [perf] 闭包 find → for（语义同：首个命中即返，无命中 undefined）
       let _0x367594;
       for (let _0xj = 0; _0xj < comp.length; _0xj++) { if (comp[_0xj].id == _0x4af266) { _0x367594 = comp[_0xj]; break; } }
       _0x10b5eb[0].buff.push({
-        div: "기본", act: undefined, who: undefined,
+        div: "기본",
         type: _0x10b5eb[1],
         size: _0x10b5eb[2] * (1 + buffSizeByType(_0x367594, "가지증")),
         name: _0x10b5eb[3],
-        nest: undefined, maxNest: undefined,
         turn: _0x10b5eb[4] + GLOBAL_TURN,
-        ex: undefined,
         on: _0x10b5eb[5],
         from: _0x367594
       });
@@ -387,15 +381,12 @@ function buff() {
       _0x10b5eb[0].def = true;
     } else {
       _0x10b5eb[0].buff.push({
-        div: "기본", act: undefined, who: undefined,
+        div: "기본",
         type: _0x10b5eb[1],
         size: _0x10b5eb[2],
         name: _0x10b5eb[3],
-        nest: undefined, maxNest: undefined,
         turn: _0x10b5eb[4] + GLOBAL_TURN,
-        ex: undefined,
-        on: _0x10b5eb[5],
-        from: undefined
+        on: _0x10b5eb[5]
       });
     }
   } else if (_0x10b5eb.length == 7) {
@@ -418,46 +409,43 @@ function buff() {
       }
     } else {
       _0x10b5eb[0].buff.push({
-        div: "기본", act: undefined, who: undefined,
+        div: "기본",
         type: _0x10b5eb[1],
         size: _0x10b5eb[2],
         name: _0x10b5eb[3],
         nest: _0x10b5eb[4] < 0 ? 0 : _0x10b5eb[4],
         maxNest: _0x10b5eb[5],
-        turn: undefined, ex: undefined,
-        on: _0x10b5eb[6],
-        from: undefined
+        on: _0x10b5eb[6]
       });
     }
   } else if (_0x10b5eb.length == 10) {
     _0x10b5eb[0].buff.push({
-      div: _0x10b5eb[8], act: _0x10b5eb[1], who: _0x10b5eb[2],
+      div: _0x10b5eb[8],
+      act: _0x10b5eb[1],
+      who: _0x10b5eb[2],
       type: _0x10b5eb[3],
       size: _0x10b5eb[4],
       name: _0x10b5eb[5],
-      nest: undefined, maxNest: undefined,
       turn: _0x10b5eb[6],
       ex: _0x10b5eb[7] + GLOBAL_TURN,
-      on: _0x10b5eb[9],
-      from: undefined
+      on: _0x10b5eb[9]
     });
   } else if (_0x10b5eb.length == 11) {
     _0x10b5eb[0].buff.push({
-      div: _0x10b5eb[9], act: _0x10b5eb[1], who: _0x10b5eb[2],
+      div: _0x10b5eb[9],
+      act: _0x10b5eb[1],
+      who: _0x10b5eb[2],
       type: _0x10b5eb[3],
       size: _0x10b5eb[4],
       name: _0x10b5eb[5],
       nest: _0x10b5eb[6],
       maxNest: _0x10b5eb[7],
-      turn: undefined,
       ex: _0x10b5eb[8] + GLOBAL_TURN,
-      on: _0x10b5eb[10],
-      from: undefined
+      on: _0x10b5eb[10]
     });
   } else {
     alert("버프 오류 발견");
   }
-  _bumpBuffGen();   // [perf] R2-D：push/nest 变更 → 派生量缓存失效（分支内无缓存读，函数尾统一 bump 正确）
 }
 const actSet = new Set(["평추가*", "평발동*", "궁추가*", "궁발동*", "방발동*", "평추가+", "평발동+", "궁추가+", "궁발동+", "방발동+", "반격*", "반격+"]);
 const actList2 = ["공발동*", "공발동+"];
@@ -465,13 +453,6 @@ const actList3 = ["행발동*", "행발동+"];
 const blessList = ["<빛의 축복>", "<바람의 축복>", "<불의 축복>"];
 // [perf] 不可变列表的 Set 镜像（仅热路径 includes 替换用；列表全库无 push，恒等成立）
 const actSet2 = new Set(actList2), actSet3 = new Set(actList3), blessSet = new Set(blessList);
-// [perf] addBuff 分区暂存（跨调用复用数组，避免每次调用 2~3 次临时分配）。
-//   复用安全边界：暂存只在 addBuff 分区阶段写入并在同函数消费循环前清空出栈，
-//   而 addBuff 内部递归（heal/bless → buff → …）只发生在消费循环之后 → 不可能重入破坏。
-const _addBuff分区暂存 = [];
-// [perf] actionMap 三层嵌套查找表（前缀 → mode → type → fn|null），懒填充自扁平 actionMap。
-//   null=已查过且原表无此键；键串拼接只发生在首次 miss，之后纯 Map 查找零分配。
-const _actionMap2 = new Map();
 const actionMap = new Map([["평추가평추가+", (_0x52ad49, _0x516508, _0x789d70) => applyAddDmg(_0x516508.size / 100 * _0x52ad49.atkAddCoef(_0x789d70) * getInt(_0x52ad49, boss, _0x789d70))], ["평추가평추가*", (_0x5e468a, _0x5a65d0, _0x312c86) => applyAddDmg(_0x5a65d0.size / 100 * _0x5e468a.getCurAtk(_0x312c86) * _0x5e468a.atkAddCoef(_0x312c86) * getInt(_0x5e468a, boss, _0x312c86))], ["평발동평발동+", (_0x275356, _0x35d4cd, _0x1829eb) => applyAtvDmg(_0x35d4cd.size / 100 * _0x275356.atkAtvCoef(_0x1829eb) * getInt(_0x275356, boss, _0x1829eb))], ["평발동평발동*", (_0x160d05, _0x427fcb, _0x2d16b8) => applyAtvDmg(_0x427fcb.size / 100 * _0x160d05.getCurAtk(_0x2d16b8) * _0x160d05.atkAtvCoef(_0x2d16b8) * getInt(_0x160d05, boss, _0x2d16b8))], ["궁추가궁추가+", (_0x538feb, _0x1a699a, _0x2e19db) => applyAddDmg(_0x1a699a.size / 100 * _0x538feb.ultAddCoef(_0x2e19db) * getInt(_0x538feb, boss, _0x2e19db))], ["궁추가궁추가*", (_0x146e67, _0x2d7bac, _0x49527) => applyAddDmg(_0x2d7bac.size / 100 * _0x146e67.getCurAtk(_0x49527) * _0x146e67.ultAddCoef(_0x49527) * getInt(_0x146e67, boss, _0x49527))], ["궁발동궁발동+", (_0x3b4dab, _0x59f565, _0x201f9d) => applyAtvDmg(_0x59f565.size / 100 * _0x3b4dab.ultAtvCoef(_0x201f9d) * getInt(_0x3b4dab, boss, _0x201f9d))], ["궁발동궁발동*", (_0x24b83f, _0x4350f4, _0x48291a) => applyAtvDmg(_0x4350f4.size / 100 * _0x24b83f.getCurAtk(_0x48291a) * _0x24b83f.ultAtvCoef(_0x48291a) * getInt(_0x24b83f, boss, _0x48291a))], ["방발동방발동+", (_0x3a3929, _0x137e10, _0x119e1a) => applyAtvDmg(_0x137e10.size / 100 * _0x3a3929.ultAtvCoef(_0x119e1a) * getInt(_0x3a3929, boss, _0x119e1a))], ["방발동방발동*", (_0xc2e8a4, _0x3e17ca, _0x3a7d46) => applyAtvDmg(_0x3e17ca.size / 100 * _0xc2e8a4.getCurAtk(_0x3a7d46) * _0xc2e8a4.ultAtvCoef(_0x3a7d46) * getInt(_0xc2e8a4, boss, _0x3a7d46))], ["피격발동반격+", (_0x1237fa, _0x495799, _0xf76c0c) => applyRefDmg(_0x495799.size / 100 * _0x1237fa.ultAtvCoef(_0xf76c0c) * getInt(_0x1237fa, boss, _0xf76c0c), _0x1237fa)], ["피격발동반격*", (_0x3eb255, _0x9f2cf1, _0x26ec91) => applyRefDmg(_0x9f2cf1.size / 100 * _0x3eb255.getCurAtk(_0x26ec91) * _0x3eb255.ultAtvCoef(_0x26ec91) * getInt(_0x3eb255, boss, _0x26ec91), _0x3eb255)], ["공격발동공발동+", (_0x87de60, _0x354406, _0x51fcdb) => applyAtvDmg(_0x354406.size / 100 * _0x87de60.ultAtvCoef(_0x51fcdb) * getInt(_0x87de60, boss, _0x51fcdb))], ["공격발동공발동*", (_0x457034, _0x134535, _0x520d7b) => applyAtvDmg(_0x134535.size / 100 * _0x457034.getCurAtk(_0x520d7b) * _0x457034.ultAtvCoef(_0x520d7b) * getInt(_0x457034, boss, _0x520d7b))], ["행동발동행발동+", (_0x4ee778, _0x14aeb5, _0x28a9c1) => applyAtvDmg(_0x14aeb5.size / 100 * _0x4ee778.ultAtvCoef(_0x28a9c1) * getInt(_0x4ee778, boss, _0x28a9c1))], ["행동발동행발동*", (_0x90b401, _0x52c798, _0x19766b) => applyAtvDmg(_0x52c798.size / 100 * _0x90b401.getCurAtk(_0x19766b) * _0x90b401.ultAtvCoef(_0x19766b) * getInt(_0x90b401, boss, _0x19766b))]]);
 // [perf] 热路径改写（self time 12%）：
 //   ① filter+闭包 → for+push（选中集合与顺序同）；
@@ -505,19 +486,12 @@ function addBuff(_0x139bc4, _0x2a12d3, _0x41fa97) {
     }
   }
   // 稳定两遍分区：非힐/bless 在前、힐/bless 在后、组内原序（== 旧比较器的稳定 sort 结果）
-  // [perf] 第二轮改写 B：分区去中间分配（原 _전/_후 两个临时数组 + concat → 单遍收集힐/bless 进复用
-  //   暂存、非힐/bless 原位前移，再回填）。递归安全：heal()/bless()→addBuff 的递归只发生在下方消费循环，
-  //   分区本身纯数据读取不调引擎函数，暂存在递归发生前已消费完毕。
-  const _分 = _addBuff分区暂存;
-  _分.length = 0;
-  let _n非 = 0;
+  const _전 = [], _후 = [];
   for (let _0xj = 0; _0xj < _0x3807a8.length; _0xj++) {
     const _b = _0x3807a8[_0xj];
-    if (_b.type === "힐" || blessSet.has(_b.type)) _分.push(_b);
-    else _0x3807a8[_n非++] = _b;
+    (_b.type === "힐" || blessSet.has(_b.type) ? _후 : _전).push(_b);
   }
-  for (let _0xj = 0; _0xj < _分.length; _0xj++) _0x3807a8[_n非++] = _分[_0xj];
-  _0x3807a8.length = _n非;
+  _0x3807a8 = _전.concat(_후);
   const _0x107ae8 = [];
   for (const _0xff73c0 of _0x3807a8) {
     if (!_0xff73c0.on) {
@@ -575,24 +549,21 @@ function addBuff(_0x139bc4, _0x2a12d3, _0x41fa97) {
         _0xff73c0.who.bless(_0xff73c0.type);
       }
     } else if (_0xff73c0.div == "기본") {
-      // [perf] 第二轮改写 C：串键(actionPrefix+mode+type)拼接+扁平Map.get → 三层嵌套Map查找，
-      //   消除热路径字符串分配。值经懒缓存从原 actionMap 取（首次 miss 时查一次扁平表并缓存，
-      //   null 占位=原表无此键）→ 取到的函数与原查找逐位一致，缺键语义同（undefined 假值）。
-      let _0x240b68;
-      {
-        const _前缀 = _0x2a12d3.includes("평") ? "평" : _0x2a12d3.includes("궁") ? "궁" : _0x2a12d3.includes("방") ? "방" : _0x2a12d3.includes("피격") ? "피격" : _0x2a12d3.includes("공격") ? "공격" : _0x2a12d3.includes("행동") ? "행동" : undefined;
-        if (_前缀 !== undefined) {
-          let _m1 = _actionMap2.get(_前缀);
-          if (!_m1) { _m1 = new Map(); _actionMap2.set(_前缀, _m1); }
-          let _m2 = _m1.get(_0x41fa97);
-          if (!_m2) { _m2 = new Map(); _m1.set(_0x41fa97, _m2); }
-          if (_m2.has(_0xff73c0.type)) _0x240b68 = _m2.get(_0xff73c0.type) || undefined;
-          else {
-            _0x240b68 = actionMap.get(_前缀 + _0x41fa97 + _0xff73c0.type);
-            _m2.set(_0xff73c0.type, _0x240b68 || null);
-          }
-        }
+      let _0x3f0e59;
+      if (_0x2a12d3.includes("평")) {
+        _0x3f0e59 = "평" + _0x41fa97 + _0xff73c0.type;
+      } else if (_0x2a12d3.includes("궁")) {
+        _0x3f0e59 = "궁" + _0x41fa97 + _0xff73c0.type;
+      } else if (_0x2a12d3.includes("방")) {
+        _0x3f0e59 = "방" + _0x41fa97 + _0xff73c0.type;
+      } else if (_0x2a12d3.includes("피격")) {
+        _0x3f0e59 = "피격" + _0x41fa97 + _0xff73c0.type;
+      } else if (_0x2a12d3.includes("공격")) {
+        _0x3f0e59 = "공격" + _0x41fa97 + _0xff73c0.type;
+      } else if (_0x2a12d3.includes("행동")) {
+        _0x3f0e59 = "행동" + _0x41fa97 + _0xff73c0.type;
       }
+      const _0x240b68 = actionMap.get(_0x3f0e59);
       if (_0x240b68) {
         _0x240b68(_0x139bc4, _0xff73c0, getBuffSizeList(_0x139bc4));
       }
@@ -740,16 +711,9 @@ const buff_ex = ["도트뎀"];
 const txts = ["공퍼증", "공고증", "받뎀증", "일뎀증", "받일뎀", "궁뎀증", "받궁뎀", "발뎀증", "받발뎀", "가뎀증", "속뎀증", "받속뎀", "발효증", "받직뎀", "받캐뎀", "아머", "가아증", "받아증", "받지뎀", "속상감", "가지증", "방경감", "방뎀증"];
 const txtsMap = new Map([["공퍼증", 0], ["공고증", 1], ["받뎀증", 2], ["일뎀증", 3], ["받일뎀", 4], ["궁뎀증", 5], ["받궁뎀", 6], ["발뎀증", 7], ["받발뎀", 8], ["가뎀증", 9], ["속뎀증", 10], ["받속뎀", 11], ["발효증", 12], ["받직뎀", 13], ["받캐뎀", 14], ["아머", 15], ["가아증", 16], ["받아증", 17], ["받지뎀", 18], ["속상감", 19], ["가지증", 20], ["방경감", 21], ["방뎀증", 22]]);
 // [perf] 热路径改写（self time 10%）：filter 中间数组+闭包 → 单趟 for（div!="기본" 跳）；
-//   actList2/3.includes → Set.has；buff_ex.includes → _buffExHas（R3-B Set 镜像，见下）。求和顺序同 → bit-exact。
+//   actList2/3.includes → Set.has；buff_ex.includes 保持原样（buff_ex 是运行期可 push 的可变数组，
+//   Set 镜像需失效钩子，风险大于收益——长度仅 1~5，线性扫已是常数级）。求和顺序同 → bit-exact。
 function getBuffSizeList(_0x1a6d3d) {
-  // [perf] R2-D：派生量缓存。键=(对象, _buffGen, GLOBAL_TURN, buff_ex.length)——
-  //   buff_ex 是运行期可 push 的可变全局（45 个 setDefault 注册层 push + autocalc start() 重置），
-  //   其内容参与本函数的 includes 过滤；push/reset 只改长度（全库无 pop/splice）→ 长度即完美指纹。
-  //   ⚠ battle() 路径的 bump 在 autoCalc 之前，start() 期间若钩子交错执行会用旧 buff_ex 写缓存——
-  //   长度进键兜住该窗口。其余 mutation 点（buff/deleteBuff*/setBuff*/nextTurn/loadBefore/钩子直改
-  //   splice）已 bump _buffGen。返回数组全库只读（静态扫描无下标写）。
-  const _c = _bslCache.get(_0x1a6d3d);
-  if (_c !== undefined && _c.g === _buffGen && _c.t === GLOBAL_TURN && _c.x === buff_ex.length) return _c.out;
   const _0x176af3 = Array(txts.length).fill(0);
   const _0x1b = _0x1a6d3d.buff;
   for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
@@ -758,7 +722,7 @@ function getBuffSizeList(_0x1a6d3d) {
     if (!_0x59757c.on) {
       continue;
     }
-    if (_buffExHas(_0x59757c.type)) {
+    if (buff_ex.includes(_0x59757c.type)) {
       continue;
     }
     if (_0x59757c.turn != undefined && _0x59757c.turn <= GLOBAL_TURN) {
@@ -775,26 +739,10 @@ function getBuffSizeList(_0x1a6d3d) {
   for (let _0x1ba16f = 0; _0x1ba16f < txts.length; _0x1ba16f++) {
     _0x176af3[_0x1ba16f] += boss.li[_0x1ba16f];
   }
-  _bslCache.set(_0x1a6d3d, { g: _buffGen, t: GLOBAL_TURN, x: buff_ex.length, out: _0x176af3 });
   return _0x176af3;
-}// [perf] R3-B：buff_ex 的 Set 镜像（getBuffSizeList/getBossBuffSizeList 每元素 includes O(n) 线性扫
-//   → O(1) Set.has）。buff_ex 全部变更 = push（长度+1）或 start() 里 length=0 重置；长度键捕捉所有
-//   内容变更，"重置后无查询又涨回原长度"的致盲窗由 battle()/initBattle 入口 _buffExSetLen=-1 强制重建
-//   封死（见 多例引擎.js）。对任何 calcSrc 无副作用（纯增量）。
-function _buffExHas(_0xt) {
-  if (_buffExSetLen !== buff_ex.length) {
-    _buffExSet.clear();
-    for (let _0xi = 0; _0xi < buff_ex.length; _0xi++) _buffExSet.add(buff_ex[_0xi]);
-    _buffExSetLen = buff_ex.length;
-  }
-  return _buffExSet.has(_0xt);
 }
 // [perf] 同 getBuffSizeList：filter → 单趟 for，includes → Set.has（求和顺序同 → bit-exact）
-// [perf] R2-D：boss 派生量缓存（键同 getBuffSizeList）。返回数组会被 setBuff 赋给 boss.li 且
-//   getState/_浅拷字段 以 slice 复制读取，全库无下标写 → 共享缓存数组安全。
 function getBossBuffSizeList(_0x3d744a) {
-  const _c = _gbslCache.get(_0x3d744a);
-  if (_c !== undefined && _c.g === _buffGen && _c.t === GLOBAL_TURN && _c.x === buff_ex.length) return _c.out;
   const _0x5c95e5 = Array(txts.length).fill(0);
   const _0x1b = _0x3d744a.buff;
   for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
@@ -803,7 +751,7 @@ function getBossBuffSizeList(_0x3d744a) {
     if (!_0x177700.on) {
       continue;
     }
-    if (_buffExHas(_0x177700.type)) {
+    if (buff_ex.includes(_0x177700.type)) {
       continue;
     }
     if (_0x177700.turn != undefined && _0x177700.turn <= GLOBAL_TURN) {
@@ -816,7 +764,6 @@ function getBossBuffSizeList(_0x3d744a) {
       _0x5c95e5[_0x1e58c8] += isTurn(_0x177700) ? _0x177700.size / 100 : _0x177700.size * _0x177700.nest / 100;
     }
   }
-  _gbslCache.set(_0x3d744a, { g: _buffGen, t: GLOBAL_TURN, x: buff_ex.length, out: _0x5c95e5 });
   return _0x5c95e5;
 }
 function deleteBuff(_0xe40bea, _0x42cf31, _0x230d3f) {
@@ -825,7 +772,6 @@ function deleteBuff(_0xe40bea, _0x42cf31, _0x230d3f) {
       _0xe40bea.buff.splice(_0x5c437c, 1);
     }
   }
-  _bumpBuffGen();   // [perf] R2-D：splice 变更（无删到也 bump，过失效安全）
 }
 function keepOnlyLastBuff(_0x3d7f3f, _0x2f49df, _0x142692) {
   let _0x1a2020 = false;
@@ -838,7 +784,6 @@ function keepOnlyLastBuff(_0x3d7f3f, _0x2f49df, _0x142692) {
       }
     }
   }
-  _bumpBuffGen();   // [perf] R2-D
 }
 function deleteBuffType(_0x52f21a, _0x2a2af7, _0x33d014) {
   for (let _0x14f01f = _0x52f21a.buff.length - 1; _0x14f01f >= 0; _0x14f01f--) {
@@ -846,7 +791,6 @@ function deleteBuffType(_0x52f21a, _0x2a2af7, _0x33d014) {
       _0x52f21a.buff.splice(_0x14f01f, 1);
     }
   }
-  _bumpBuffGen();   // [perf] R2-D
 }
 const element = ["화", "수", "풍", "광", "암"];
 const role = ["딜", "힐", "탱", "섶", "디"];
@@ -965,56 +909,47 @@ function armorUp(_0x667ef6, _0x1981a1, _0x367767) {
     return 1 + buffSizeByType(_0x667ef6, "가아증");
   }
 }
-// [perf] 第二轮改写 A：tbf 族热路径去 Array.from+spread（self time 合计~5%）。
-//   常规调用（参数个数匹配）走显式位置传参零分配；非常规参数个数兜底走原 spread 路径逐位等价
-//   （tbf 等封装的调用点全部固定参数个数，兜底分支实际不触发，仅保留语义完整）。
 function tbf() {
-  const _n = arguments.length;
-  if (_n != 5) {
-    showAlert(Array.from(arguments));
-    return buff(...arguments, true);
+  const _0x1b0875 = Array.from(arguments);
+  if (_0x1b0875.length != 5) {
+    showAlert(_0x1b0875);
   }
-  return buff(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], true);
+  buff(..._0x1b0875, true);
 }
 function ptbf() {
-  const _n = arguments.length;
-  if (_n != 8) {
-    showAlert(Array.from(arguments));
-    return buff(...arguments, "추가", true);
+  const _0x2a6343 = Array.from(arguments);
+  if (_0x2a6343.length != 8) {
+    showAlert(_0x2a6343);
   }
-  return buff(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], "추가", true);
+  buff(..._0x2a6343, "추가", true);
 }
 function atbf() {
-  const _n = arguments.length;
-  if (_n != 8) {
-    showAlert(Array.from(arguments));
-    return buff(...arguments, "발동", true);
+  const _0xe7951b = Array.from(arguments);
+  if (_0xe7951b.length != 8) {
+    showAlert(_0xe7951b);
   }
-  return buff(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], "발동", true);
+  buff(..._0xe7951b, "발동", true);
 }
 function nbf() {
-  const _n = arguments.length;
-  if (_n != 6) {
-    showAlert(Array.from(arguments));
-    return buff(...arguments, true);
+  const _0x38d25b = Array.from(arguments);
+  if (_0x38d25b.length != 6) {
+    showAlert(_0x38d25b);
   }
-  return buff(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], true);
+  buff(..._0x38d25b, true);
 }
 function pnbf() {
-  const _n = arguments.length;
-  if (_n != 9) {
-    showAlert(Array.from(arguments));
-    return buff(...arguments, "추가", true);
+  const _0x3cebc1 = Array.from(arguments);
+  if (_0x3cebc1.length != 9) {
+    showAlert(_0x3cebc1);
   }
-  return buff(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], "추가", true);
+  buff(..._0x3cebc1, "추가", true);
 }
 function anbf() {
-  const _n = arguments.length;
-  if (_n != 9) {
-    showAlert(Array.from(arguments));
-    return buff(...arguments, "발동", true);
+  const _0x25387a = Array.from(arguments);
+  if (_0x25387a.length != 9) {
+    showAlert(_0x25387a);
   }
-  return buff(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], "발동", true);
+  buff(..._0x25387a, "발동", true);
 }
 function showAlert(_0x4d8d76) {
   alert("버프 오류 발견");
@@ -1022,46 +957,39 @@ function showAlert(_0x4d8d76) {
 function setBuffOnAll(_0x2166e3, _0x34543a, _0x2808e7, _0x4c9d96) {
   const _0x45abbe = _0x2166e3.buff.filter(_0x5bc10e => _0x5bc10e.div == _0x34543a && _0x5bc10e.name == _0x2808e7);
   _0x45abbe.forEach(_0x3f329f => _0x3f329f.on = _0x4c9d96);
-  _bumpBuffGen();   // [perf] R2-D：on 字段变更影响派生量
 }
 function setBuffOn(_0x301a80, _0x460477, _0x400a21, _0x2f27a9) {
   const _0x208079 = _0x301a80.buff.find(_0x17eb0e => _0x17eb0e.div == _0x460477 && _0x17eb0e.name == _0x400a21);
   if (_0x208079) {
     _0x208079.on = _0x2f27a9;
-    _bumpBuffGen();   // [perf] R2-D（仅在真变更时 bump，省无谓失效）
   }
 }
 function setBuffOnExtra(_0x143e61, _0x333646, _0x5061f3, _0x45e1e1, _0xa852b0) {
   const _0x4b7b51 = _0x143e61.buff.find(_0x351569 => _0x351569.div == _0x5061f3 && _0x351569.name == _0x45e1e1 && _0x5061f3 != "기본" && _0x351569.act == _0x333646);
   if (_0x4b7b51) {
     _0x4b7b51.on = _0xa852b0;
-    _bumpBuffGen();   // [perf] R2-D
   }
 }
 function setBuffSizeUp(_0x47934d, _0x511956, _0xb28497, _0x329da4) {
   const _0x4be593 = _0x47934d.buff.find(_0x2d93ac => _0x2d93ac.div == _0x511956 && _0x2d93ac.name == _0xb28497);
   if (_0x4be593) {
     _0x4be593.size += _0x329da4;
-    _bumpBuffGen();   // [perf] R2-D
   }
 }
 function setBuffSize(_0x514872, _0x376197, _0xfd7f44, _0x2623e1) {
   const _0x6e93fb = _0x514872.buff.find(_0x2411d4 => _0x2411d4.div == _0x376197 && _0x2411d4.name == _0xfd7f44);
   if (_0x6e93fb) {
     _0x6e93fb.size = _0x2623e1;
-    _bumpBuffGen();   // [perf] R2-D
   }
 }
 function setBuffSizeAll(_0x5ce9f3, _0x5eadfd, _0x26862b, _0x33f1a8) {
   const _0x51bb5d = _0x5ce9f3.buff.filter(_0x3609d0 => _0x3609d0.div == _0x5eadfd && _0x3609d0.name == _0x26862b);
   _0x51bb5d.forEach(_0x3efbb3 => _0x3efbb3.size = _0x33f1a8);
-  _bumpBuffGen();   // [perf] R2-D
 }
 function setBuffNest(_0x31da2b, _0x445ce3, _0x3ad8b9, _0x3b24bd) {
   const _0x46faf7 = _0x31da2b.buff.find(_0x861f0 => _0x861f0.div == _0x445ce3 && _0x861f0.name == _0x3ad8b9);
   if (_0x46faf7) {
     _0x46faf7.nest = _0x3b24bd;
-    _bumpBuffGen();   // [perf] R2-D
   }
 }
 function setBuffWho(_0x34bcd3, _0x3b9926, _0x1e35aa, _0x1044c9) {
@@ -14772,7 +14700,6 @@ function setDefault(_0x55e037, _0x78c5e1) {
         for (let _0x5e53a2 = 0; _0x5e53a2 < _0x55e037.buff.length; _0x5e53a2++) {
           if (_0x55e037.buff[_0x5e53a2].name === "승부수를 던지다3" && _0x55e037.buff[_0x5e53a2].div == "기본" && _0x55e037.buff[_0x5e53a2].on) {
             _0x55e037.buff.splice(_0x5e53a2, 1);
-            _bumpBuffGen();   // [perf] R2-D：钩子直改 buff 数组（全库唯一绕过封装函数的 mutation 点）
             break;
           }
         }
@@ -18562,7 +18489,6 @@ function loadBefore() {
     jsonToCharacter(_0x4b7717, _0x20534e[_0x4b7717]);
   }
   jsonToBoss(_0x20534e[5]);
-  _bumpBuffGen();   // [perf] R2-D：jsonToCharacter/jsonToBoss 用 getCopyList 重建 buff 数组 → 缓存失效
   lastDmg = 0;
   lastAddDmg = 0;
   lastAtvDmg = 0;
