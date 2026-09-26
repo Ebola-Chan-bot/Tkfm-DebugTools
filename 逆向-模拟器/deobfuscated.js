@@ -349,6 +349,7 @@ function buff() {
   }
   if (_0x10b5eb.length == 6) {
     let _0x4af266 = null;
+    const _mt = _metaOf(_0x10b5eb[1]);   // [perf] R3-B：类型影子字段一次取好（push 端仅 1 次 Map.get）
     if (typeof _0x10b5eb[2] == "string") {
       const _0x530933 = getSize(_0x10b5eb[2]);
       if (_0x10b5eb[1] == "도트뎀") {
@@ -366,7 +367,8 @@ function buff() {
         turn: _0x10b5eb[4] + GLOBAL_TURN,
         ex: undefined,
         on: _0x10b5eb[5],
-        from: undefined
+        from: undefined,
+        ti: _mt.ti, aset: _mt.aset, dk: _mt.dk
       });
     } else if (_0x10b5eb[1] == "도트뎀") {
       // [perf] 闭包 find → for（语义同：首个命中即返，无命中 undefined）
@@ -381,7 +383,8 @@ function buff() {
         turn: _0x10b5eb[4] + GLOBAL_TURN,
         ex: undefined,
         on: _0x10b5eb[5],
-        from: _0x367594
+        from: _0x367594,
+        ti: _mt.ti, aset: _mt.aset, dk: _mt.dk
       });
     } else if (_0x10b5eb[1] == "방어") {
       _0x10b5eb[0].def = true;
@@ -395,10 +398,12 @@ function buff() {
         turn: _0x10b5eb[4] + GLOBAL_TURN,
         ex: undefined,
         on: _0x10b5eb[5],
-        from: undefined
+        from: undefined,
+        ti: _mt.ti, aset: _mt.aset, dk: _mt.dk
       });
     }
   } else if (_0x10b5eb.length == 7) {
+    const _mt = _metaOf(_0x10b5eb[1]);   // [perf] R3-B
     if (typeof _0x10b5eb[2] == "string") {
       _0x10b5eb[2] = getSize(_0x10b5eb[2]).size;
     }
@@ -426,10 +431,12 @@ function buff() {
         maxNest: _0x10b5eb[5],
         turn: undefined, ex: undefined,
         on: _0x10b5eb[6],
-        from: undefined
+        from: undefined,
+        ti: _mt.ti, aset: _mt.aset, dk: _mt.dk
       });
     }
   } else if (_0x10b5eb.length == 10) {
+    const _mt = _metaOf(_0x10b5eb[3]);   // [perf] R3-B（字段顺序与其余 push 点一致 → 单态隐藏类）
     _0x10b5eb[0].buff.push({
       div: _0x10b5eb[8], act: _0x10b5eb[1], who: _0x10b5eb[2],
       type: _0x10b5eb[3],
@@ -439,9 +446,11 @@ function buff() {
       turn: _0x10b5eb[6],
       ex: _0x10b5eb[7] + GLOBAL_TURN,
       on: _0x10b5eb[9],
-      from: undefined
+      from: undefined,
+      ti: _mt.ti, aset: _mt.aset, dk: _mt.dk
     });
   } else if (_0x10b5eb.length == 11) {
+    const _mt = _metaOf(_0x10b5eb[3]);   // [perf] R3-B
     _0x10b5eb[0].buff.push({
       div: _0x10b5eb[9], act: _0x10b5eb[1], who: _0x10b5eb[2],
       type: _0x10b5eb[3],
@@ -452,7 +461,8 @@ function buff() {
       turn: undefined,
       ex: _0x10b5eb[8] + GLOBAL_TURN,
       on: _0x10b5eb[10],
-      from: undefined
+      from: undefined,
+      ti: _mt.ti, aset: _mt.aset, dk: _mt.dk
     });
   } else {
     alert("버프 오류 발견");
@@ -465,6 +475,27 @@ const actList3 = ["행발동*", "행발동+"];
 const blessList = ["<빛의 축복>", "<바람의 축복>", "<불의 축복>"];
 // [perf] 不可变列表的 Set 镜像（仅热路径 includes 替换用；列表全库无 push，恒等成立）
 const actSet2 = new Set(actList2), actSet3 = new Set(actList3), blessSet = new Set(blessList);
+// [perf] R3-B：buff 类型影子字段（ti/aset/dk）——.type 创建后全库无写点（审计过），可一次算好。
+//   热循环里把 txtsMap.get + actSet/2/3.has + blessSet.has + type 串比较链 换成纯属性读+整数比较。
+//   元数据按 type 去重（全局唯一 type 仅 ~40 个），push 端只多一次 Map.get。
+//   快照兼容：copyTopLevelJson/_拷buff 全字段复制 → 影子字段随快照往返存活；
+//   序列化buff 用显式键集 → getState 比较不含影子字段，对照不受影响。
+//   ti = txtsMap.get(type)（number|undefined，保持 arr[ti] 的原语义含 undefined 下标怪癖）
+//   aset = 位掩码 1=actSet 2=actSet2 4=actSet3（0=都不在，⟺ 原三连 has 全 false）
+//   dk = 派发类别 1=제거 2=on 3=off 4=아머 5=힐 6=bless 0=其它（优先级同原 if/else-if 链）
+const _metaByType = new Map();
+function _metaOf(_t) {
+  let _m = _metaByType.get(_t);
+  if (_m === undefined) {
+    _m = {
+      ti: txtsMap.get(_t),
+      aset: (actSet.has(_t) ? 1 : 0) | (actSet2.has(_t) ? 2 : 0) | (actSet3.has(_t) ? 4 : 0),
+      dk: _t == "제거" ? 1 : _t == "on" ? 2 : _t == "off" ? 3 : _t == "아머" ? 4 : _t == "힐" ? 5 : (blessSet.has(_t) ? 6 : 0)
+    };
+    _metaByType.set(_t, _m);
+  }
+  return _m;
+}
 // [perf] addBuff 分区暂存（跨调用复用数组，避免每次调用 2~3 次临时分配）。
 //   复用安全边界：暂存只在 addBuff 分区阶段写入并在同函数消费循环前清空出栈，
 //   而 addBuff 内部递归（heal/bless → buff → …）只发生在消费循环之后 → 不可能重入破坏。
@@ -484,23 +515,23 @@ function addBuff(_0x139bc4, _0x2a12d3, _0x41fa97) {
   if (_0x41fa97 == "추가") {
     for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
       const _0x129276 = _0x1b[_0xj];
-      if (_0x129276.div == "추가" && _0x2a12d3.includes(_0x129276.act) || _0x129276.div == "기본" && actSet.has(_0x129276.type)) _0x3807a8.push(_0x129276);
+      if (_0x129276.div == "추가" && _0x2a12d3.includes(_0x129276.act) || _0x129276.div == "기본" && (_0x129276.aset & 1)) _0x3807a8.push(_0x129276);
     }
   } else if (_0x41fa97 == "발동") {
     if (_0x2a12d3.includes("공격")) {
       for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
         const _0x2cfb38 = _0x1b[_0xj];
-        if (_0x2cfb38.div == "발동" && _0x2cfb38.act == "공격" || _0x2cfb38.div == "기본" && actSet2.has(_0x2cfb38.type)) _0x3807a8.push(_0x2cfb38);
+        if (_0x2cfb38.div == "발동" && _0x2cfb38.act == "공격" || _0x2cfb38.div == "기본" && (_0x2cfb38.aset & 2)) _0x3807a8.push(_0x2cfb38);
       }
     } else if (_0x2a12d3.includes("행동")) {
       for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
         const _0xc1cbbd = _0x1b[_0xj];
-        if (_0xc1cbbd.div == "발동" && _0xc1cbbd.act == "행동" || _0xc1cbbd.div == "기본" && actSet3.has(_0xc1cbbd.type)) _0x3807a8.push(_0xc1cbbd);
+        if (_0xc1cbbd.div == "발동" && _0xc1cbbd.act == "행동" || _0xc1cbbd.div == "기본" && (_0xc1cbbd.aset & 4)) _0x3807a8.push(_0xc1cbbd);
       }
     } else {
       for (let _0xj = 0; _0xj < _0x1b.length; _0xj++) {
         const _0x2ed8ba = _0x1b[_0xj];
-        if (_0x2ed8ba.div == "발동" && _0x2a12d3.includes(_0x2ed8ba.act) || _0x2ed8ba.div == "기본" && actSet.has(_0x2ed8ba.type)) _0x3807a8.push(_0x2ed8ba);
+        if (_0x2ed8ba.div == "발동" && _0x2a12d3.includes(_0x2ed8ba.act) || _0x2ed8ba.div == "기본" && (_0x2ed8ba.aset & 1)) _0x3807a8.push(_0x2ed8ba);
       }
     }
   }
@@ -513,17 +544,28 @@ function addBuff(_0x139bc4, _0x2a12d3, _0x41fa97) {
   let _n非 = 0;
   for (let _0xj = 0; _0xj < _0x3807a8.length; _0xj++) {
     const _b = _0x3807a8[_0xj];
-    if (_b.type === "힐" || blessSet.has(_b.type)) _分.push(_b);
+    if (_b.dk == 5 || _b.dk == 6) _分.push(_b);   // [perf] R3-B：힐/bless → dk 整数比较
     else _0x3807a8[_n非++] = _b;
   }
   for (let _0xj = 0; _0xj < _分.length; _0xj++) _0x3807a8[_n非++] = _分[_0xj];
   _0x3807a8.length = _n非;
+  // [perf] R3-B 循环不变量外提：_前缀 判定与 _actionMap2 两级查找只依赖 (触发列表, mode)，
+  //   与当前元素无关——原实现每轮 dispatch 都重算（含 6 次数组 includes + 2 次 Map.get）。
+  //   这里提到循环外各算一次；空触发列表/无前缀语义同（_m2 保持 null → 不查不调用）。
+  const _前缀 = _0x2a12d3.includes("평") ? "평" : _0x2a12d3.includes("궁") ? "궁" : _0x2a12d3.includes("방") ? "방" : _0x2a12d3.includes("피격") ? "피격" : _0x2a12d3.includes("공격") ? "공격" : _0x2a12d3.includes("행동") ? "행동" : undefined;
+  let _m2 = null;
+  if (_前缀 !== undefined) {
+    let _m1 = _actionMap2.get(_前缀);
+    if (!_m1) { _m1 = new Map(); _actionMap2.set(_前缀, _m1); }
+    _m2 = _m1.get(_0x41fa97);
+    if (!_m2) { _m2 = new Map(); _m1.set(_0x41fa97, _m2); }
+  }
   const _0x107ae8 = [];
   for (const _0xff73c0 of _0x3807a8) {
     if (!_0xff73c0.on) {
       continue;
     }
-    if (_0xff73c0.type == "제거") {
+    if (_0xff73c0.dk == 1) {
       if (_0xff73c0.who == all) {
         for (let _0x3f3909 of comp) {
           deleteBuff(_0x3f3909, _0xff73c0.size, _0xff73c0.name);
@@ -532,7 +574,7 @@ function addBuff(_0x139bc4, _0x2a12d3, _0x41fa97) {
         deleteBuff(_0xff73c0.who, _0xff73c0.size, _0xff73c0.name);
       }
       continue;
-    } else if (_0xff73c0.type == "on") {
+    } else if (_0xff73c0.dk == 2) {
       if (_0xff73c0.who == all) {
         for (let _0x47d908 of comp) {
           setBuffOn(_0x47d908, _0xff73c0.size, _0xff73c0.name, true);
@@ -541,7 +583,7 @@ function addBuff(_0x139bc4, _0x2a12d3, _0x41fa97) {
         setBuffOn(_0xff73c0.who, _0xff73c0.size, _0xff73c0.name, true);
       }
       continue;
-    } else if (_0xff73c0.type == "off") {
+    } else if (_0xff73c0.dk == 3) {
       if (_0xff73c0.who == all) {
         for (let _0x25d72c of comp) {
           setBuffOn(_0x25d72c, _0xff73c0.size, _0xff73c0.name, false);
@@ -551,11 +593,11 @@ function addBuff(_0x139bc4, _0x2a12d3, _0x41fa97) {
       }
       continue;
     }
-    if (_0xff73c0.type == "아머") {
+    if (_0xff73c0.dk == 4) {
       _0x107ae8.push(_0xff73c0);
       continue;
     }
-    if (_0xff73c0.type == "힐") {
+    if (_0xff73c0.dk == 5) {
       if (_0xff73c0.div == "발동") {
         continue;
       }
@@ -566,7 +608,7 @@ function addBuff(_0x139bc4, _0x2a12d3, _0x41fa97) {
       } else {
         _0xff73c0.who.heal();
       }
-    } else if (blessSet.has(_0xff73c0.type)) {
+    } else if (_0xff73c0.dk == 6) {
       if (_0xff73c0.who == all) {
         for (let _0x4a1ae4 of comp) {
           _0x4a1ae4.bless(_0xff73c0.type);
@@ -575,22 +617,15 @@ function addBuff(_0x139bc4, _0x2a12d3, _0x41fa97) {
         _0xff73c0.who.bless(_0xff73c0.type);
       }
     } else if (_0xff73c0.div == "기본") {
-      // [perf] 第二轮改写 C：串键(actionPrefix+mode+type)拼接+扁平Map.get → 三层嵌套Map查找，
-      //   消除热路径字符串分配。值经懒缓存从原 actionMap 取（首次 miss 时查一次扁平表并缓存，
-      //   null 占位=原表无此键）→ 取到的函数与原查找逐位一致，缺键语义同（undefined 假值）。
+      // [perf] 第二轮改写 C + R3-B：串键拼接+扁平Map.get → 三层嵌套Map查找（前缀/mode 两级已外提到
+      //   循环前，元素相关查找只剩一次 _m2.get；miss 时懒填充扁平表并 null 占位 → 语义逐位同）。
       let _0x240b68;
-      {
-        const _前缀 = _0x2a12d3.includes("평") ? "평" : _0x2a12d3.includes("궁") ? "궁" : _0x2a12d3.includes("방") ? "방" : _0x2a12d3.includes("피격") ? "피격" : _0x2a12d3.includes("공격") ? "공격" : _0x2a12d3.includes("행동") ? "행동" : undefined;
-        if (_前缀 !== undefined) {
-          let _m1 = _actionMap2.get(_前缀);
-          if (!_m1) { _m1 = new Map(); _actionMap2.set(_前缀, _m1); }
-          let _m2 = _m1.get(_0x41fa97);
-          if (!_m2) { _m2 = new Map(); _m1.set(_0x41fa97, _m2); }
-          if (_m2.has(_0xff73c0.type)) _0x240b68 = _m2.get(_0xff73c0.type) || undefined;
-          else {
-            _0x240b68 = actionMap.get(_前缀 + _0x41fa97 + _0xff73c0.type);
-            _m2.set(_0xff73c0.type, _0x240b68 || null);
-          }
+      if (_m2 !== null) {
+        const _hit = _m2.get(_0xff73c0.type);   // [perf] has+get 两次查找 → 一次 get（null=已查过无键）
+        if (_hit !== undefined) _0x240b68 = _hit || undefined;
+        else {
+          _0x240b68 = actionMap.get(_前缀 + _0x41fa97 + _0xff73c0.type);
+          _m2.set(_0xff73c0.type, _0x240b68 || null);
         }
       }
       if (_0x240b68) {
@@ -764,8 +799,8 @@ function getBuffSizeList(_0x1a6d3d) {
     if (_0x59757c.turn != undefined && _0x59757c.turn <= GLOBAL_TURN) {
       continue;
     }
-    let _0x2f3151 = txtsMap.get(_0x59757c.type);
-    if (_0x2f3151 == undefined && !actSet.has(_0x59757c.type) && !actSet2.has(_0x59757c.type) && !actSet3.has(_0x59757c.type)) {
+    let _0x2f3151 = _0x59757c.ti;   // [perf] R3-B：txtsMap.get(串) → 影子字段属性读（ti 语义同：含 undefined）
+    if (_0x2f3151 == undefined && _0x59757c.aset == 0) {
       alert("버프 누락 : " + _0x59757c.type);
     } else {
       _0x176af3[_0x2f3151] += isTurn(_0x59757c) ? _0x59757c.size / 100 : _0x59757c.size * _0x59757c.nest / 100;
@@ -809,8 +844,8 @@ function getBossBuffSizeList(_0x3d744a) {
     if (_0x177700.turn != undefined && _0x177700.turn <= GLOBAL_TURN) {
       continue;
     }
-    let _0x1e58c8 = txtsMap.get(_0x177700.type);
-    if (_0x1e58c8 == undefined && !actSet.has(_0x177700.type) && !actSet2.has(_0x177700.type) && !actSet3.has(_0x177700.type)) {
+    let _0x1e58c8 = _0x177700.ti;   // [perf] R3-B：同 getBuffSizeList
+    if (_0x1e58c8 == undefined && _0x177700.aset == 0) {
       alert("버프 누락 : " + _0x177700.type);
     } else {
       _0x5c95e5[_0x1e58c8] += isTurn(_0x177700) ? _0x177700.size / 100 : _0x177700.size * _0x177700.nest / 100;

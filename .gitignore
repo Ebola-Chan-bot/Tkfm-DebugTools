@@ -1,6 +1,10 @@
 node_modules/
 dist/
 *.log
+*.cpuprofile
+*.bak-*
+# 验证基线（_验证引擎重写.js 运行时读取，唯一保留的 .bak）
+!逆向-模拟器/deobfuscated.js.bak-perf
 
 # 机制表构建产物（flat.json/mechanisms.bin/record指纹.json 由 flatten_core.js + flatc 工具链可重现，SOP 见 机制表/README.md）
 优化器/机制表/build/
