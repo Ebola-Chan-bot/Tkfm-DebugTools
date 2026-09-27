@@ -22,7 +22,8 @@
  */
 const fs = require('fs');
 const path = require('path');
-const flatbuffers = require('flatbuffers');   // 机制表/node_modules/flatbuffers（官方运行时）
+const { 需 } = require('../依赖保障.js');
+const flatbuffers = 需('flatbuffers');   // 机制表/node_modules/flatbuffers（官方运行时），缺失时自动 npm install
 const { OP, TAG, TGT, CK, CMP } = require('./flatten_core.js');
 
 // ---- struct 尺寸与偏移（flatc 硬事实）----

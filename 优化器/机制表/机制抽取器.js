@@ -15,7 +15,8 @@
  *     --out 生成：把抽取表写到 生成/<id>.json
  *   node 机制抽取器.js --骨架 <正则> —— 打印命中骨架的源码行（调试辅助）
  */
-const acorn = require('acorn');
+const { 需 } = require('./依赖保障.js');
+const acorn = 需('acorn');   // 缺失时自动 npm install
 const fs = require('fs');
 const path = require('path');
 const SRC = path.resolve(__dirname, '..', '..', '逆向-模拟器', 'deobfuscated.js');
