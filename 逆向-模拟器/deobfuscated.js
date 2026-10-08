@@ -68,8 +68,6 @@ class Champ {
     this.isActed = false;
     this.hpAtkDmg = 0;
     this.hpUltDmg = 0;
-    this.isHealed = false;
-    this.isHealed2 = false;
   }
   getArmor() {
     let _0x9b6ec8 = 0;
@@ -219,8 +217,12 @@ class Champ {
     addBuff(this, [_0x58bdfb], "발동");
   }
   hit() {
+    if (this.isHit) {
+      return;
+    }
     addBuff(this, ["피격"], "추가");
     addBuff(this, ["피격"], "발동");
+    this.isHit = true;
   }
   getNest(_0x4b865e) {
     const _0x4b70e6 = this.buff.filter(_0x3049a4 => isNest(_0x3049a4) && _0x3049a4.type == _0x4b865e);
@@ -18036,6 +18038,366 @@ function setDefault(_0x55e037, _0x78c5e1) {
       };
       _0x55e037.turnover = function () {
         if (_0x55e037.isLeader) {}
+      };
+      return _0x55e037;
+    case 10214:
+      _0x55e037.stack = 0;
+      buff_ex.push("<사탕 함정>", "<케이크 함정>");
+      setMnc(_0x55e037, [154.2, 2, 179.9, 2, 205.6, 2, 231.3, 2, 257, 2], _0x78c5e1);
+      _0x55e037.ultbefore = function () {
+        switch (_0x78c5e1) {
+          case 1:
+            tbf(boss, "받뎀증", 6.45, "장난 마력 폭발1", 8);
+            for (let _0x50270f of getElementIdx("수")) {
+              nbf(comp[_0x50270f], "받속뎀", 3.25, "장난 마력 폭발2", 1, 4);
+            }
+            for (let _0x5607b8 of getRoleIdx("딜", "탱", "디")) {
+              tbf(comp[_0x5607b8], "평추가*", 16.2, "장난 마력 폭발3", 4);
+              const _0x5e2a58 = comp[_0x5607b8].attack;
+              comp[_0x5607b8].attack = function (..._0x3f75ae) {
+                _0x5e2a58.apply(this, _0x3f75ae);
+                deleteBuff(comp[_0x5607b8], "기본", "장난 마력 폭발3");
+              };
+            }
+            break;
+          case 2:
+            tbf(boss, "받뎀증", 7.53, "장난 마력 폭발1", 8);
+            for (let _0x25b837 of getElementIdx("수")) {
+              nbf(comp[_0x25b837], "받속뎀", 3.8, "장난 마력 폭발2", 1, 4);
+            }
+            for (let _0x3a2524 of getRoleIdx("딜", "탱", "디")) {
+              tbf(comp[_0x3a2524], "평추가*", 18.9, "장난 마력 폭발3", 4);
+              const _0x1331bf = comp[_0x3a2524].attack;
+              comp[_0x3a2524].attack = function (..._0x5118dd) {
+                _0x1331bf.apply(this, _0x5118dd);
+                deleteBuff(comp[_0x3a2524], "기본", "장난 마력 폭발3");
+              };
+            }
+            break;
+          case 3:
+            tbf(boss, "받뎀증", 8.6, "장난 마력 폭발1", 8);
+            for (let _0x1b9fb5 of getElementIdx("수")) {
+              nbf(comp[_0x1b9fb5], "받속뎀", 4.34, "장난 마력 폭발2", 1, 4);
+            }
+            for (let _0x2bff95 of getRoleIdx("딜", "탱", "디")) {
+              tbf(comp[_0x2bff95], "평추가*", 21.6, "장난 마력 폭발3", 4);
+              const _0x44b1b8 = comp[_0x2bff95].attack;
+              comp[_0x2bff95].attack = function (..._0x284f9d) {
+                _0x44b1b8.apply(this, _0x284f9d);
+                deleteBuff(comp[_0x2bff95], "기본", "장난 마력 폭발3");
+              };
+            }
+            break;
+          case 4:
+            tbf(boss, "받뎀증", 9.68, "장난 마력 폭발1", 8);
+            for (let _0x58ae6e of getElementIdx("수")) {
+              nbf(comp[_0x58ae6e], "받속뎀", 4.88, "장난 마력 폭발2", 1, 4);
+            }
+            for (let _0x20044e of getRoleIdx("딜", "탱", "디")) {
+              tbf(comp[_0x20044e], "평추가*", 24.3, "장난 마력 폭발3", 4);
+              const _0x1c94da = comp[_0x20044e].attack;
+              comp[_0x20044e].attack = function (..._0x3947d1) {
+                _0x1c94da.apply(this, _0x3947d1);
+                deleteBuff(comp[_0x20044e], "기본", "장난 마력 폭발3");
+              };
+            }
+            break;
+          default:
+            tbf(boss, "받뎀증", 10.75, "장난 마력 폭발1", 8);
+            for (let _0xc7abbc of getElementIdx("수")) {
+              nbf(comp[_0xc7abbc], "받속뎀", 5.42, "장난 마력 폭발2", 1, 4);
+            }
+            for (let _0x3ed22b of getRoleIdx("딜", "탱", "디")) {
+              tbf(comp[_0x3ed22b], "평추가*", 27, "장난 마력 폭발3", 4);
+              const _0x8c431d = comp[_0x3ed22b].attack;
+              comp[_0x3ed22b].attack = function (..._0x491a3e) {
+                _0x8c431d.apply(this, _0x491a3e);
+                deleteBuff(comp[_0x3ed22b], "기본", "장난 마력 폭발3");
+              };
+            }
+            break;
+        }
+      };
+      _0x55e037.ultafter = function () {};
+      _0x55e037.ultimate = function () {
+        ultLogic(_0x55e037);
+        if (_0x55e037.stack == 0) {
+          nbf(_0x55e037, "<사탕 함정>", 0, "나랑 술래잡기하자!", -1, 1);
+          nbf(_0x55e037, "<케이크 함정>", 0, "내가 실컷 놀 때까지 죽으면 안 돼~", 1, 1);
+          _0x55e037.stack = 1;
+          const _0x78f0a8 = _0x55e037.stack == 0;
+          setBuffOnAll(_0x55e037, "추가", "<막대사탕 쇠뇌>1", _0x78f0a8);
+          setBuffOn(_0x55e037, "추가", "<막대사탕 쇠뇌>2", _0x78f0a8);
+          setBuffOn(_0x55e037, "추가", "<막대사탕 쇠뇌>3", _0x78f0a8);
+          setBuffOnAll(_0x55e037, "추가", "<막대사탕 쇠뇌>4", _0x78f0a8);
+          setBuffOn(_0x55e037, "기본", "<막대사탕 쇠뇌>5", _0x78f0a8);
+          setBuffOn(_0x55e037, "발동", "<과일사탕 마정포>1", _0x78f0a8);
+          setBuffOnAll(_0x55e037, "추가", "<초콜릿 얼음칼날 구름>1", !_0x78f0a8);
+          setBuffOn(_0x55e037, "추가", "<초콜릿 얼음칼날 구름>2", !_0x78f0a8);
+          setBuffOnAll(_0x55e037, "추가", "<초콜릿 얼음칼날 구름>3", !_0x78f0a8);
+          setBuffOn(_0x55e037, "기본", "<초콜릿 얼음칼날 구름>4", !_0x78f0a8);
+          setBuffOnAll(_0x55e037, "발동", "<바닐라 크림 뇌운>1", !_0x78f0a8);
+          setBuffOn(_0x55e037, "발동", "<바닐라 크림 뇌운>2", !_0x78f0a8);
+        }
+      };
+      _0x55e037.atkbefore = function () {};
+      _0x55e037.atkafter = function () {};
+      _0x55e037.attack = function () {
+        atkLogic(_0x55e037);
+        if (_0x55e037.stack == 1) {
+          nbf(_0x55e037, "<사탕 함정>", 0, "나랑 술래잡기하자!", 1, 1);
+          nbf(_0x55e037, "<케이크 함정>", 0, "내가 실컷 놀 때까지 죽으면 안 돼~", -1, 1);
+          _0x55e037.stack = 0;
+          const _0x1f2e6c = _0x55e037.stack == 0;
+          setBuffOnAll(_0x55e037, "추가", "<막대사탕 쇠뇌>1", _0x1f2e6c);
+          setBuffOn(_0x55e037, "추가", "<막대사탕 쇠뇌>2", _0x1f2e6c);
+          setBuffOn(_0x55e037, "추가", "<막대사탕 쇠뇌>3", _0x1f2e6c);
+          setBuffOnAll(_0x55e037, "추가", "<막대사탕 쇠뇌>4", _0x1f2e6c);
+          setBuffOn(_0x55e037, "기본", "<막대사탕 쇠뇌>5", _0x1f2e6c);
+          setBuffOn(_0x55e037, "발동", "<과일사탕 마정포>1", _0x1f2e6c);
+          setBuffOnAll(_0x55e037, "추가", "<초콜릿 얼음칼날 구름>1", !_0x1f2e6c);
+          setBuffOn(_0x55e037, "추가", "<초콜릿 얼음칼날 구름>2", !_0x1f2e6c);
+          setBuffOnAll(_0x55e037, "추가", "<초콜릿 얼음칼날 구름>3", !_0x1f2e6c);
+          setBuffOn(_0x55e037, "기본", "<초콜릿 얼음칼날 구름>4", !_0x1f2e6c);
+          setBuffOnAll(_0x55e037, "발동", "<바닐라 크림 뇌운>1", !_0x1f2e6c);
+          setBuffOn(_0x55e037, "발동", "<바닐라 크림 뇌운>2", !_0x1f2e6c);
+        }
+      };
+      _0x55e037.leader = function () {
+        for (let _0x2f2aea of getElementIdx("수", "풍")) {
+          hpUpMe(comp[_0x2f2aea], 55);
+          tbf(comp[_0x2f2aea], "공퍼증", 60.5, "할로윈 장난꾸러기 소악마1", always);
+        }
+        if (getElKind() >= 4) {
+          tbf(all, "가뎀증", -500, "할로윈 장난꾸러기 소악마2", always);
+        }
+        for (let _0x5009a4 of getElementIdx("풍")) {
+          buff(_0x55e037, "궁", comp[_0x5009a4], "받속뎀", 18.15, "<막대사탕 쇠뇌>1", 1, 4, always, "추가", true);
+        }
+        buff(_0x55e037, "궁", boss, "방경감", 10, "<막대사탕 쇠뇌>2", 1, 4, always, "추가", true);
+        buff(_0x55e037, "궁", boss, "받일뎀", 17, "<막대사탕 쇠뇌>3", 8, always, "추가", true);
+        for (let _0x3f9a29 of getRoleIdx("딜", "탱", "디")) {
+          if (comp[_0x3f9a29].element == 1 || comp[_0x3f9a29].element == 2) {
+            if (_0x55e037.id == comp[_0x3f9a29].id) {
+              continue;
+            }
+            buff(_0x55e037, "궁", comp[_0x3f9a29], "궁추가*", 30.3, "<막대사탕 쇠뇌>4", 4, always, "추가", true);
+            const _0x563da8 = comp[_0x3f9a29].ultimate;
+            comp[_0x3f9a29].ultimate = function (..._0xc46a3f) {
+              _0x563da8.apply(this, _0xc46a3f);
+              deleteBuff(comp[_0x3f9a29], "기본", "<막대사탕 쇠뇌>4");
+            };
+          }
+        }
+        buff(_0x55e037, "궁추가*", 30.3, "<막대사탕 쇠뇌>5", always, true);
+        for (let _0x2222ad of getElementIdx("수")) {
+          buff(_0x55e037, "평", comp[_0x2222ad], "받속뎀", 9.08, "<초콜릿 얼음칼날 구름>1", 1, 4, always, "추가", false);
+        }
+        buff(_0x55e037, "평", boss, "받궁뎀", 3.8, "<초콜릿 얼음칼날 구름>2", 8, always, "추가", false);
+        for (let _0x2779e5 of getRoleIdx("딜", "탱", "디")) {
+          if (comp[_0x2779e5].element == 1 || comp[_0x2779e5].element == 2) {
+            if (_0x55e037.id == comp[_0x2779e5].id) {
+              continue;
+            }
+            buff(_0x55e037, "평", comp[_0x2779e5], "평추가*", 45.5, "<초콜릿 얼음칼날 구름>3", 4, always, "추가", false);
+            const _0x2c174c = comp[_0x2779e5].attack;
+            comp[_0x2779e5].attack = function (..._0x2e818b) {
+              _0x2c174c.apply(this, _0x2e818b);
+              deleteBuff(comp[_0x2779e5], "기본", "<초콜릿 얼음칼날 구름>3");
+            };
+          }
+        }
+        buff(_0x55e037, "평추가*", 45.5, "<초콜릿 얼음칼날 구름>4", always, false);
+        anbf(_0x55e037, "공격", all, "가뎀증", 4.54, "할로윈 장난꾸러기 소악마3", 1, 8, always);
+        atbf(_0x55e037, "공격", boss, "받뎀증", 9.06, "할로윈 장난꾸러기 소악마4", 8, always);
+      };
+      _0x55e037.passive = function () {
+        tbf(all, "공퍼증", 36, "나랑 술래잡기하자!2", always);
+        buff(_0x55e037, "궁", boss, "받일뎀", 10.12, "<과일사탕 마정포>1", 8, always, "발동", true);
+        for (let _0x33acf0 of getRoleIdx("딜", "탱", "디")) {
+          buff(_0x55e037, "평", comp[_0x33acf0], "궁추가*", 18, "<바닐라 크림 뇌운>1", 4, always, "발동", false);
+          const _0x9ff90c = comp[_0x33acf0].ultimate;
+          comp[_0x33acf0].ultimate = function (..._0xd0890) {
+            _0x9ff90c.apply(this, _0xd0890);
+            deleteBuff(comp[_0x33acf0], "기본", "<바닐라 크림 뇌운>1");
+          };
+        }
+        buff(_0x55e037, "평", boss, "받궁뎀", 2.25, "<바닐라 크림 뇌운>2", 8, always, "발동", false);
+        anbf(_0x55e037, "공격", all, "가뎀증", 2.71, "<호박머리 폭탄>1", 1, 8, always);
+        anbf(_0x55e037, "공격", boss, "방경감", 10, "<호박머리 폭탄>2", 1, 1, always);
+        tbf(_0x55e037, "공퍼증", 10, "공격+", always);
+      };
+      _0x55e037.defense = function () {
+        _0x55e037.act_defense();
+      };
+      _0x55e037.turnstart = function () {
+        if (_0x55e037.isLeader) {}
+        if (GLOBAL_TURN == 1) {
+          cdChange(_0x55e037, -2);
+          nbf(_0x55e037, "<사탕 함정>", 0, "나랑 술래잡기하자!", 1, 1);
+        }
+      };
+      _0x55e037.turnover = function () {
+        if (_0x55e037.isLeader) {}
+      };
+      return _0x55e037;
+    case 10215:
+      buff_ex.push("<달콤한 개입>", "<끝없는 욕망>");
+      setMnc(_0x55e037, [0, 4, 0, 4, 0, 4, 0, 4, 0, 4], _0x78c5e1);
+      _0x55e037.ultbefore = function () {
+        for (let _0x166759 of getRoleIdx("딜", "탱", "디")) {
+          deleteBuff(comp[_0x166759], "기본", "마왕 자본의 압제를 타도하라!1");
+        }
+        switch (_0x78c5e1) {
+          case 1:
+            for (let _0x395084 of getRoleIdx("딜", "탱", "디")) {
+              tbf(comp[_0x395084], "가뎀증", 15.66, "마왕 자본의 압제를 타도하라!1", 4);
+            }
+            nbf(boss, "받뎀증", 2.61, "마왕 자본의 압제를 타도하라!2", 1, 2);
+            break;
+          case 2:
+            for (let _0x46b103 of getRoleIdx("딜", "탱", "디")) {
+              tbf(comp[_0x46b103], "가뎀증", 18.27, "마왕 자본의 압제를 타도하라!1", 4);
+            }
+            nbf(boss, "받뎀증", 3.04, "마왕 자본의 압제를 타도하라!2", 1, 2);
+            for (let _0x569a05 of getElementIdx("풍")) {
+              nbf(comp[_0x569a05], "받속뎀", 3.92, "마왕 자본의 압제를 타도하라!3", 1, 2);
+            }
+            break;
+          case 3:
+            for (let _0x322873 of getRoleIdx("딜", "탱", "디")) {
+              tbf(comp[_0x322873], "가뎀증", 20.88, "마왕 자본의 압제를 타도하라!1", 4);
+            }
+            nbf(boss, "받뎀증", 3.48, "마왕 자본의 압제를 타도하라!2", 1, 2);
+            for (let _0x272d5a of getElementIdx("풍")) {
+              nbf(comp[_0x272d5a], "받속뎀", 4.79, "마왕 자본의 압제를 타도하라!3", 1, 2);
+            }
+            break;
+          case 4:
+            for (let _0x3cdd45 of getRoleIdx("딜", "탱", "디")) {
+              tbf(comp[_0x3cdd45], "가뎀증", 23.49, "마왕 자본의 압제를 타도하라!1", 4);
+            }
+            nbf(boss, "받뎀증", 3.91, "마왕 자본의 압제를 타도하라!2", 1, 2);
+            for (let _0x576c49 of getElementIdx("풍")) {
+              nbf(comp[_0x576c49], "받속뎀", 5.66, "마왕 자본의 압제를 타도하라!3", 1, 2);
+            }
+            break;
+          default:
+            for (let _0x1356bb of getRoleIdx("딜", "탱", "디")) {
+              tbf(comp[_0x1356bb], "가뎀증", 26.1, "마왕 자본의 압제를 타도하라!1", 4);
+            }
+            nbf(boss, "받뎀증", 4.35, "마왕 자본의 압제를 타도하라!2", 1, 2);
+            for (let _0xafa54 of getElementIdx("풍")) {
+              nbf(comp[_0xafa54], "받속뎀", 6.53, "마왕 자본의 압제를 타도하라!3", 1, 2);
+            }
+            break;
+        }
+      };
+      _0x55e037.ultafter = function () {
+        for (let _0x48b3d7 of comp) {
+          _0x48b3d7.hit();
+        }
+      };
+      _0x55e037.ultimate = function () {
+        ultLogic(_0x55e037);
+      };
+      _0x55e037.atkbefore = function () {
+        tbf(all, "공고증", myCurAtk + _0x55e037.id + 30, "권력 남용1", 1);
+        for (let _0x19be4a of comp) {
+          _0x19be4a.hit();
+        }
+      };
+      _0x55e037.atkafter = function () {};
+      _0x55e037.attack = function () {
+        atkLogic(_0x55e037);
+      };
+      _0x55e037.leader = function () {
+        hpUpAll(55);
+        tbf(all, "공퍼증", 67.5, "할로윈 다양성 박사 고문1", always);
+        const _0x2dbda9 = getElementCnt("풍");
+        nbf(all, "<달콤한 개입>", 0, "할로윈 다양성 박사 고문", _0x2dbda9, 5);
+        if (_0x2dbda9 == 3) {
+          for (let _0x5db30b of comp) {
+            anbf(_0x5db30b, "피격", _0x5db30b, "발효증", 16.88, "<너희 입다물어>1", 1, 8, always);
+            anbf(_0x5db30b, "피격", boss, "받뎀증", 0.34, "<너희 입다물어>2", 1, 40, always);
+            for (let _0x3cd179 of getElementIdx("풍")) {
+              anbf(_0x5db30b, "피격", comp[_0x3cd179], "받속뎀", 0.51, "<너희 입다물어>3", 1, 40, always);
+            }
+          }
+        }
+        if (_0x2dbda9 == 3) {
+          for (let _0x3e9934 of getRoleIdx("딜", "탱", "디")) {
+            if (comp[_0x3e9934].element != 2) {
+              continue;
+            }
+            anbf(comp[_0x3e9934], "피격", comp[_0x3e9934], "가뎀증", 5.06, "〈Party 해산 카운트다운〉1", 1, 8, always);
+            tbf(comp[_0x3e9934], "반격*", 4, "〈Party 해산 카운트다운〉2", always);
+          }
+        }
+      };
+      _0x55e037.passive = function () {
+        ptbf(_0x55e037, "궁", all, "공고증", myCurAtk + _0x55e037.id + 30, "너희가 날 모셔야 해!1", 1, always);
+        for (let _0x54eb0c of getRoleIdx("딜", "탱", "디")) {
+          const _0x3b4b20 = comp[_0x54eb0c].ultafter;
+          comp[_0x54eb0c].ultafter = function (..._0x5b65ac) {
+            _0x3b4b20.apply(this, _0x5b65ac);
+            _0x55e037.hit();
+          };
+          const _0x1ca6f5 = comp[_0x54eb0c].atkafter;
+          comp[_0x54eb0c].atkafter = function (..._0x503c89) {
+            _0x1ca6f5.apply(this, _0x503c89);
+            _0x55e037.hit();
+          };
+        }
+        for (let _0x14f0ec of getRoleIdx("딜", "탱", "디")) {
+          buff(comp[_0x14f0ec], "반격*", 2.2, "모두 내 말을 들어야 해3", always, true);
+          anbf(comp[_0x14f0ec], "피격", comp[_0x14f0ec], "<끝없는 욕망>", 0, "모두 내 말을 들어야 해", 1, 5, always);
+          buff(comp[_0x14f0ec], "반격*", 4.4, "모두 내 말을 들어야 해4", always, false);
+          const _0x190be5 = comp[_0x14f0ec].hit;
+          comp[_0x14f0ec].hit = function (..._0x3c4f21) {
+            _0x190be5.apply(this, _0x3c4f21);
+            const _0x47e72e = comp[_0x14f0ec].getNest("<끝없는 욕망>");
+            if (_0x47e72e >= 5) {
+              setBuffOn(comp[_0x14f0ec], "기본", "모두 내 말을 들어야 해3", false);
+              setBuffOn(comp[_0x14f0ec], "기본", "모두 내 말을 들어야 해4", true);
+            }
+          };
+        }
+        tbf(_0x55e037, "공퍼증", 43.5, "이건 내가 마땅히 누려야 할 권리야!2", always);
+        atbf(_0x55e037, "방", all, "공고증", myCurAtk + _0x55e037.id + 30, "이건 내가 마땅히 누려야 할 권리야!3", 1, always);
+        for (let _0x512a5a of comp) {
+          anbf(_0x512a5a, "피격", _0x512a5a, "발효증", 10.88, "이건 내가 마땅히 누려야 할 권리야!4", 1, 8, always);
+        }
+        tbf(_0x55e037, "공퍼증", 10, "공격+", always);
+      };
+      _0x55e037.defense = function () {
+        _0x55e037.act_defense();
+      };
+      _0x55e037.turnstart = function () {
+        if (_0x55e037.isLeader) {
+          if (GLOBAL_TURN == 1) {
+            for (let _0x3d5015 of getRoleIdx("딜", "탱", "디")) {
+              tbf(comp[_0x3d5015], "공퍼증", 100, "<비다양성 사상 감지 병기>1", 1);
+              tbf(comp[_0x3d5015], "가뎀증", 60, "<비다양성 사상 감지 병기>2", 1);
+              tbf(comp[_0x3d5015], "발효증", 200, "<비다양성 사상 감지 병기>3", 1);
+              tbf(comp[_0x3d5015], "반격*", 15, "<비다양성 사상 감지 병기>4", 1);
+            }
+          }
+        }
+        if (GLOBAL_TURN == 1) {
+          for (let _0x36295d of getRoleIdx("딜", "탱", "디")) {
+            nbf(comp[_0x36295d], "<끝없는 욕망>", 0, "모두 내 말을 들어야 해", 1, 5);
+          }
+          cdChange(_0x55e037, -4);
+        }
+      };
+      _0x55e037.turnover = function () {
+        if (_0x55e037.isLeader) {}
+        for (let _0x3e845d of getRoleIdx("딜", "탱", "디")) {
+          setBuffNest(comp[_0x3e845d], "기본", "모두 내 말을 들어야 해", 1);
+          setBuffOn(comp[_0x3e845d], "기본", "모두 내 말을 들어야 해3", true);
+          setBuffOn(comp[_0x3e845d], "기본", "모두 내 말을 들어야 해4", false);
+        }
       };
       return _0x55e037;
     case -1:

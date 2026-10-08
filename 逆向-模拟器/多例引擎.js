@@ -46,11 +46,24 @@ function 默认源码() {
 }
 
 // 从 header.js 截取纯数据/纯函数片段：cdDifList 常量 + setCommandCustom 函数（不含任何 DOM 依赖）
+// 上游 header.js（tenkaassist 09e6dc0 起）把 setCommandCustom 的指令解析重构为尾部独立的 parseCommand
+// （纯函数、无 DOM）：片段截断点在 setCommandCustom 后的首个顶层 function 处会把它切掉（parseCommand is
+// not defined），故截断点之后若存在 parseCommand 则延伸到它结束，覆盖新旧两代 header.js。
 function 提取header片段(headerText) {
   const 起 = headerText.indexOf('const cdDifList');
   if (起 === -1) throw new Error('header.js 中未找到 cdDifList，片段提取失败');
-  let 止 = headerText.indexOf('\nfunction ', headerText.indexOf('function setCommandCustom') + 10);
+  const scc = headerText.indexOf('function setCommandCustom');
+  if (scc === -1) throw new Error('header.js 中未找到 setCommandCustom，片段提取失败');
+  let 止 = headerText.indexOf('\nfunction ', scc + 10);
   if (止 === -1) 止 = headerText.length;
+  // 截断点恰是 parseCommand 自身时（setCommandCustom 之后首个顶层函数即它），旧逻辑把它切掉；
+  // pc >= 止 才意味着 parseCommand 未进片段——此时把它的函数体段落外科拼接到片段尾（不扫入中间
+  // 可能存在的其它顶层函数，避免带进 DOM 依赖）。pc < 止 = 已在片段内，无需处理。
+  const pc = headerText.indexOf('\nfunction parseCommand', scc + 10);
+  if (pc !== -1 && pc >= 止) {
+    const pc止 = headerText.indexOf('\nfunction ', pc + 10);
+    return headerText.slice(起, 止) + headerText.slice(pc, pc止 === -1 ? headerText.length : pc止);
+  }
   return headerText.slice(起, 止);
 }
 
