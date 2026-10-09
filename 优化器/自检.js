@@ -4,7 +4,7 @@
  *
  * 目的：在写任何搜索逻辑之前，先锁死"评估器是对的"。三条断言：
  *   ① 引擎适配层能正常建实例（new Function 求值 characterJson 成功、deps 齐备）。
- *   ② 反混淆版引擎（默认 calcSrc）对库内强队算出的伤害 == data.json 的 recommend 字段（= 线上混淆版+服务器口径）。
+ *   ② 反混淆版引擎（默认 calcSrc）对库内强队算出的伤害 == data.json 的 dmg5 字段（= 线上混淆版+服务器口径）。
  *      这是"反混淆没有失真"的权威证据；若不一致，主程序应把 calcSrc 切回线上混淆版。
  *   ③ 增量步进逐 token 驱动 == 整场 battle()（已在 %TEMP% 验过，这里对新工程再复验一遍，防回归）。
  *
@@ -42,20 +42,20 @@ function main() {
   const 可用 = 适配.可模拟SSR清单();
   说('    角色总数=' + 适配.角色表().length + '  可模拟SSR(ok&rarity3&有hp/atk)=' + 可用.length);
 
-  // ② 反混淆版 vs recommend 对齐（取高伤队，recommend 为羁绊全5的13回合伤害）
+  // ② 反混淆版 vs dmg5 对齐（取高伤队，dmg5 为羁绊全5的13回合伤害）
   const arr = 加载队伍库();
-  const 强队 = arr.filter(d => d.recommend > 5e9 && d.description &&
+  const 强队 = arr.filter(d => d.dmg5 > 5e9 && d.description &&
     String(d.compstr).split(/\s+/).filter(Boolean).length === 5)
-    .sort((a, b) => b.recommend - a.recommend).slice(0, 40);
+    .sort((a, b) => b.dmg5 - a.dmg5).slice(0, 40);
   let 对齐符 = 0, 对齐不符 = [];
   for (const d of 强队) {
     const ids = String(d.compstr).split(/\s+/).filter(Boolean).map(Number);
-    // 该队若含 N/R 或 ok:false 角色，getCharacter 后 setDefault 返回 null → battle 得 0，跳过（recommend 也不该有）
+    // 该队若含 N/R 或 ok:false 角色，getCharacter 后 setDefault 返回 null → battle 得 0，跳过（dmg5 也不该有）
     if (ids.some(id => { const c = 适配.角色数据().getCharacter(id); return !c || c.ok !== true || c.rarity !== 3 || !c.hp; })) continue;
     const 本地 = inst.battle(ids, d.description, [5,5,5,5,5], -1, null);
-    if (本地 === d.recommend) 对齐符++; else 对齐不符.push({ 队: d.name, 线上: d.recommend, 本地, 差: d.recommend - 本地 });
+    if (本地 === d.dmg5) 对齐符++; else 对齐不符.push({ 队: d.name, 线上: d.dmg5, 本地, 差: d.dmg5 - 本地 });
   }
-  说('[②] 反混淆引擎 vs data.json.recommend（' + (对齐符 + 对齐不符.length) + ' 队）: 逐位一致 ' + 对齐符 + '，不一致 ' + 对齐不符.length);
+  说('[②] 反混淆引擎 vs data.json.dmg5（' + (对齐符 + 对齐不符.length) + ' 队）: 逐位一致 ' + 对齐符 + '，不一致 ' + 对齐不符.length);
   对齐不符.slice(0, 6).forEach(x => 说('    ✗ ' + JSON.stringify(x)));
   const 对齐通过 = 对齐不符.length === 0 && 对齐符 >= 20;
 

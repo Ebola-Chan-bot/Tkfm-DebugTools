@@ -69,8 +69,10 @@ if (argv.includes('--角色')) {
 console.log(`机制表: ${数据.records.length} 角色, 版本 ${数据.version}, 字典 ${数据.names.length} 项`);
 console.log(`试点: ${试点ids.join(',')}  DB条/角色≤${N_DB}  随机排程=${N_RAND}/lib/站位  状态diff=${做状态diff}`);
 
-// ---- 两引擎：旧(无机制表) vs 新(机制表) ----
-const 旧 = 适配.createEngine();
+// ---- 两引擎：旧(原生 case 硬编码) vs 新(机制表数据驱动装配) ----
+// ⚠ 旧侧必须显式 启用机制表:false：createEngine 自 2026-10-08 起默认开启机制表，不写这一句就变成
+//   "机制表 vs 机制表"的自比，恒 0 不一致 = 假通过（本轮已因机制表长期未接线而吃过同类亏）。
+const 旧 = 适配.createEngine({ 启用机制表: false });
 const 新 = 适配.createEngine({ 启用机制表: { binPath: BIN } });
 
 // ---- DB 加载（gzip + BOM 容错）----
@@ -132,7 +134,7 @@ for (const id of 试点ids) {
   let 符 = 0, 跑 = 0;
   for (const d of 记录) {
     const ids = String(d.compstr).split(/\s+/).filter(Boolean).map(Number);
-    const BOND = [5, 5, 5, 5, 5];   // DB recommend 口径 = 羁绊全 5（自检.js 同款）
+    const BOND = [5, 5, 5, 5, 5];   // DB dmg5 口径 = 羁绊全 5（自检.js 同款）
     // 用 fastReplay 而非 battle 对照：① 这是优化器/排程器实际走的评估路径；
     //   ② battle() 在旧引擎上存在跨场振荡缺陷（同一记录连跑 49.4亿→0→49.4亿，多例引擎.js 的
     //      战斗清理不完整所致——旧引擎对自己都不确定，用它做基准会制造假分歧；
@@ -144,7 +146,7 @@ for (const id of 试点ids) {
     const n = 确定性重放(新, ids, toks, BOND);
     跑++; dbA场++; 总场++;
     if (同值(o, n)) 符++;
-    else 报差异('DB', { id, 队: d.name, ids, rec: d.recommend }, o, n);
+    else 报差异('DB', { id, 队: d.name, ids, rec: d.dmg5 }, o, n);
   }
   const 跳 = 记录.length - 跑;
   console.log(`  id=${id}: ${符}/${跑} 全等${符 === 跑 ? ' ✅' : ' ❌'}${跳 ? `（${跳} 场排程<65步跳过）` : ''}`);

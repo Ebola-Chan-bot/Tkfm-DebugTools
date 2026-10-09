@@ -70,8 +70,19 @@ function __mech_编译条件(cond, names) {
   if (code < 0) throw new Error('机制解释器: 未知 cmp 名 ' + cond.cmp);
   switch (kind) {
     case 'CmpLeader': {
-      var want = cond.a === 1;
-      return function (ctx) { return !!ctx.u.isLeader === want; };
+      // ★必须看 cmp：压平器把源码 `if (!u.isLeader)` 编码为 cond{kind:CmpLeader, cmp:'Ne', a:1}（not 就地翻 cmp，见
+      //   flatten_core.js 的 翻转()）；旧实现只读 cond.a、无视 cmp，等于把 Ne 当 Eq → 「非队长」分支在队长场也被执行。
+      //   实证后果（2026-10-08 逐步差分）：10197(얀코) 为队长时，机制表引擎除了 leader 段的 comp[3].ultimate 注入，
+      //   还错跑了 passive 段 `if(!isLeader)` 的 comp[2].ultimate 注入 → 槽3궁 后全员多一条
+      //   `방어/<호란신미>` buff，lib≥2 档下约半数随机排程伤害偏低（如 2,772,359,488 → 2,617,495,161）。
+      //   影响面不止 10197：凡机制表用 not+队长 条件的角色都会被反向执行，故此处为必修。
+      var clWant = cond.a === 1;
+      var clNeg = cond.cmp !== 'Eq';   // 对偶翻转后只会是 Eq / Ne 两种；出现其它 cmp 视为未支持，直接报错而非静默走 Eq
+      if (cond.cmp !== 'Eq' && cond.cmp !== 'Ne') throw new Error('机制解释器: CmpLeader 不支持 cmp ' + cond.cmp);
+      return function (ctx) {
+        var 命中 = (!!ctx.u.isLeader === clWant);
+        return clNeg ? !命中 : 命中;
+      };
     }
     case 'CmpGT': {
       var v = cond.a / 1e4;
@@ -968,27 +979,21 @@ function __mech_编译一条(c, cmds, pos, names, out, 上下文) {
       pos.i++;
       if (pos.i >= cmds.length || cmds[pos.i].op !== 'InjectEnd') throw new Error('机制解释器: inject 缺 InjectEnd @ ' + 上下文);
       pos.i++;
+      // ★ 状态数据化（2026-10-08）：这里**不再替换 unit[方法]**，只把注入登记为数据。
+      //   旧实现 `unit[方法] = function(){ orig.apply(...); 后置 }` 把"注入了几层、注入了什么"存在
+      //   **方法引用**里，于是任何只回滚数据的快照/撤销都看不见它：多例引擎每次 restore 后重放 궁
+      //   就再叠一层 wrapper，层数单调累积（实测 10214/10184 队：搜索器上万次评估后 RangeError 爆栈；
+      //   站点撤销路径则需 ~1.2~1.6 万次撤销才耗栈）。现在：方法层只有装配期装好、终生不变的
+      //   一个派发壳，壳每次调用读 `unit.__mech_inj[方法]` 这份**纯数据**现场折叠调用链 →
+      //   层数与内容全部可被 captureState/restoreState 捕获与回滚（见 多例引擎.js 的 _拷注入表）。
       out.push(function (ctx) {
         var unit = injTgtF(ctx);
         if (!unit || typeof unit !== 'object') throw new Error('机制解释器: inject 目标解析失败 @ ' + 上下文);
-        var orig = unit[方法];
-        var ownerU = ctx.u, libV = ctx.lib;
-        unit[方法] = function (...args) {
-          var c2 = { u: ownerU, lib: libV, iStack: [unit], tempVars: {}, unitVars: {} };   // 注入体无顶层 find 绑定，独立作用域即可
-          if (模式 === 1) {          // 环绕：快照→前置→orig→后置
-            __mech_执行段(快照段, c2);
-            __mech_执行段(前置段, c2);
-            orig.apply(this, args);
-            __mech_执行段(后置段, c2);
-          } else if (模式 === 0) {   // 追加：orig→后置
-            orig.apply(this, args);
-            __mech_执行段(后置段, c2);
-          } else if (模式 === 2) {   // 替换：快照→前置→后置（不调 orig）
-            __mech_执行段(快照段, c2);
-            __mech_执行段(前置段, c2);
-            __mech_执行段(后置段, c2);
-          } else throw new Error('机制解释器: 未知注入模式 ' + 模式);
-        };
+        __mech_确保壳(unit, 方法);                    // 幂等；目标若是原生回落单位（表外）也在此补壳
+        var 表 = unit.__mech_inj || (unit.__mech_inj = {});
+        var 列 = 表[方法] || (表[方法] = []);
+        // 模式：0=追加(orig→后置) 1=环绕(快照→前置→orig→后置) 2=替换(不调 orig) —— 语义由派发壳按数据执行
+        列.push({ 模式: 模式, 快照段: 快照段, 前置段: 前置段, 后置段: 后置段, u: ctx.u, lib: ctx.lib });
       });
       return;
     }
@@ -1112,6 +1117,49 @@ function __mech_装默认钩子(u) {
   u.turnover = function () { if (u.isLeader) {} };
 }
 
+// ---- 注入派发壳（把"注入"从方法层搬到数据层）----
+// 关键不变量：**方法引用在装配后终生不变**，运行期变化的只有 __mech_inj 这份数据。
+// 链折叠顺序与原生 wrapper 堆叠逐位同构：源码按注册序把 wrapper 一层层套在外面（最后注册的在最外），
+//   所以这里 next 从"装配期原实现"起，依次用 列[0],列[1],…,列[n-1] 包起来，最后调用最外层——
+//   追加模式等价于 orig→后置0→后置1→…，环绕模式等价于 快照n-1→前置n-1→…→orig→后置0→…，
+//   与原生嵌套执行序完全一致（bit-exact 由 双跑差分.js 把关：48 样本/4 羁绊档 0 不一致）。
+function __mech_派发壳(unit, 方法, 原实现) {
+  var 壳 = function (...args) {
+    var 表 = unit.__mech_inj;
+    var 列 = 表 && 表[方法];
+    if (!列 || !列.length) return 原实现.apply(this, args);   // 无注入 = 直通，零额外开销
+    var 缓 = 壳.__mech_链;
+    if (缓 && 缓.列 === 列 && 缓.长 === 列.length) return 缓.fn.apply(this, args);   // 派生缓存：列引用或长度变即失效（restore 换数组 → 自动重建）
+    var next = 原实现;
+    for (var k = 0; k < 列.length; k++) {
+      (function (d, inner) {
+        next = function (...a) {
+          var c2 = { u: d.u, lib: d.lib, iStack: [unit], tempVars: {}, unitVars: {} };   // 注入体独立作用域（与旧实现同）
+          if (d.模式 === 1) {
+            __mech_执行段(d.快照段, c2); __mech_执行段(d.前置段, c2);
+            var r2 = inner.apply(unit, a); __mech_执行段(d.后置段, c2); return r2;
+          }
+          if (d.模式 === 0) { var r = inner.apply(unit, a); __mech_执行段(d.后置段, c2); return r; }
+          if (d.模式 === 2) { __mech_执行段(d.快照段, c2); __mech_执行段(d.前置段, c2); __mech_执行段(d.后置段, c2); return; }
+          throw new Error('机制解释器: 未知注入模式 ' + d.模式);
+        };
+      })(列[k], next);
+    }
+    壳.__mech_链 = { 列: 列, 长: 列.length, fn: next };
+    return next.apply(this, args);
+  };
+  壳.__mech_壳 = true;   // 标记挂在**壳函数自身**（不是 unit 上的字段）：壳被快照复原/删除时标记同步存亡，永不脱钩
+  return 壳;
+}
+// 幂等装壳：当前实现已是壳则直接返回；否则包一层（原实现由壳闭包持有，引用此后不变）。
+//   为何不用 unit 上的标记字段：那种标记是数据、壳是函数，两者由不同机制回滚（数据走 _拷注入表、
+//   函数走 _浅拷字段.__fn 复原+删多余层），一旦脱钩就会出现"标记说有壳但壳已被删"→注入静默丢失。
+function __mech_确保壳(unit, 方法) {
+  var cur = unit[方法];
+  if (typeof cur !== 'function' || cur.__mech_壳) return;
+  unit[方法] = __mech_派发壳(unit, 方法, cur);
+}
+
 // ---- 安装：records → { id: 装配函数 }（钩子段编译只做一次，跨战斗共享）----
 // ⚠ 循环内必须 let/const（var 是函数作用域，闭包会全部捕获最后一条 record——
 //   2026-09-19 实踩：10012 装配到了 10188 的数据，ultMag/cd/buff_ex 全串位）
@@ -1189,6 +1237,9 @@ function __mech_装配(预编译, u, lib) {
       };
     })(segs);
   }
+  // 为全部可注入方法预装派发壳（必须在表钩子装完之后：壳要包住的是表驱动钩子，不是默认骨架）。
+  //   预装后 InjectStart 只需登记数据，运行期方法层零变动；init 段的注入因幂等而直接复用此处的壳。
+  for (var mi = 0; mi < __MECH_METHOD.length; mi++) __mech_确保壳(u, __MECH_METHOD[mi]);
   // init 伪钩子段：case 顶层即时语句（源码在 setDefault 顶层执行：deleteBuff 清静态 buff /
   // 顶层注入 wrap / 旗标 / FindUnit 绑定），装配期执行一次，与源码时机同机（钩子已装好，可安全 wrap）
   var initSegs = 段表['init'];

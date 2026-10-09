@@ -78,18 +78,39 @@ function 构建默认deps() {
 /**
  * 创建一个隔离的模拟器实例。
  * @param {object} [opts] { calcSrc?, autocalcSrc?, headerFrag?, deps?, 启用机制表?, 机制binPath? }
- *   - calcSrc: 引擎主体源码（默认反混淆版）；传 线上混淆引擎源码() 可切换到线上口径
+ *   - 启用机制表（2026-10-08 起 **默认开启**）：注入机制解释器，有表角色走数据驱动装配、无表回落原 setDefault。
+ *     数据驱动装配的注入状态（InjectStart）存在 unit.__mech_inj **纯数据**里，可被
+ *     captureState/restoreState 回滚；原生 case 代码则用猴子补丁替换实例方法，把"注入了几层"藏在
+ *     **方法引用**里 → 只回滚数据的快照看不见它，层数随评估次数单调累积到爆栈（万巴队实证）。
+ *     背书上默认切换安全：双跑差分.js 全量 5567 场 bit-exact（不一致 0，含状态级 diff 192 场全等、
+ *     源码异常忠实逐字一致），且性能优于原生硬编码路径（基准场×300：旧403.7ms / 新365.8ms = 0.906x）。
+ *     显式传 false 可回原生 case 路径（双跑差分的对照侧、上游行为复核用）。
+ *   - calcSrc: 引擎主体源码（默认反混淆版）；传 线上混淆引擎源码() 可切换到线上口径，但混淆源
+ *     没有明文符号（setDefault/comp/tbf/ultLogic…），**与机制表互斥** → 需同时 启用机制表:false。
  *   - deps: 自定义依赖（默认构建默认deps()）
- *   - 启用机制表: true（或 {binPath}）→ 注入机制解释器，有表角色走表装配、无表回落原 setDefault；
- *     缺省/不传 = 既往行为逐字节不变（线上与既有 benchmark 零影响）
  * @returns {{ battle, getState, increment, internals }} 模拟器实例
  */
 function createEngine(opts) {
   opts = opts || {};
   const deps = opts.deps || 构建默认deps();
-  if (opts.启用机制表) {
-    const binPath = typeof opts.启用机制表 === 'object' && opts.启用机制表.binPath ? opts.启用机制表.binPath : opts.机制binPath;
-    return createSimulator({ ...deps, 机制数据: 机制数据(binPath) }, { ...opts, 解释器源: 解释器源文本() });
+  const 用机制表 = opts.启用机制表 !== false;   // 默认开；只有显式 false 才走原生 case 代码
+  if (用机制表) {
+    const binPath = (typeof opts.启用机制表 === 'object' && opts.启用机制表.binPath) || opts.机制binPath || 路径.机制表bin;
+    // 机制表解释器只对**已确证等价的可读镜像**背书（双跑差分.js 的 bit-exact 门禁跑的就是
+    //   deobfuscated.js vs mechanisms.bin）。传自定义 calcSrc 意味着换了引擎源码，未经门禁就注入机制表
+    //   = 无背书组合，故要求调用方显式表态（传 true/false），拒绝静默默认。
+    //   （早期版本在此用正则探"源码里有没有明文 setDefault/ultLogic"——实测无效：压缩混淆版保留顶层
+    //     函数声明名（`function loadBefore(){` 等都是明文），只混淆局部变量为 _0x… 形式，所以探测恒通过）。
+    const calcSrc = opts.calcSrc || 反混淆引擎源码();
+    if (opts.calcSrc && opts.启用机制表 === undefined) {
+      throw new Error('引擎适配.createEngine: 传了自定义 calcSrc 却未明说机制表口径。' +
+        '机制表解释器的 bit-exact 背书只针对默认反混淆引擎；请显式传 启用机制表: true（已自行验证该源码）或 false（走原生 case 路径）。');
+    }
+    if (!fs.existsSync(binPath)) {
+      throw new Error(`引擎适配.createEngine: 机制表未构建（${binPath} 不存在）。` +
+        '构建步骤见 优化器/机制表/README.md；或显式传 启用机制表: false 暂时回原生 case 路径。');
+    }
+    return createSimulator({ ...deps, 机制数据: 机制数据(binPath) }, { ...opts, calcSrc, 解释器源: 解释器源文本() });
   }
   return createSimulator(deps, opts);
 }

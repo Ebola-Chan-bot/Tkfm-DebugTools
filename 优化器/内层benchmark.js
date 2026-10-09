@@ -2,8 +2,8 @@
 /*
  * 内层搜索正式 benchmark：角色组合确定时，MC rollout 束搜索能否高效发现 DB 最优指令序。
  *
- * 队选取：全站 recommend 降序、站位键去重、本地 bit 级复现（重放===recommend）的前 N 支强队。
- * 真值 = DB recommend（景观探测已证其为 r=2 局部极大，作 benchmark 可靠）。
+ * 队选取：全站 dmg5 降序、站位键去重、本地 bit 级复现（重放===dmg5）的前 N 支强队。
+ * 真值 = DB dmg5（景观探测已证其为 r=2 局部极大，作 benchmark 可靠）。
  * 全部算法从零构造（不用 DB toks 作起点，无种子），达成率 = dmg / DB最优。
  *
  * 用法: node 内层benchmark.js [N支] [width] [R]
@@ -67,17 +67,17 @@ function 选队(N) {
   const 可模拟 = id => { const c = 角色(id); return c && c.ok === true && c.rarity === 3 && c.hp && c.atk; };
   const 名单 = new Map();
   for (const d of arr) {
-    if (!(d.recommend > 0) || !d.description || !d.description.includes('턴')) continue;
+    if (!(d.dmg5 > 0) || !d.description || !/\d[평궁방]/.test(d.description)) continue;
     const ids = String(d.compstr).split(/\s+/).filter(Boolean).map(Number);
     if (ids.length !== 5 || ids.some(id => !id || !可模拟(id) || 特例ID.has(id))) continue;
     const 键 = ids.join(',');
     const 旧 = 名单.get(键);
-    if (!旧 || d.recommend > 旧.recommend) 名单.set(键, { 队: d.name, ids, description: d.description, recommend: d.recommend });
+    if (!旧 || d.dmg5 > 旧.dmg5) 名单.set(键, { 队: d.name, ids, description: d.description, dmg5: d.dmg5 });
   }
-  const 强队 = [...名单.values()].sort((a, b) => b.recommend - a.recommend);
+  const 强队 = [...名单.values()].sort((a, b) => b.dmg5 - a.dmg5);
   const 可复现 = d => {
     const toks = 排程器.解析指令集(inst, d.ids, d.description, BOND);
-    return toks && 排程器.重放(inst, d.ids, toks, BOND) === d.recommend;
+    return toks && 排程器.重放(inst, d.ids, toks, BOND) === d.dmg5;
   };
   // 精选名单模式（BENCH_LIST=文件路径，一行一队 "id1,id2,..."，#开头为注释）：
   //   按文件顺序从 名单 取队+bit级复现校验，不做 top-N 截断——回归的价值在覆盖已知危险面不在数量。
@@ -119,7 +119,7 @@ function 评一队(d, width, R, 评分) {
   out.束 = b ? b.dmg : 0; out.束ms = Date.now() - t1; out.扩展 = b ? b.扩展数 : 0; out.深 = b ? b.深度 : 0;
   // 束结果+爬山收尾（束给好起点，爬山精修）
   out.束爬 = out.束;
-  if (b && b.toks && b.toks.length === 65 && out.束 < d.recommend) {
+  if (b && b.toks && b.toks.length === 65 && out.束 < d.dmg5) {
     const t2 = Date.now();
     const h = 排程器.爬山(inst, d.ids, b.toks, BOND, CLIMB);
     if (h && h.dmg > out.束爬) out.束爬 = h.dmg;
@@ -138,7 +138,7 @@ function 评一队(d, width, R, 评分) {
   out.跳相位 = out.需相位规划 && 段门控 && !cd单一;
   out.跳节拍 = 节拍开关 && 段门控 && cd单一;
   out.跳窗 = 窗对齐开关 && 段门控 && !需窗;
-  if (out.需相位规划 && !out.跳相位 && out.终 < d.recommend) {
+  if (out.需相位规划 && !out.跳相位 && out.终 < d.dmg5) {
     const t3 = Date.now();
     // 档间去重（2026-09-25，_探针相位重复 实测）：兜底档{5,99} 在 5/5 样本队构造出**完全相同的 toks**
     //   （实验L早已实证 5/8/99 同解，此次坐实到 toks 级）⇒ 同起点同预算爬山结果必然逐位一致，第二档是
@@ -159,7 +159,7 @@ function 评一队(d, width, R, 评分) {
   }
   // 节拍对齐兜底（与生产同口径）：纯静态构造 + TopK各爬山，按真值取优（结构上不可能低于现状）。
   //   不依赖 需相位规划 闸门独立跑（Top200 实测该闸门 200/200 全命中，判别力已失效），仅在 终<真值 时触发。
-  if (节拍开关 && !out.跳节拍 && out.终 < d.recommend) {
+  if (节拍开关 && !out.跳节拍 && out.终 < d.dmg5) {
     const t4 = Date.now();
     const 节拍候选 = 排程器.节拍对齐构造(inst, d.ids, BOND, { TopK: 节拍TopK });
     for (const 构 of 节拍候选) {
@@ -171,7 +171,7 @@ function 评一队(d, width, R, 评分) {
   }
   // 窗对齐兜底（与生产同口径）：S族静态全扫 + TopK各爬山，按真值取优。同上不设闸门，仅 终<真值 时触发
   //   （benchmark 口径为最坏情况压力测试；生产链路有 需窗规划 闸门控成本）。
-  if (窗对齐开关 && !out.跳窗 && out.终 < d.recommend) {
+  if (窗对齐开关 && !out.跳窗 && out.终 < d.dmg5) {
     const t5 = Date.now();
     const 窗候选 = 排程器.窗对齐构造(inst, d.ids, BOND, { TopK: 窗对齐TopK });
     for (const 构 of 窗候选) {
@@ -185,7 +185,7 @@ function 评一队(d, width, R, 评分) {
   //   预算180k×K32不敏感=爬山邻域不可达的回合内序深谷）；对最优toks做整回合5!全排列重排（~1547重放≈10s）
   //   →100.19%。只对 终<真值 触发（已达标136+队零成本零扰动）；对束解无效不劣化（重排只换序,不改动作,
   //   bestToks取的是兜底构造爬山终点）；真值max取优（重排失败/劣化则保留原终）。
-  if (序重排开关 && out.终 < d.recommend && bestToks) {
+  if (序重排开关 && out.终 < d.dmg5 && bestToks) {
     const t6 = Date.now();
     const o = 排程器.整回合序重排(inst, d.ids, bestToks, BOND);
     if (o && o.dmg > out.终) { out.终 = o.dmg; out.来源 = '+序重排'; }
@@ -200,7 +200,7 @@ if (!isMainThread && workerData && workerData.动态) {
   parentPort.on('message', (m) => {
     if (m.type === '任务') {
       const out = 评一队(m.d, workerData.width, workerData.R, workerData.评分);
-      parentPort.postMessage({ type: '结果', 队: m.d.队, ids: m.d.ids, recommend: m.d.recommend, ...out });
+      parentPort.postMessage({ type: '结果', 队: m.d.队, ids: m.d.ids, dmg5: m.d.dmg5, ...out });
       parentPort.postMessage({ type: '要活' });
     } else if (m.type === '收工') {
       parentPort.postMessage({ type: 'done' });
@@ -223,10 +223,10 @@ if (!isMainThread && workerData && workerData.动态) {
   const fmtPct = (a, b) => (a / b * 100).toFixed(2) + '%';
   const 结果 = [];
   const 收尾 = () => {
-    const 前瞻率 = 结果.map(r => r.前瞻 / r.recommend);
-    const 束率 = 结果.map(r => r.束 / r.recommend);
-    const 爬率 = 结果.map(r => r.束爬 / r.recommend);
-    const 终率 = 结果.map(r => r.终 / r.recommend);
+    const 前瞻率 = 结果.map(r => r.前瞻 / r.dmg5);
+    const 束率 = 结果.map(r => r.束 / r.dmg5);
+    const 爬率 = 结果.map(r => r.束爬 / r.dmg5);
+    const 终率 = 结果.map(r => r.终 / r.dmg5);
     const 均 = a => (a.reduce((s, v) => s + v, 0) / a.length * 100).toFixed(1);
     console.log('\n=============== 汇总 ===============');
     console.log(`先验前瞻: 平均${均(前瞻率)}%`);
@@ -249,7 +249,7 @@ if (!isMainThread && workerData && workerData.动态) {
     const 兜底有增益 = 结果.filter(r => r.来源 && r.来源.startsWith('+')).length;
     console.log(`  ⇒ 兜底链(相位/节拍/窗/序重排)真正贡献增益: ${兜底有增益}队，其余 ${结果.length - 兜底有增益}队 兜底段零增益`);
     // ---- 前瞻已达标队：束/爬/兜底对其全零增益（⚠️靠 DB 真值判定，生产链路无真值不可直接早停）----
-    const 前瞻达 = 结果.filter(r => r.前瞻 >= r.recommend).length;
+    const 前瞻达 = 结果.filter(r => r.前瞻 >= r.dmg5).length;
     console.log(`--- 前瞻贪心即≥DB真值(束爬兜底全白烧，仅benchmark可判): ${前瞻达}队 ---`);
   };
 
@@ -257,7 +257,7 @@ if (!isMainThread && workerData && workerData.动态) {
     // 动态任务队列：主线程持有 待办，worker 每次完工发“要活”领取下一队；难队自然被空闲 worker 接手，无长尾空转。
     const 待办 = 队.slice();
     // 来源=最终最优解由哪段产出；分段ms=逐队归因数据(_分析段可裁性.js 交叉用；纯打印零行为变化)
-    const 打印 = (m) => console.log(`${m.队}[${m.ids}]: 前瞻${fmtPct(m.前瞻, m.recommend)} 束${fmtPct(m.束, m.recommend)}+爬${fmtPct(m.束爬, m.recommend)} 终${fmtPct(m.终, m.recommend)} 源=${m.来源 || '?'} ms[束${((m.束ms || 0) / 1000).toFixed(0)} 爬${((m.爬ms || 0) / 1000).toFixed(0)} 兜${((m.兜底ms || 0) / 1000).toFixed(0)} 节拍${((m.节拍ms || 0) / 1000).toFixed(0)} 窗${((m.窗对齐ms || 0) / 1000).toFixed(0)} 序${((m.序重排ms || 0) / 1000).toFixed(0)}] DB=${m.recommend.toLocaleString()}`);
+    const 打印 = (m) => console.log(`${m.队}[${m.ids}]: 前瞻${fmtPct(m.前瞻, m.dmg5)} 束${fmtPct(m.束, m.dmg5)}+爬${fmtPct(m.束爬, m.dmg5)} 终${fmtPct(m.终, m.dmg5)} 源=${m.来源 || '?'} ms[束${((m.束ms || 0) / 1000).toFixed(0)} 爬${((m.爬ms || 0) / 1000).toFixed(0)} 兜${((m.兜底ms || 0) / 1000).toFixed(0)} 节拍${((m.节拍ms || 0) / 1000).toFixed(0)} 窗${((m.窗对齐ms || 0) / 1000).toFixed(0)} 序${((m.序重排ms || 0) / 1000).toFixed(0)}] DB=${m.dmg5.toLocaleString()}`);
     let 完工worker = 0;
     const workers = [];
     const 派发 = (w) => {
@@ -278,8 +278,8 @@ if (!isMainThread && workerData && workerData.动态) {
   } else {
         for (const d of 队) {
       const out = 评一队(d, width, R, 评分);
-      结果.push({ 队: d.队, ids: d.ids, recommend: d.recommend, ...out });
-      console.log(`${d.队}[${d.ids}]: 前瞻${fmtPct(out.前瞻, d.recommend)} 束${fmtPct(out.束, d.recommend)}+爬${fmtPct(out.束爬, d.recommend)} 终${fmtPct(out.终, d.recommend)} 源=${out.来源 || '?'} ms[束${((out.束ms || 0) / 1000).toFixed(0)} 爬${((out.爬ms || 0) / 1000).toFixed(0)} 兜${((out.兜底ms || 0) / 1000).toFixed(0)} 节拍${((out.节拍ms || 0) / 1000).toFixed(0)} 窗${((out.窗对齐ms || 0) / 1000).toFixed(0)} 序${((out.序重排ms || 0) / 1000).toFixed(0)}] DB=${d.recommend.toLocaleString()}`);
+      结果.push({ 队: d.队, ids: d.ids, dmg5: d.dmg5, ...out });
+      console.log(`${d.队}[${d.ids}]: 前瞻${fmtPct(out.前瞻, d.dmg5)} 束${fmtPct(out.束, d.dmg5)}+爬${fmtPct(out.束爬, d.dmg5)} 终${fmtPct(out.终, d.dmg5)} 源=${out.来源 || '?'} ms[束${((out.束ms || 0) / 1000).toFixed(0)} 爬${((out.爬ms || 0) / 1000).toFixed(0)} 兜${((out.兜底ms || 0) / 1000).toFixed(0)} 节拍${((out.节拍ms || 0) / 1000).toFixed(0)} 窗${((out.窗对齐ms || 0) / 1000).toFixed(0)} 序${((out.序重排ms || 0) / 1000).toFixed(0)}] DB=${d.dmg5.toLocaleString()}`);
     }
     收尾();
   }
