@@ -9,13 +9,13 @@
  *
  * 两种接种方式：
  *   1) 精确命中：目标团队的"排序后集合"与库内某条相同 → 直接用该条 description 解析出的 toks
- *      （同一集合可能有多个站位/多条记录，取 recommend 最高者；站位不同时按角色 id 重映射，见下）。
+ *      （同一集合可能有多个站位/多条记录，取 dmg5 最高者；站位不同时按角色 id 重映射，见下）。
  *   2) 排程迁移：目标团队与库内某队共享 ≥4 人 → 把库内最优指令的 token 位置按"角色对应关系"
  *      重映射到目标站位（双射：共享角色映射到新位置，被换入的角色占据种子队中空出的那个位置）。
  *      迁移动作序列原样保留；若因新角色 CD 不同导致非法（重放=0），上层爬山会从其他起点兜底。
  *
  * 索引结构（内存 ~几十 MB，一次性构建）：
- *   bySet: Map("id升序join" → [ {ids, description, recommend, vote} … ])  精确命中
+ *   bySet: Map("id升序join" → [ {ids, description, dmg, vote} … ])  精确命中（dmg = DB伤害分，读 data.json 的 dmg5）
  *   byChar: Map(角色id → Set(集合键))                                      迁移检索加速
  */
 const fs = require('fs');
@@ -41,7 +41,7 @@ function 装载(数据路径) {
     const ids = String(d.compstr).split(/\s+/).filter(Boolean).map(Number);
     if (ids.length !== 5) continue;
     const 键 = ids.slice().sort((a, b) => a - b).join(',');
-    const 项 = { ids, description: d.description, recommend: d.recommend || 0, vote: d.vote || 0 };
+    const 项 = { ids, description: d.description, dmg: DB伤害分(d), vote: d.vote || 0 };
     if (!bySet.has(键)) bySet.set(键, []);
     bySet.get(键).push(项);
     for (const id of ids) {
@@ -49,10 +49,26 @@ function 装载(数据路径) {
       byChar.get(id).add(键);
     }
   }
-  // 每个集合键内按 recommend 降序，命中时直接取头
-  for (const v of bySet.values()) v.sort((a, b) => b.recommend - a.recommend);
-  _库 = { bySet, byChar, 条目数: arr.length };
+  // 每个集合键内按 DB 伤害分降序，命中时直接取头
+  for (const v of bySet.values()) v.sort((a, b) => b.dmg - a.dmg);
+  // 防呆（2026-10-08）：data.json 曾把伤害字段从 recommend 改成 dmg5/dmg1/dmgElv，本文件当时写死
+  //   `d.recommend || 0` → 整库择优分恒 0、`sort` 退化成保持 DB 原序（多条同集合记录时会拿到
+  //   任意一条而非最优那条，表现为 搜索队伍.js 日志里 `DB条目… ranking=undefined`）。
+  //   字段改名类回归必须直接报错，绝不能静默降级成"看起来能用其实择优失效"。
+  const 有分条数 = [...bySet.values()].reduce((n, v) => n + v.filter(x => x.dmg > 0).length, 0);
+  if (有分条数 === 0) {
+    throw new Error(`种子库: data.json 里 ${bySet.size} 支队伍无一条 dmg5>0——伤害字段名疑似又变（当前读 dmg5）。` +
+      `请核对 data.json 字段（现存: ${Object.keys(arr[0] || {}).join(',')}）后更新 DB伤害分()，勿静默降级。`);
+  }
+  _库 = { bySet, byChar, 条目数: arr.length, 有分条数 };
   return _库;
+}
+
+// DB 伤害分：择优口径必须与引擎评估口径一致（BOND 全 5、13 回合）→ 只取 dmg5。
+//   不回落到 dmg1/dmgElv：那是全1羁绊/带ELV口径，量纲不可比，混用会把排序搞乱（宁可记 0 排到末尾）。
+function DB伤害分(d) {
+  const v = d.dmg5;
+  return (typeof v === 'number' && v > 0) ? v : 0;
 }
 
 // 把种子的 toks 位置重映射到目标站位：种子站位 sIds → 目标站位 tIds。
@@ -77,11 +93,11 @@ function 迁移toks(seedIds, toks, targetIds) {
  * 返回 [{ toks(已映射到targetIds站位), 种子ids(原始站位), 种子toks(原始站位toks), 来源, 种子键, 种子伤害 }, …]
  * 按期望质量降序（调用方逐个重放校验，取 >0 者作深搜起点）。
  *   - 来源='精确'：库内同集合队伍的最优指令（站位不同则同时给"迁移到targetIds"与"原始站位"两种）；
- *   - 来源='迁移4'：共享 4 人的库内队伍中 recommend 最高者的指令（位置重映射到 targetIds）；
+ *   - 来源='迁移4'：共享4 人的库内队伍中 dmg5 最高者的指令（位置重映射到 targetIds）；
  *   - 无种子兜底由调用方贪心基线负责，这里不生成。
  * 之所以同时返回"原始站位种子"：库内最优可能依赖特定站位，迁移到 targetIds 后未必最优，
  * 让上层把 s.ids 也作为一个候选站位参与竞争（站位层本就穷举全部 120，这里只是提前锁定高质量者）。
- * limit共享4：迁移候选最多尝试的条数（默认 8，按 recommend 降序）。
+ * limit共享4：迁移候选最多尝试的条数（默认 8，按 dmg5 降序）。
  */
 function 找起点(inst, targetIds, BOND, limit共享4) {
   BOND = BOND || [5, 5, 5, 5, 5];
@@ -99,9 +115,9 @@ function 找起点(inst, targetIds, BOND, limit共享4) {
       const 同站位 = s.ids.join(',') === targetIds.join(',');
       const 迁移 = 同站位 ? 种子toks : 迁移toks(s.ids, 种子toks, targetIds);
       // (a) 迁移到 targetIds 站位的起点
-      if (迁移) 结果.push({ toks: 迁移, 种子ids: s.ids, 种子toks, 来源: '精确', 种子键: 目标键, 种子伤害: s.recommend });
+      if (迁移) 结果.push({ toks: 迁移, 种子ids: s.ids, 种子toks, 来源: '精确', 种子键: 目标键, 种子伤害: s.dmg });
       // (b) 原始站位起点（站位不同才额外加，站位相同时与(a)重复）
-      if (!同站位) 结果.push({ toks: 种子toks, 站位: s.ids, 种子ids: s.ids, 种子toks, 来源: '精确-原位', 种子键: 目标键, 种子伤害: s.recommend });
+      if (!同站位) 结果.push({ toks: 种子toks, 站位: s.ids, 种子ids: s.ids, 种子toks, 来源: '精确-原位', 种子键: 目标键, 种子伤害: s.dmg });
     }
   }
 
@@ -116,13 +132,13 @@ function 找起点(inst, targetIds, BOND, limit共享4) {
     }
   }
   const 共享4 = [...候选键.entries()].filter(([, n]) => n >= 4).map(([k]) => k);
-  共享4.sort((a, b) => (库.bySet.get(b)[0].recommend || 0) - (库.bySet.get(a)[0].recommend || 0));
+  共享4.sort((a, b) => (库.bySet.get(b)[0].dmg || 0) - (库.bySet.get(a)[0].dmg || 0));
   for (const k of 共享4.slice(0, limit共享4)) {
     const s = 库.bySet.get(k)[0];
     const 种子toks = 排程器.解析指令集(inst, s.ids, s.description, BOND);
     if (!种子toks) continue;
     const m = 迁移toks(s.ids, 种子toks, targetIds);
-    if (m) 结果.push({ toks: m, 种子ids: s.ids, 种子toks, 来源: '迁移4', 种子键: k, 种子伤害: s.recommend });
+    if (m) 结果.push({ toks: m, 种子ids: s.ids, 种子toks, 来源: '迁移4', 种子键: k, 种子伤害: s.dmg });
   }
   return 结果;
 }

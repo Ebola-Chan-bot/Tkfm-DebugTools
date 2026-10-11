@@ -1493,6 +1493,140 @@ function 窗对齐构造(inst, ids, bonds, 设置) {
   return 设置.全部 ? 出 : 最终候选;
 }
 
+/* ---------- 5d) 独立相位构造（混窗：伤害角色按自身 cd 放满 + buff/治疗角色按全局窗憋招） ---------- */
+
+/*
+ * 为什么需要（2026-10-08，DB 对标 4 支未达标队的逐回合差异诊断实证）：
+ *   队 [10210시엘cd3, 10212비타cd3, 10151바이블cd4, 10168유니스cd4, 10072신바알cd4]、全5羁绊：
+ *   既有全链（前瞻+束+相位+节拍+窗对齐+自然收敛+编辑球r=1,2）最优 260.97亿，DB 玩家解 264.70亿。
+ *   把两者的「每角色大招回合集」并排后，差异是**结构性**的（act 不同 19/65=29.2%、回合内序不同 10/13）：
+ *     既有 = **统一周期 4**：全员 [1,5,9,13] 齐射（节拍对齐构造只能表达"S 内全궁 / 非 S 全평"）
+ *     DB   = **按角色类型分族**：伤害角色 시엘/비타 按自身 cd 放满 [1,4,7,10,13]（P=3）
+ *            buff/治疗 바이블 [7,13]、유니스/신바알 [1,7,13]（P=6，与 cd3 族的窗对齐，LCM(3,6)=6）
+ *   既有的三个构造器都表达不了这一族：节拍对齐＝统一窗+全员齐射；相位对齐的憋招只作用于伤害궁
+ *   （buff궁 恒准点放，正是它的文件头记录的盲区）；窗对齐的窗来自机制周期表而非"按角色类型分族"。
+ *   邻域也够不到（都有实测）：束时限 45s→300s 结果**一字不变**（w20 扩展5059、17.9s 自收敛）、
+ *   编辑球 r=1(130)/r=2(8320) 无更优、全局整回合序重排↔爬山∞ 零提升 ⇒ 只能补**起点族**。
+ *   实测效果（爬山30000+谷底8+序重排，B族命中的正是 T=3 → P=[3,3,6,6,6]）：
+ *     4/4 支补上 DB 缺口：234.88→**238.47亿**、264.70→**264.71亿**（反超）、219.80→**220.91亿**、214.22→**220.11亿**
+ *     相对既有全链 +3.74 / +7.63 / +11.96 / +13.62亿。
+ *   接入生产后复验（%TEMP%\vsci-probe\验证独立相位E.js）：4/4 逐值吻合，实测成本远低预估——
+ *     首放回合表 11~35ms（逐步重放带早停，多数角色 f=1 首次即命中；按 ids|bonds 缓存）＋ B族 13 变体重放 21~43ms。
+ *   ⚠ TopK=3 是必要的，不能只取构造分第 1：4/4 队构造 dmg 第 1 名都是 混窗T1（P=各自cd、约 50亿），
+ *     但爬山胜出者都是 混窗T3（P=[3,3,6,6,6]、构造分反而低 4~6%）⇒ 构造分排序 ≠ 爬山终点排序
+ *     （与 节拍对齐构造 同一教训：当时希娃儿队构造第1只到 77.44%、第3 反达 95.55%）。
+ *
+ * 关键依赖：**每角色的「首次可放回合 f_k」必须实测，不能用静态 cd 推**。
+ *   兔伊 10151：cd=4、role=3，但 t1/t2 放궁 一律非法，实测 f=5；而同 role 同 cd 的 할벤더 10215 f=1。
+ *   忽略 f_k 会让整队变体**全部非法**（实测 0/576 合法），这也是本构造必须自己跑引擎判合法的原因。
+ *   ⚠ 判合法只能看 do_* 的返回值（逐步执行）：全普攻是**合法**的但 dmg13=0，用 dmg>0 判合法会误杀。
+ *
+ * 变体族：
+ *   B族（默认，13 变体、去重后约 12）：枚举全局窗 T∈[1,13]；伤害角色(ultMag/atkMag>0) P=自身 cd；
+ *      非伤害角色 P = T×ceil(max(cd,T)/T)（憋到窗且不小于 cd）；off 全 0（早于 f_k 的窗自动缺席）。
+ *   A族（设置.全相位=true，CLI --独立相位全相位）：P_k∈[cd_k,2cd_k] 全整数 × off_k∈[0,cd_k) 全笛卡尔积，
+ *      变体数 = ∏_k (cd_k+1)×cd_k（cd=3⇒12、cd=4⇒20、cd=5⇒30）⇒ cd=[3,3,4,4,4] 就是 12²×20³ = **1,152,000**
+ *      变体，单进程实测 ≈一小时/队（⚠ 不是之前误记的 57600/5min）⇒ 默认关闭，只用于"已知强队的终极确认"，
+ *      且设 设置.全相位上限（默认 2,000,000）防跑飞：超限则跳过 A族（B族照跑，不静默降低 B族质量）。
+ *      ⚠ 变体只存 {dmg,P,off} 不存 toks：存 toks 会 OOM（百万变体×65 个动作对象，实测 4 worker 全崩）。
+ *
+ * @param {object} 设置 {TopK=3, 全相位=false, 爬山预算=null, 谷底试探=null, stopFlag=null, 全部=false}
+ *        给了 爬山预算 就内部逐候选爬山并返回单个 {toks,dmg,来源}（与 窗对齐构造 同风格）；否则返回候选数组。
+ * @returns {{toks,dmg,P,族}[]|{toks,dmg,来源}|null}
+ */
+const _首放缓存 = new Map();
+function 首放回合表(inst, ids, bonds) {
+  const 键 = ids.join(',') + '|' + bonds.join(',');
+  const 命中 = _首放缓存.get(键);
+  if (命中) return 命中;
+  const inc = inst.increment, 原语 = inc.原语();
+  const 可跑通 = (toks) => {
+    if (!inc.initBattle(ids, bonds, -1, null)) return false;
+    for (let i = 0; i < toks.length; i++) {
+      const t = toks[i];
+      const o = t.act === '궁' ? 原语.do_ult(t.idx) : t.act === '평' ? 原语.do_atk(t.idx) : 原语.do_def(t.idx);
+      if (!o) return false;
+    }
+    return true;
+  };
+  const 表 = [];
+  for (let k = 0; k < ids.length; k++) {
+    let f = 99;                                  // 99 = 13 回合内永远放不出（封印/纯被动等）
+    for (let t = 1; t <= 13; t++) {
+      const toks = [];
+      for (let tt = 0; tt < 13; tt++) for (let j = 0; j < ids.length; j++) toks.push({ idx: j, act: (j === k && tt === t - 1) ? '궁' : '평' });
+      if (可跑通(toks)) { f = t; break; }
+    }
+    表.push(f);
+  }
+  _首放缓存.set(键, 表);
+  return 表;
+}
+
+function 独立相位构造(inst, ids, bonds, 设置) {
+  bonds = bonds || [5, 5, 5, 5, 5];
+  设置 = 设置 || {};
+  const TopK = 设置.TopK == null ? 3 : 设置.TopK;
+  const cds = ids.map(id => { const f = 特征.get(id); return Math.max(1, f && f.cd >= 1 ? f.cd : 4); });
+  const fs = 首放回合表(inst, ids, bonds);
+  const 是伤害 = k => { const f = 特征.get(ids[k]); return !!(f && ((f.ultMag > 0) || (f.atkMag > 0))); };
+  const 造 = (P, off) => {
+    const toks = [];
+    for (let t = 1; t <= 13; t++) for (let k = 0; k < ids.length; k++) {
+      const f = fs[k];
+      const 放 = f <= 13 && t >= f + off[k] && (t - f - off[k]) % P[k] === 0;
+      toks.push({ idx: k, act: 放 ? '궁' : '평' });
+    }
+    return toks;
+  };
+  const 候 = [];                                 // ★ 只存 {dmg,P,off}：A族 57600 变体若各存 65 个动作对象会 OOM
+  const 见 = new Set();
+  const 试 = (P, off, 族) => {
+    if (设置.stopFlag && 设置.stopFlag()) return;
+    const toks = 造(P, off);
+    const k = toks键(toks); if (见.has(k)) return; 见.add(k);
+    const dmg = 重放(inst, ids, toks, bonds);
+    if (dmg > 0) 候.push({ dmg, P: P.slice(), off: off.slice(), 族 });
+  };
+  for (let T = 1; T <= 13; T++) {                // B族：全局窗 T
+    const P = [], off = [];
+    for (let k = 0; k < ids.length; k++) {
+      P.push(是伤害(k) ? cds[k] : T * Math.max(1, Math.ceil(Math.max(cds[k], T) / T)));
+      off.push(0);
+    }
+    试(P, off, '混窗T' + T);
+  }
+  if (设置.全相位) {                             // A族：每角色独立周期与相位（百万级变体，默认关，终搜用）
+    const 选 = ids.map((id, k) => { const a = []; for (let P = cds[k]; P <= cds[k] * 2; P++) for (let off = 0; off < cds[k]; off++) a.push([P, off]); return a; });
+    const 上限 = 设置.全相位上限 == null ? 2000000 : 设置.全相位上限;
+    let 规模 = 1; for (const s of 选) 规模 *= s.length;
+    if (规模 <= 上限) {
+      const 组 = new Array(ids.length);
+      (function 递(d) {
+        if (d === ids.length) { 试(组.map(x => x[0]), 组.map(x => x[1]), '独立相位'); return; }
+        for (const s of 选[d]) { 组[d] = s; 递(d + 1); }
+      })(0);
+    }
+    // 超上限：不跑 A族（宁可少一个起点族，也不让单队兜底跑数小时拖垮海量名单）；B族结果仍完整。
+  }
+  if (!候.length) return 设置.爬山预算 ? null : [];
+  候.sort((a, b) => b.dmg - a.dmg);
+  const 带toks = c => ({ toks: 造(c.P, c.off), dmg: c.dmg, P: c.P, 族: c.族 });
+  if (设置.全部) return 候.map(带toks);
+  // 爬山预算模式：逐候选爬山取真值 max（与 窗对齐构造 同口径；构造分排序 ≠ 爬山终点排序，故不能只取 Top1）
+  if (设置.爬山预算) {
+    let 终 = { toks: null, dmg: 0, 来源: '' };
+    for (const c of 候.slice(0, TopK)) {
+      if (设置.stopFlag && 设置.stopFlag()) break;
+      const h = 爬山(inst, ids, 造(c.P, c.off), bonds, 设置.爬山预算, 设置.stopFlag, null, 设置.谷底试探);
+      const x = (h && h.dmg > c.dmg) ? { toks: h.toks, dmg: h.dmg, 来源: '独立相位+爬:' + c.族 } : { toks: 造(c.P, c.off), dmg: c.dmg, 来源: '独立相位:' + c.族 };
+      if (x.dmg > 终.dmg) 终 = x;
+    }
+    return 终.toks ? 终 : null;
+  }
+  return 候.slice(0, TopK).map(带toks);
+}
+
 // ---------- 指令集 编解码（站点 description 格式 ⇄ toks） ----------
 
 // 解析用户输入的指令集文本（如 " 1턴 : 2평 > 3평 > 4평 > 1궁 > 5평\n 2턴 : ..."）→ toks
@@ -1525,4 +1659,4 @@ function toks键(toks) {
   return s;
 }
 
-module.exports = { 贪心基线, 先验贪心, 先验前瞻贪心, 是伤害궁, 修复解码, 可执行, 爬山, 整回合序重排, 束搜索, 编辑球层, 相位对齐构造, 节拍对齐构造, 窗对齐构造, 重放, 特征, 动作, 组合升序, 笛卡尔积, 解析指令集, 导出指令集, toks键, 爬山memo, 爬山memo设置 };
+module.exports = { 贪心基线, 先验贪心, 先验前瞻贪心, 是伤害궁, 修复解码, 可执行, 爬山, 整回合序重排, 束搜索, 编辑球层, 相位对齐构造, 节拍对齐构造, 窗对齐构造, 独立相位构造, 首放回合表, 重放, 特征, 动作, 组合升序, 笛卡尔积, 解析指令集, 导出指令集, toks键, 爬山memo, 爬山memo设置 };

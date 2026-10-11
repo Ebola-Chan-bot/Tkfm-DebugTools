@@ -46,16 +46,45 @@ function 默认源码() {
 }
 
 // 从 header.js 截取纯数据/纯函数片段：cdDifList 常量 + setCommandCustom 函数（不含任何 DOM 依赖）
+// 上游 header.js（tenkaassist 09e6dc0 起）把 setCommandCustom 的指令解析重构为尾部独立的 parseCommand
+// （纯函数、无 DOM）：片段截断点在 setCommandCustom 后的首个顶层 function 处会把它切掉（parseCommand is
+// not defined），故截断点之后若存在 parseCommand 则延伸到它结束，覆盖新旧两代 header.js。
 function 提取header片段(headerText) {
   const 起 = headerText.indexOf('const cdDifList');
   if (起 === -1) throw new Error('header.js 中未找到 cdDifList，片段提取失败');
-  let 止 = headerText.indexOf('\nfunction ', headerText.indexOf('function setCommandCustom') + 10);
+  const scc = headerText.indexOf('function setCommandCustom');
+  if (scc === -1) throw new Error('header.js 中未找到 setCommandCustom，片段提取失败');
+  let 止 = headerText.indexOf('\nfunction ', scc + 10);
   if (止 === -1) 止 = headerText.length;
+  // 截断点恰是 parseCommand 自身时（setCommandCustom 之后首个顶层函数即它），旧逻辑把它切掉；
+  // pc >= 止 才意味着 parseCommand 未进片段——此时把它的函数体段落外科拼接到片段尾（不扫入中间
+  // 可能存在的其它顶层函数，避免带进 DOM 依赖）。pc < 止 = 已在片段内，无需处理。
+  const pc = headerText.indexOf('\nfunction parseCommand', scc + 10);
+  if (pc !== -1 && pc >= 止) {
+    const pc止 = headerText.indexOf('\nfunction ', pc + 10);
+    return headerText.slice(起, 止) + headerText.slice(pc, pc止 === -1 ? headerText.length : pc止);
+  }
   return headerText.slice(起, 止);
 }
 
-// 工厂体：注入依赖 → header 片段 → 引擎 → 驱动器 → 战斗隔离包装与状态快照
-function 工厂体源码(calcSrc, autocalcSrc, headerFrag) {
+// 工厂体：注入依赖 → header 片段 → 引擎 →（可选）机制表解释器+接线 → 驱动器 → 战斗隔离包装与状态快照
+//   mechSrc = 机制表/解释器源.js 全文（纯文本，与引擎同作用域，可直接引用 comp/boss/tbf/nbf/ultLogic/atkLogic 等）。
+//   ⚠ 接线历史缺陷（2026-10-08 修复）：引擎适配.createEngine({启用机制表}) 一直把 机制数据 放进 deps、
+//     把 解释器源 放进 opts 传下来，但本文件旧版 createSimulator 只读 calcSrc/autocalcSrc/headerFrag，
+//     两者**被完全忽略** → 工厂体里根本不存在 __mech_安装（全仓零调用点），"有表走装配、无表回落"
+//     从未发生。后果：①启用机制表 与 不启用 是完全相同的代码路径（选项静默无效、与 引擎适配 文档不符）；
+//     ②双跑差分.js 的"旧(无机制表) vs 新(机制表)"两侧同源 → 恒 0 不一致 = 假通过，机制表的 bit-exact
+//     背书实际上从未被验证过；③解释器里的真 bug（CmpLeader 忽略 cmp，见 解释器源.js）因此长期潜伏。
+const MECH_接线片段 = `
+;const __mech_原setDefault = setDefault;
+if (!deps.机制数据) throw new Error('机制表接线失败：已串接解释器源但 deps.机制数据 缺失（请用 引擎适配.createEngine({启用机制表:{binPath}})）');
+const __mech_表 = __mech_安装(deps.机制数据);
+setDefault = function (u, lib) {
+  const f = __mech_表[u.id];
+  return f ? f(u, lib) : __mech_原setDefault(u, lib);   // 有表走数据驱动装配，无表回落原硬编码 case
+};
+`;
+function 工厂体源码(calcSrc, autocalcSrc, headerFrag, mechSrc) {
   return [
     'const getCharacter = deps.getCharacter;',
     'const liberationList = deps.liberationList;',
@@ -81,6 +110,10 @@ function 工厂体源码(calcSrc, autocalcSrc, headerFrag) {
     ';',
     calcSrc,
     ';',
+    // ---- 机制表接线（opts.解释器源 + deps.机制数据 时才串接；缺省为空 → 既有行为逐字节不变）----
+    mechSrc || '',
+    mechSrc ? MECH_接线片段 : '',
+    ';',
     autocalcSrc,
     ';',
     // ---- 战斗隔离包装 ----
@@ -98,6 +131,7 @@ function battle(idList, commandText, bondList, bossElement, optionList) {
   //    一致地在此复位)，避免上一场的溢出标记污染 getState()。
   alltimeFunc.length = 0;
   savedData.length = 0;
+  _方法栈.length = 0;      // 与 savedData 同步清零：上一场 step/undo 残留的方法层快照已全部失效
   command.length = 0;
   boss.element = undefined;
   try { isOverflowed.fill(false); } catch (e) {}
@@ -171,6 +205,7 @@ function initBattle(idList, bondList, bossElement, optionList) {
   if (!idList || idList.length !== 5) return false;
   alltimeFunc.length = 0;
   savedData.length = 0;
+  _方法栈.length = 0;                        // 与 savedData 同步清零：旧场的方法层快照全部失效（start() 会重建 comp）
   command.length = 0;
   boss.element = undefined;
   try { isOverflowed.fill(false); } catch (e) {}
@@ -194,17 +229,22 @@ function step(idx, act) {
   var c = comp ? comp[idx] : null;
   if (c == null) return false;
   saveCur();
+  _压方法层();                               // 与 saveCur 逐条对应：数据快照旁同步存方法层快照（本步之前的状态）
   var ok;
   if (act === '평') ok = do_atk(idx);
   else if (act === '궁') ok = do_ult(idx);
   else if (act === '방') ok = do_def(idx);
   else ok = false;
-  if (!ok) { loadBefore(); return false; }     // 非法动作：撤销刚才的压栈，状态不变
+  if (!ok) { loadBefore(); _弹方法层(); return false; }   // 非法动作：数据与方法层一并撤销，状态不变
   return true;
 }
 
-// 回滚一步（弹出最近一次 step 压入的快照）；栈空时 loadBefore 自身安全返回
-function undo() { loadBefore(); }
+// 回滚一步（弹出最近一次 step 压入的快照）；栈空时 loadBefore 自身安全返回（不弹方法层，保持两栈等长）
+function undo() {
+  var _前 = savedData.length;
+  loadBefore();
+  if (savedData.length < _前) _弹方法层();     // 方法层随数据一起回滚：猴子补丁 wrapper / 机制表注入不再单调累积
+}
 
 // 返回角色 idx 当前合法动作集合：未行动时 평/방 恒合法，궁 仅当 CD 就绪（curCd<=0）
 function legalActs(idx) {
@@ -256,21 +296,112 @@ function _拷buff(src) {
   for (let i = 0; i < src.length; i++) { const b = src[i]; const o = {}; for (const k in b) o[k] = b[k]; a[i] = o; }
   return a;
 }
+// 方法层快照（自有函数属性）：部分角色机制在运行期用猴子补丁替换实例方法——10214(万巴) 궁 给
+//   딜/탱/디 队友包 attack（原 attack + 后置 deleteBuff）、10184(小兔妈) 给全队包 attack/ultimate 并追加
+//   hit()、10190 注入 act_attack。这些 wrapper 是「以方法形式存在的状态」：旧实现 _浅拷字段 直接跳过
+//   函数字段（typeof v === 'function' → continue），restore 只回滚数据不回滚方法，于是每评估一次就把
+//   궁 重放一次、每次多叠一层 wrapper，上万次评估后单次攻击要穿透上万层调用 → RangeError 爆栈
+//   （实测：搜索队伍.js 窗对齐兜底相位 100% 崩溃，含 10214/10184 队伍；纯前进式路径同队同指令正常）。
+// 修法：快照时把自有可枚举函数属性收进 __fn（名 → 引用），restore 时按引用复原、并删除快照之后新叠的层。
+//   class 原型方法不可枚举，天然不入快照（delete 自有覆盖层后调用自动回落原型原始实现，与"未打补丁"等价）。
+//   层数由此有界（= 快照时刻层数），不再随评估次数累积。
+// 机制表注入登记表（解释器把 InjectStart 的注入状态数据化后存这里）：{ 方法名: [描述符…] }。
+//   必须**深一层**拷贝：直接引用共享会让 restore 形同虚设，且运行期 push 会污染已存快照
+//   （表现与 buff 数组同类，故与 buff 并列特判）。描述符本身不可变（模式 + 三个已编译闭包段 +
+//   owner/lib），元素可引用共享，只重建外层对象与各数组。
+function _拷注入表(src) {
+  if (!src) return src;
+  const o = {};
+  for (const k in src) o[k] = Array.isArray(src[k]) ? src[k].slice() : src[k];
+  return o;
+}
+/* ---------- step/undo 途径的方法层快照（P0 同族缺陷的第二条撤销路径） ----------
+ * 上面的 captureState/restoreState 是「增量检查点」路径（爬山用）；而 step/undo 走的是引擎自带的
+ * saveCur/loadBefore，两者的缺陷完全同类但当时只修了前者：
+ *   · characterToJson 只快照**数据字段**（atk/hp/curHp/cd/curCd/buff/stopCd/canCDChange/isLeader/
+ *     isActed/hpAtkDmg/hpUltDmg/isHealed1·2·3/stack），**没有任何方法字段**；
+ *   · jsonToCharacter 是取 const u = comp[i] 然后**原地写回同一对象**（不新建）。
+ * ⇒ 运行期用猴子补丁叠在实例方法上的 wrapper（以及机制表路径的 __mech_inj 注入登记表）
+ *   **永远不随 undo 回滚**，链深 = 已执行的大招次数，无界增长 → 穿透栈上限即 RangeError 爆栈。
+ * 实测证据（探针 验叠层E.js / 计wrapper层4E.js，队 [10197,10196,10134,10214,10147]）：
+ *   · step궁→undo 循环 3000 次：3000 次大招全在**第1回合**内（undo 回滚了 isActed/curCd）；
+ *     万巴(10214) ultbefore 每次궁给 딜/탱/디 队友包一层 attack ⇒ 10197/10214/10147 各 **3000 层**，
+ *     而 보조/힐러 的 10196/10134 为 0 层（不在 getRoleIdx 的 딜탱디 里）。
+ *   · 真实束搜索（全程只 initBattle 1 次，用 step/undo 走树）实测链深 **8918 层** → 崩；
+ *     触发条件只是**探索深度**：w20+180s/300s 必崩、w20+30s 侥幸不崩、w6+20s 不崩但评分已失真。
+ *   · 与引擎口径无关：原生路径叠 wrapper、机制表路径叠 __mech_inj（派发壳按其长度折叠出等深链），
+ *     所以 A/B 两条路径**都**会崩（实测 w20/180s：崩队1 A=135s 崩 / B=64s 崩）。
+ * 修法与 P0 同构（不改上游镜像 deobfuscated.js，只在驱动器层补）：step 的 saveCur 旁同步压一份
+ *   「方法层快照」（自有函数属性名→引用 + __mech_inj 深拷），undo 与非法动作回滚的 loadBefore 旁
+ *   同步弹出并复原（按引用写回 + 删除快照之后新叠的层；__mech_inj 换新对象引用使派发壳链缓存失效）。
+ *   两个栈与 savedData **严格等长**（loadBefore 在栈空时安全返回，故按其长度增量判定是否弹）。
+ * 附带收益：旧行为下每次大招都要穿透已累积的全部层，成本随探索次数**平方级**恶化（实测崩队1
+ *   226.50us/步）；修后链深有界（≤ 本场已放大招数），step 反而变快。
+ * 语义影响：对幂等的后置段（如 deleteBuff 同名 buff、10184 追加 hit〔isHit 守卫〕）数值不变；对
+ *   **非幂等**的后置段（如某些角色 wrapper 里的 stack += 2）旧行为会把 stack 重复自增到封顶而算错，
+ *   修后才是正确语义 ⇒ 本修复只可能修正数值，不会引入偏差（由双跑差分 + 已知真值回归把关）。
+ * ⚠ 本注释不得使用反引号与星号斜杠结尾的写法：它位于引擎拼接**模板字符串**内部，反引号会提前
+ *   终止模板（2026-10-09 实踩 SyntaxError），isHealed 这类名字后接斜杠星也会提前结束块注释。
+ */
+var _方法栈 = [];
+function _快照方法层(u) {
+  if (!u) return null;
+  var o = {}, fn = null;
+  for (var k in u) {
+    var v = u[k];
+    if (typeof v !== 'function') continue;
+    // 只收自有函数属性：class 原型方法不可枚举（天然不入 for-in），运行期猴子补丁赋的才是自有属性
+    if (Object.prototype.hasOwnProperty.call(u, k)) (fn || (fn = {}))[k] = v;
+  }
+  if (fn) o.__fn = fn;
+  if (Object.prototype.hasOwnProperty.call(u, '__mech_inj') && u.__mech_inj) o.__mech_inj = _拷注入表(u.__mech_inj);
+  return (o.__fn || o.__mech_inj) ? o : null;
+}
+function _压方法层() {
+  var s = null;
+  if (comp) {
+    s = new Array(5);
+    for (var i = 0; i < 5; i++) s[i] = comp[i] ? _快照方法层(comp[i]) : null;
+  }
+  _方法栈.push(s);          // 无条件压占位，保证与 savedData 逐条对应
+}
+function _弹方法层() {
+  if (_方法栈.length === 0) return;
+  var s = _方法栈.pop();
+  if (!s) return;
+  // _写回字段 对 {__fn, __mech_inj} 的行为正是所需：按引用复原函数、删除快照后新叠的层（回落原型）、
+  //   并用 __mech_inj 的**新副本**替换（新引用 → 派发壳的链缓存自动失效），不触碰任何数据字段。
+  for (var i = 0; i < 5; i++) if (comp && comp[i] && s[i]) _写回字段(comp[i], s[i]);
+}
 function _浅拷字段(src) {
   const o = {};
   for (const k in src) {
     const v = src[k];
-    if (typeof v === 'function') continue;
+    if (typeof v === 'function') {
+      if (Object.prototype.hasOwnProperty.call(src, k)) (o.__fn || (o.__fn = {}))[k] = v;
+      continue;
+    }
     if (k === 'buff') { o.buff = _拷buff(v || []); continue; }
+    if (k === '__mech_inj') { o.__mech_inj = _拷注入表(v); continue; }
     o[k] = Array.isArray(v) ? v.slice() : v;
   }
   return o;
 }
 function _写回字段(dst, o) {
   for (const k in o) {
+    if (k === '__fn') continue;
     if (k === 'buff') { dst.buff = _拷buff(o.buff); continue; }   // 独立副本：引擎后续 push 不污染 snapshot
+    if (k === '__mech_inj') { dst.__mech_inj = _拷注入表(o.__mech_inj); continue; }   // 注入层数随数据回滚（新对象引用 → 派发壳链缓存自动失效）
     dst[k] = Array.isArray(o[k]) ? o[k].slice() : o[k];
   }
+  const fns = o.__fn || null;
+  for (const k in dst) {
+    if (typeof dst[k] !== 'function') continue;
+    if (!Object.prototype.hasOwnProperty.call(dst, k)) continue;
+    if (!fns || !(k in fns)) { delete dst[k]; continue; }   // 快照里没有的包装层 = 快照之后叠上的 → 删（回落原型原方法）
+    dst[k] = fns[k];                                        // 复原到快照当时的引用
+  }
+  if (fns) for (const k in fns) if (!Object.prototype.hasOwnProperty.call(dst, k)) dst[k] = fns[k];
 }
 function captureState() {
   const cs = new Array(5);
@@ -289,6 +420,7 @@ function restoreState(s) {
   lastDmg = s.lastDmg; lastAddDmg = s.lastAddDmg; lastAtvDmg = s.lastAtvDmg; lastDotDmg = s.lastDotDmg; lastRefDmg = s.lastRefDmg;
   for (let i = 0; i < 5; i++) isOverflowed[i] = s.overflow[i];
   savedData.length = 0;   // 清 step/undo 残留栈：restore 后旧快照全部失效，防误 undo 到陈旧状态
+  _方法栈.length = 0;      // 与上一行同步：本函数已用 _写回字段 直接复原了 comp 的方法层/注入表（与 _弹方法层 同一套语义），所以残留条目一律作废
 }
 
 return {
@@ -329,11 +461,11 @@ return {
 
 // 编译缓存：同一套源码只 new Function 一次
 const 工厂缓存 = new Map();
-function 取工厂(calcSrc, autocalcSrc, headerFrag) {
-  const 键 = calcSrc.length + '|' + autocalcSrc.length + '|' + headerFrag.length;
+function 取工厂(calcSrc, autocalcSrc, headerFrag, mechSrc) {
+  const 键 = calcSrc.length + '|' + autocalcSrc.length + '|' + headerFrag.length + '|' + (mechSrc ? mechSrc.length : 0);
   let 工厂 = 工厂缓存.get(键);
   if (!工厂) {
-    工厂 = new Function('deps', 工厂体源码(calcSrc, autocalcSrc, headerFrag));
+    工厂 = new Function('deps', 工厂体源码(calcSrc, autocalcSrc, headerFrag, mechSrc || ''));
     工厂缓存.set(键, 工厂);
   }
   return 工厂;
@@ -357,7 +489,12 @@ function createSimulator(deps, opts) {
     autocalcSrc = autocalcSrc || 源.autocalc;
     headerFrag = headerFrag || 提取header片段(源.header);
   }
-  return 取工厂(calcSrc, autocalcSrc, headerFrag)(deps);
+  // 机制表接线（opts.解释器源 由 引擎适配.createEngine 的 启用机制表 选项注入）：
+  //   两者必须成对出现，缺一即报错——避免"看起来启用了机制表实际没启用"的静默降级。
+  const mechSrc = opts.解释器源 || '';
+  if (mechSrc && !deps.机制数据) throw new Error('机制表接线失败：提供了 解释器源 但 deps 缺 机制数据');
+  if (!mechSrc && deps.机制数据) throw new Error('机制表接线失败：deps 带 机制数据 但未提供 解释器源（opts.解释器源）');
+  return 取工厂(calcSrc, autocalcSrc, headerFrag, mechSrc)(deps);
 }
 
 module.exports = { createSimulator, 提取header片段 };

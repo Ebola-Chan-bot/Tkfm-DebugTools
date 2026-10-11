@@ -47,6 +47,10 @@ function run(cfg) {
     }
   };
 
+  // 引擎口径（2026-10-08 起）：走机制表数据驱动装配（已是 createEngine 默认），使生产海量搜索路径上
+  //   **不存在由猴子补丁记录的状态**：注入层数/内容全部落在 unit.__mech_inj 纯数据里，可被
+  //   captureState/restoreState 回滚，不再随评估次数累积到爆栈（万巴队实证）。bin 缺失/混淆源不兼容
+  //   由 createEngine 直接 throw（拒绝静默回落原生，同类教训：机制表曾长期未接线→选项静默无效+差分假通过）。
   const inst = 适配.createEngine();
 
   // 起点排程：优先用户指令集文本；否则贪心基线

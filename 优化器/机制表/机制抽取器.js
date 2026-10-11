@@ -983,6 +983,18 @@ function 翻开关值(n, env) {
     const rv = 数字(n.right);
     if (角色 && 角色.temp && rv !== undefined) return { temp: 角色.temp, cmp: n.operator, fix: rv };
   }
+  // 批次F-1（10214）：布尔快照比较变量裸用 V / `!V` 取反（角色开关：绑定时记下的比较语义）
+  if (n.type === 'Identifier') {
+    const 角色 = 查变量(env, n.name);
+    if (角色 && 角色.开关) return { temp: 角色.temp, cmp: 角色.开关.cmp, fix: 角色.开关.fix };
+  }
+  if (n.type === 'UnaryExpression' && n.operator === '!' && n.argument.type === 'Identifier') {
+    const 角色 = 查变量(env, n.argument.name);
+    if (角色 && 角色.开关) {
+      const 反 = { '==': '!=', '!=': '==', '>': '<=', '>=': '<', '<': '>=', '<=': '>' }[角色.开关.cmp];
+      return { temp: 角色.temp, cmp: 反, fix: 角色.开关.fix };
+    }
+  }
   残差抛(n, 'on值形态 ' + 骨架一行(n), env);
 }
 
@@ -1765,6 +1777,18 @@ function 翻绑定(名, init, env, 节点) {
   if (是成员(init, 是U, 'stack')) {
     设变量(env, 名, { temp: 'v_' + 名 });
     return { temp: ['v_' + 名, { slot: 'stack' }] };
+  }
+  // 批次F-1（10214 ultimate/attack 全库首例）：`const V = U.stack <op> N` 布尔快照比较绑定 →
+  //   数值快照 temp（绑定处发 Snapshot，JS 求值时机一致）+ 开关比较语义（使用位 翻开关值 按 temp 比较展开）。
+  //   与内联比较式的区别：V 捕获绑定时点值，后随 stack 改写不影响已绑 V（快照语义忠实 JS）；
+  //   10214 形态：`u.stack=1; const V=u.stack==0`（V 恒假）/ `u.stack=0; const V=u.stack==0`（V 恒真），
+  //   随后 setBuffOn(…,V) 与 setBuffOn(…,!V) 成对切换两组 buff。
+  if (init.type === 'BinaryExpression' && ['==', '!=', '>', '>=', '<', '<='].includes(init.operator) && 是成员(init.left, 是U, 'stack')) {
+    const rv = 数字(init.right);
+    if (rv !== undefined) {
+      设变量(env, 名, { temp: 'v_' + 名, 开关: { cmp: init.operator, fix: rv } });
+      return { temp: ['v_' + 名, { slot: 'stack' }] };
+    }
   }
   // 批次C-10b：const V = boss.def → temp boss字段快照（10197/10173 `const V=boss.def; ultLogic(u,5); if(V)`——
   //   快照时机在指令序中原位忠实执行；字段白名单 def（源码唯一实例；其它 boss 字段见到再扩）
