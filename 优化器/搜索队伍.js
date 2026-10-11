@@ -119,7 +119,7 @@ function 建别名索引() {
   return _别名索引;
 }
 
-// 解析单个角色 token → {id, 别称} 或 {错误} 或 {歧义:[...]}
+// 解析单个角色 token → {id, 别称} 或 {错误:字符串} 或 {歧义:{s,ids,子串}}（歧义提示文本由 歧义消息 在全名抓取后生成）
 function 解析角色(token) {
   const 索 = 建别名索引();
   const s = String(token).trim();
@@ -132,12 +132,71 @@ function 解析角色(token) {
   if (索.别称指ids.has(k)) {                                   // 精确命中（sc/tc/en/韩文名）
     const set = [...索.别称指ids.get(k)];
     if (set.length === 1) { const id = set[0]; return { id, 别称: 索.id指别称.get(id) || s }; }
-    return { 歧义: `"${s}" 命中多个角色: ` + set.map(id => `${id}(${索.id指别称.get(id) || 索.id指全名.get(id)})`).join(' ') };
+    return { 歧义: { s, ids: set, 子串: false } };
   }
   const 命中 = 索.全体.filter(e => e.名.some(n => n && n.toLowerCase().includes(k)));   // 子串兜底
   if (命中.length === 1) { const id = 命中[0].id; return { id, 别称: 索.id指别称.get(id) || s, 子串: true }; }
-  if (命中.length > 1) return { 歧义: `"${s}" 子串命中多个角色: ` + 命中.slice(0, 12).map(e => `${e.id}(${索.id指别称.get(e.id) || '?'})`).join(' ') + (命中.length > 12 ? ' …' : '') };
+  if (命中.length > 1) return { 歧义: { s, ids: 命中.map(e => e.id), 子串: true } };
   return { 错误: `"${s}" 未匹配到任何角色（tenkaassist sc/tc/en/韩文名/id）` };
+}
+
+// ===================== 全名抓取（tenkaassist js/drNameIndex.js 同口径）=====================
+// 歧义提示要靠角色全名区分同别称角色：chJSON 只有韩文全名，中文全名（如"终焉魔剑薇塔"）在 TKFM-Data-Room(tkfmdata.com) 的 Nuxt bundle 内联单位表里，抓法照搬 drNameIndex.js——从站点 HTML 发现内容哈希的 /_nuxt/*.js，串行抓到首个含单位表的 bundle，再按 ID/prefix/name 正则取 sc 的 prefix+name；任何失败静默回退韩文全名，不阻塞主流程
+const 全名主机 = 'https://tkfmdata.com';
+const 全名数据标记 = 'metaCode:"';
+const 全名记录正则 = /ID:"(\d{5})",metaCode:"[^"]*",prefix:(.*?),name:(.*?),abbreviation:/g;
+const 全名缓存文件 = path.join(process.env.TEMP || __dirname, 'tkfmDrFullName.v1.json');   // 与 drNameIndex 的 localStorage 缓存同语义（7 天鲜度），读写失败不影响功能
+const 全名新鲜期 = 7 * 24 * 60 * 60 * 1000;
+let _全名表;   // undefined=未抓取 null=不可用 Map<id,sc全名>=可用
+
+function 全名取段(块, 位) { const m = 块.match(new RegExp('\\.' + 位 + ',"([^"]*)"')); return m ? m[1] : ''; }
+function 全名解析(txt) {
+  const 表 = new Map();
+  全名记录正则.lastIndex = 0;
+  let m;
+  while ((m = 全名记录正则.exec(txt)) !== null) {
+    const sc = 全名取段(m[2], 'sc') + 全名取段(m[3], 'sc');
+    if (sc) 表.set(Number(m[1]), sc);
+  }
+  return 表;
+}
+function 全名读缓存() {
+  try {
+    const o = JSON.parse(fs.readFileSync(全名缓存文件, 'utf8'));
+    if (!o || !Array.isArray(o.rows) || Date.now() - o.ts > 全名新鲜期) return null;
+    const 表 = new Map(o.rows.map(r => [r.id, r.sc]));
+    return 表.size >= 50 ? 表 : null;
+  } catch (e) { return null; }
+}
+function 全名写缓存(表) {
+  try { fs.writeFileSync(全名缓存文件, JSON.stringify({ ts: Date.now(), rows: [...表].map(([id, sc]) => ({ id, sc })) }), 'utf8'); } catch (e) { /* 缓存写不成不影响功能 */ }
+}
+async function 抓全名表() {
+  if (_全名表 !== undefined) return _全名表;
+  const 落 = v => { _全名表 = v; return v; };
+  const 缓 = 全名读缓存();
+  if (缓) return 落(缓);
+  try {
+    const 取 = async u => { try { const r = await fetch(u, { signal: AbortSignal.timeout(8000) }); return r.ok ? await r.text() : ''; } catch (e) { return ''; } };
+    const html = await 取(全名主机 + '/');
+    for (const p of new Set(html.match(/\/_nuxt\/[^"']+\.js/g) || [])) {
+      const txt = await 取(全名主机 + p);
+      if (!txt.includes(全名数据标记)) continue;
+      const 表 = 全名解析(txt);
+      if (表.size >= 50) { 全名写缓存(表); return 落(表); }
+    }
+    return 落(null);
+  } catch (e) { return 落(null); }
+}
+
+// 歧义消息：重名时显示角色全名（优先 Data-Room 简中全名，回退 chJSON 韩文 fullname，再回退别称）
+function 歧义消息(歧, 全名表) {
+  const 索 = 建别名索引();
+  const 列 = 歧.ids.slice(0, 12).map(id => {
+    const 全 = (全名表 && 全名表.get(id)) || 索.id指全名.get(id) || 索.id指别称.get(id) || '?';
+    return `${id}(${全})`;
+  });
+  return `"${歧.s}" ${歧.子串 ? '子串命中多个角色' : '命中多个角色'}: ` + 列.join(' ') + (歧.ids.length > 12 ? ' …' : '');
 }
 
 // ===================== 零伤害自动诊断 =====================
@@ -380,7 +439,7 @@ function 输出结果(最好, ids, 名称) {
 }
 
 // ===================== 主流程 =====================
-function main() {
+async function main() {
   const { 位置, 选项 } = 解析参数(process.argv);
 
   // 收集角色 token：位置参数 + --ids= + --从文件=
@@ -395,13 +454,18 @@ function main() {
   }
 
   // 解析每个 token → id
-  const ids = [], 名称 = [], 错误们 = [];
+  const ids = [], 名称 = [], 错误们 = [], 歧义们 = [];
   for (const tk of tokens) {
     const r = 解析角色(tk);
-    if (r.错误 || r.歧义) { 错误们.push(r.错误 || r.歧义); continue; }
+    if (r.错误) { 错误们.push(r.错误); continue; }
+    if (r.歧义) { 歧义们.push(r.歧义); continue; }
     ids.push(r.id); 名称.push(r.别称 || String(r.id));
   }
-  if (错误们.length) { console.error('角色解析失败:\n  ' + 错误们.join('\n  ')); process.exit(2); }
+  if (错误们.length || 歧义们.length) {
+    const 全名表 = 歧义们.length ? await 抓全名表() : null;   // 重名提示用全名区分；抓取失败返回 null，消息自动回退韩文全名
+    console.error('角色解析失败:\n  ' + [...错误们, ...歧义们.map(g => 歧义消息(g, 全名表))].join('\n  '));
+    process.exit(2);
+  }
   if (ids.length !== 5) { console.error('解析后角色数≠5'); process.exit(2); }
 
   // 羁绊
@@ -479,9 +543,8 @@ function 读角色文件(路径参数) {
   return txt.split(/[\r\n,]+/).map(s => s.trim()).filter(Boolean);
 }
 
-try {
-  main();
-} catch (e) {
+// main 为 async（重名歧义需 await 抓取角色全名），异常以 rejection 到达：catch 承担崩溃兜底（部分成绩不丢）
+main().catch(e => {
   说('\n!!! 异常: ' + (e && e.stack || e));
   // ★ 部分成绩兜底：崩在任何阶段都仍把「已完成阶段的最优」输出+导出（退出码 5=部分完成），绝不整支队丢成绩。
   if (全局最好 && 全局最好.toks && 全局上下文) {
@@ -501,4 +564,4 @@ try {
     } catch (e2) { 说('\n部分结果输出也失败: ' + (e2 && e2.message || e2)); }
   }
   落盘(); process.exit(1);
-}
+});
