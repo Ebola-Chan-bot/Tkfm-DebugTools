@@ -42,11 +42,13 @@
  *   穷举全部 120 种站位做爬山真值评估（阶段 D），终搜按 (名单,站位) 真值榜取候选（同名单至多 2 个站位）。
  *   --禁用种子     终搜不读 data.json 种子（种子库缺失时本就自动跳过）
  *   --只解析       只解码打印候选池，不搜索
- *   --出目录=      产物目录（默认当前工作目录）
- *   --导出=        最优结果 JSON 路径（默认 <出目录>/最优队_结果.json）
+ *   --出目录=      产物目录（默认 %TEMP%\搜索最优队伍_<时间戳>；禁止 git 工作树内，--强制 越过）
+ *   --导出=        最优结果 JSON 路径（默认 <出目录>/最优队_结果.json；同样禁止 git 工作树内）
+ *   --强制         越过产物目录 git 工作树检查（慎用）
  *
  * 产物：最优队_结果.json（结构化结果）、最优队_结果.txt（全输出镜像）、
  *       最优队_终搜N.json/.txt（搜索队伍.js 逐队导出与镜像）。
+ *       **产物一律不落 git 工作树**（默认 %TEMP%；显式指进仓库会被拒绝）。
  *
  * 退出码：0=成功；2=参数/解码/池校验错误；3=无合法队伍；4=全部搜索路径零伤害。
  */
@@ -81,9 +83,31 @@ if (!码 && isMainThread) {
   console.error('用法: node 搜索最优队伍.js --码="<团队码>" [--终搜=3 --束时限=120 --只解析 …]');
   process.exit(2);
 }
-const 出目录 = path.resolve(String(参.出目录 || process.cwd()));
-fs.mkdirSync(出目录, { recursive: true });
+// 产物目录：默认 %TEMP%\搜索最优队伍_<时间戳>（仓库外）。产物一律不落 git 工作树
+//（会被 git 追踪/误提交）；显式 --出目录/--导出 指进 git 仓库时拒绝执行，--强制 可越过。
+function 在git工作树内(dir) {
+  let p = path.resolve(dir);
+  for (;;) {
+    if (fs.existsSync(path.join(p, '.git'))) return true;
+    const 上 = path.dirname(p);
+    if (上 === p) return false;
+    p = 上;
+  }
+}
+const 强制 = 参.强制 === true || 参.强制 === '1' || 参.强制 === 'true';
+const 时间戳 = (() => { const d = new Date(), p2 = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}`; })();
+const 出目录 = path.resolve(String(参.出目录 || path.join(os.tmpdir(), `搜索最优队伍_${时间戳}`)));
 const 导出路径 = 参.导出 ? path.resolve(String(参.导出)) : path.join(出目录, '最优队_结果.json');
+if (isMainThread) {
+  const 越界 = [出目录, 导出路径].filter(d => 在git工作树内(d));
+  if (越界.length && !强制) {
+    console.error('拒绝输出到 git 工作树内（产物会被 git 追踪）: ' + 越界.join(', '));
+    console.error('请改用 --出目录=仓库外路径（缺省已落 %TEMP%），或 --强制 越过。');
+    process.exit(2);
+  }
+}
+fs.mkdirSync(出目录, { recursive: true });
 镜像文件 = path.join(出目录, '最优队_结果.txt');
 const 数 = (v, d) => (v == null ? d : Number(v));
 const 终搜N = 数(参.终搜, 3), 束时限 = 数(参.束时限, 120), 终搜爬山预算 = 数(参.爬山预算, 10000);
@@ -101,6 +125,10 @@ const bin路径 = 优化器(path.join('机制表', 'build', 'mechanisms.bin'));
 function 保障机制表() {
   if (fs.existsSync(bin路径)) return;
   说(`${时()} 机制表 bin 缺失（${bin路径}），自动构建（首次含依赖安装，约 1-2 分钟）…`);
+  // flatten_core 会重写机制表/names.txt（字典保序去重的构建副产物，且是 git 追踪文件）——
+  // bin 自带字典、运行期不读 names.txt，故构建后还原，不向工作树留会被追踪的产物。
+  const names路径 = 优化器(path.join('机制表', 'names.txt'));
+  const 原names = fs.existsSync(names路径) ? fs.readFileSync(names路径) : null;
   const r = spawnSync(process.execPath,
     [优化器(path.join('机制表', 'tools', 'flatten_core.js')), '--全量', '--srcDir', '生成', '--bin'],
     { stdio: 'inherit', cwd: 优化器('机制表') });
@@ -109,6 +137,10 @@ function 保障机制表() {
     落盘(); process.exit(2);
   }
   说(`${时()} 机制表构建完成: ${fs.statSync(bin路径).size} 字节`);
+  if (原names && fs.existsSync(names路径) && !fs.readFileSync(names路径).equals(原names)) {
+    fs.writeFileSync(names路径, 原names);
+    说('  （构建副产物 names.txt 已还原，不向 git 工作树留产物）');
+  }
 }
 
 // ===================== 候选池：解码 + 校验 + 中文名 =====================
