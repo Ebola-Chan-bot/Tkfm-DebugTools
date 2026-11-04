@@ -147,7 +147,7 @@
   "attack": [
    {
     "temp": [
-     "v__0x4bfa0e",
+     "v__0x1a2dc9",
      {
       "getNest": "<치명적인 향기>"
      }
@@ -156,7 +156,7 @@
    {
     "if": {
      "kind": "temp",
-     "var": "v__0x4bfa0e",
+     "var": "v__0x1a2dc9",
      "cmp": "==",
      "fix": 8
     },
@@ -172,7 +172,7 @@
      {
       "if": {
        "kind": "temp",
-       "var": "v__0x4bfa0e",
+       "var": "v__0x1a2dc9",
        "cmp": "==",
        "fix": 2
       },
@@ -193,7 +193,7 @@
    {
     "if": {
      "kind": "temp",
-     "var": "v__0x4bfa0e",
+     "var": "v__0x1a2dc9",
      "cmp": "==",
      "fix": 2
     },
@@ -215,7 +215,7 @@
      {
       "if": {
        "kind": "temp",
-       "var": "v__0x4bfa0e",
+       "var": "v__0x1a2dc9",
        "cmp": "==",
        "fix": 5
       },
@@ -231,7 +231,7 @@
        {
         "if": {
          "kind": "temp",
-         "var": "v__0x4bfa0e",
+         "var": "v__0x1a2dc9",
          "cmp": "==",
          "fix": 8
         },
@@ -831,7 +831,7 @@
    },
    {
     "temp": [
-     "v__0x4d952e",
+     "v__0x15c160",
      {
       "getNest": "<마조 엑스터시>"
      }
@@ -842,7 +842,7 @@
     "div": "기본",
     "name": "부족해 부족해 부족하다고!1",
     "on": {
-     "temp": "v__0x4d952e",
+     "temp": "v__0x15c160",
      "cmp": ">=",
      "fix": 5
     }
@@ -852,7 +852,7 @@
     "div": "기본",
     "name": "부족해 부족해 부족하다고!2",
     "on": {
-     "temp": "v__0x4d952e",
+     "temp": "v__0x15c160",
      "cmp": ">=",
      "fix": 10
     }

@@ -1,0 +1,960 @@
+{
+ "id": 10216,
+ "机动性": [
+  373.5,
+  4,
+  436,
+  4,
+  498,
+  4,
+  560.5,
+  4,
+  622.5,
+  4
+ ],
+ "槽位初值": {
+  "stack": 0
+ },
+ "排除伤害": [
+  "<경심 철갑탄>",
+  "<연막탄 지원>"
+ ],
+ "旗标": [],
+ "钩子": {
+  "ultbefore": [
+   {
+    "lib": 1,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 26.1,
+      "name": "고속 정밀 연사1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 39.18,
+        "name": "고속 정밀 연사2",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 2,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 30.45,
+      "name": "고속 정밀 연사1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 45.71,
+        "name": "고속 정밀 연사2",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 3,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 34.8,
+      "name": "고속 정밀 연사1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 52.24,
+        "name": "고속 정밀 연사2",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": 4,
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 39.15,
+      "name": "고속 정밀 연사1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 58.77,
+        "name": "고속 정밀 연사2",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "lib": "default",
+    "then": [
+     {
+      "tbf": "boss",
+      "type": "받뎀증",
+      "size": 43.5,
+      "name": "고속 정밀 연사1",
+      "turn": 1
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "tbf": "$i",
+        "type": "받속뎀",
+        "size": 65.3,
+        "name": "고속 정밀 연사2",
+        "turn": 1
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "ultimate": [
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 3
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "队长",
+       "cmp": "==",
+       "val": true
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>1",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>2",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>3",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>4",
+        "on": true
+       }
+      ]
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "탄약 장전1",
+      "on": true
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "관통 사격",
+      "on": true
+     }
+    ]
+   },
+   {
+    "ultLogic": 5
+   },
+   {
+    "if": {
+     "kind": "slot比较",
+     "slot": "stack",
+     "cmp": ">=",
+     "fix": 3
+    },
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<경심 철갑탄>",
+       0,
+       "조준 사격",
+       -3,
+       3
+      ]
+     },
+     {
+      "setSlot": [
+       "stack",
+       0
+      ]
+     },
+     {
+      "if": {
+       "kind": "队长",
+       "cmp": "==",
+       "val": true
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>1",
+        "on": false
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>2",
+        "on": false
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>3",
+        "on": false
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>4",
+        "on": false
+       }
+      ]
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "탄약 장전1",
+      "on": false
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "관통 사격",
+      "on": false
+     }
+    ]
+   }
+  ],
+  "atkbefore": [
+   {
+    "nbf": [
+     "self",
+     "<경심 철갑탄>",
+     0,
+     "조준 사격",
+     1,
+     3
+    ]
+   },
+   {
+    "addSlot": [
+     "stack",
+     1
+    ]
+   },
+   {
+    "clampSlot": [
+     "stack",
+     null,
+     3
+    ]
+   }
+  ],
+  "attack": [
+   {
+    "temp": [
+     "v__0x282238",
+     {
+      "slot": "stack"
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x282238",
+     "cmp": ">=",
+     "fix": 3
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "队长",
+       "cmp": "==",
+       "val": true
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>1",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>2",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>3",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>4",
+        "on": true
+       }
+      ]
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "탄약 장전1",
+      "on": true
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "관통 사격",
+      "on": true
+     }
+    ]
+   },
+   {
+    "atkLogic": null
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "for": {
+       "kind": "全队",
+       "排除self": true
+      },
+      "body": [
+       {
+        "nbf": [
+         "$i",
+         "<연막탄 지원>",
+         0,
+         "총기 전문가의 직감",
+         1,
+         3
+        ]
+       },
+       {
+        "if": {
+         "kind": "nest比较",
+         "type": "<연막탄 지원>",
+         "cmp": ">=",
+         "fix": 3,
+         "目标": "$i"
+        },
+        "then": [
+         {
+          "setBuffOn": "$i",
+          "div": "발동",
+          "name": "<연막탄 지원>1",
+          "on": true
+         },
+         {
+          "setBuffOnAll": "$i",
+          "div": "발동",
+          "name": "<연막탄 지원>2",
+          "on": true
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "temp",
+     "var": "v__0x282238",
+     "cmp": ">=",
+     "fix": 3
+    },
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<경심 철갑탄>",
+       0,
+       "조준 사격",
+       -3,
+       3
+      ]
+     },
+     {
+      "setSlot": [
+       "stack",
+       0
+      ]
+     },
+     {
+      "if": {
+       "kind": "队长",
+       "cmp": "==",
+       "val": true
+      },
+      "then": [
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>1",
+        "on": false
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>2",
+        "on": false
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>3",
+        "on": false
+       },
+       {
+        "setBuffOn": "self",
+        "div": "발동",
+        "name": "<고고한 저격수>4",
+        "on": false
+       }
+      ]
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "탄약 장전1",
+      "on": false
+     },
+     {
+      "setBuffOn": "self",
+      "div": "발동",
+      "name": "관통 사격",
+      "on": false
+     }
+    ],
+    "elif": [
+     {
+      "if": {
+       "kind": "slot比较",
+       "slot": "stack",
+       "cmp": ">=",
+       "fix": 3
+      },
+      "then": [
+       {
+        "if": {
+         "kind": "队长",
+         "cmp": "==",
+         "val": true
+        },
+        "then": [
+         {
+          "setBuffOn": "self",
+          "div": "기본",
+          "name": "<고고한 저격수>1",
+          "on": true
+         },
+         {
+          "setBuffOn": "self",
+          "div": "기본",
+          "name": "<고고한 저격수>2",
+          "on": true
+         },
+         {
+          "setBuffOn": "self",
+          "div": "기본",
+          "name": "<고고한 저격수>3",
+          "on": true
+         },
+         {
+          "setBuffOn": "self",
+          "div": "기본",
+          "name": "<고고한 저격수>4",
+          "on": true
+         }
+        ]
+       },
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "탄약 장전1",
+        "on": true
+       },
+       {
+        "setBuffOn": "self",
+        "div": "기본",
+        "name": "관통 사격",
+        "on": true
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "leader": [
+   {
+    "hpUpAll": 45
+   },
+   {
+    "tbf": "all",
+    "type": "공퍼증",
+    "size": 50,
+    "name": "총기 전문가의 직감1",
+    "turn": "always"
+   },
+   {
+    "if": {
+     "kind": "role计数",
+     "mask": [
+      "디"
+     ],
+     "cmp": ">=",
+     "n": 1
+    },
+    "then": [
+     {
+      "tbf": "all",
+      "type": "가뎀증",
+      "size": -500,
+      "name": "총기 전문가의 직감2",
+      "turn": "always"
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     166,
+     "<고고한 저격수>1",
+     "always",
+     true
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "가뎀증",
+     64.5,
+     "<고고한 저격수>2",
+     "always",
+     true
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁뎀증",
+     27,
+     "<고고한 저격수>3",
+     "always",
+     true
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁추가*",
+     54,
+     "<고고한 저격수>4",
+     "always",
+     true
+    ]
+   },
+   {
+    "for": {
+     "kind": "全队",
+     "排除self": true
+    },
+    "body": [
+     {
+      "buff": [
+       "$i",
+       "궁",
+       "boss",
+       "받뎀증",
+       5.38,
+       "<연막탄 지원>1",
+       1,
+       "always",
+       "발동",
+       false
+      ]
+     },
+     {
+      "for": {
+       "kind": "element",
+       "mask": [
+        "풍"
+       ]
+      },
+      "body": [
+       {
+        "buff": [
+         {
+          "$i上": 1
+         },
+         "궁",
+         "$i",
+         "받속뎀",
+         8.13,
+         "<연막탄 지원>2",
+         1,
+         "always",
+         "발동",
+         false
+        ]
+       }
+      ]
+     },
+     {
+      "inject": {
+       "方法": "ultimate",
+       "目标": "$i",
+       "模式": "追加",
+       "后置": [
+        {
+         "if": {
+          "kind": "nest比较",
+          "type": "<연막탄 지원>",
+          "cmp": ">=",
+          "fix": 3,
+          "目标": "$i"
+         },
+         "then": [
+          {
+           "nbf": [
+            "$i",
+            "<연막탄 지원>",
+            0,
+            "총기 전문가의 직감",
+            -3,
+            3
+           ]
+          },
+          {
+           "setBuffOn": "$i",
+           "div": "발동",
+           "name": "<연막탄 지원>1",
+           "on": false
+          },
+          {
+           "setBuffOnAll": "$i",
+           "div": "발동",
+           "name": "<연막탄 지원>2",
+           "on": false
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   }
+  ],
+  "passive": [
+   {
+    "buff": [
+     "self",
+     "공퍼증",
+     435,
+     "탄약 장전1",
+     "always",
+     true
+    ]
+   },
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "buff": [
+       "self",
+       "공격",
+       "self",
+       "off",
+       "기본",
+       "<고고한 저격수>1",
+       1,
+       "always",
+       "발동",
+       true
+      ]
+     },
+     {
+      "buff": [
+       "self",
+       "공격",
+       "self",
+       "off",
+       "기본",
+       "<고고한 저격수>2",
+       1,
+       "always",
+       "발동",
+       true
+      ]
+     },
+     {
+      "buff": [
+       "self",
+       "공격",
+       "self",
+       "off",
+       "기본",
+       "<고고한 저격수>3",
+       1,
+       "always",
+       "발동",
+       true
+      ]
+     },
+     {
+      "buff": [
+       "self",
+       "공격",
+       "self",
+       "off",
+       "기본",
+       "<고고한 저격수>4",
+       1,
+       "always",
+       "발동",
+       true
+      ]
+     }
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공격",
+     "self",
+     "off",
+     "기본",
+     "탄약 장전1",
+     1,
+     "always",
+     "발동",
+     true
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "공격",
+     "self",
+     "off",
+     "기본",
+     "관통 사격",
+     1,
+     "always",
+     "발동",
+     true
+    ]
+   },
+   {
+    "buff": [
+     "self",
+     "궁뎀증",
+     54.4,
+     "관통 사격",
+     "always",
+     true
+    ]
+   },
+   {
+    "ptbf": [
+     "self",
+     "궁",
+     "self",
+     "<바람의 축복>",
+     0,
+     "퀵 리로드2",
+     1,
+     "always"
+    ]
+   },
+   {
+    "anbf": [
+     "self",
+     "<바람의 축복>",
+     "self",
+     "가뎀증",
+     6.52,
+     "퀵 리로드3",
+     1,
+     5,
+     "always"
+    ]
+   },
+   {
+    "tbf": "self",
+    "type": "가뎀증",
+    "size": 6,
+    "name": "데미지+",
+    "turn": "always"
+   }
+  ],
+  "turnstart": [
+   {
+    "if": {
+     "kind": "队长",
+     "cmp": "==",
+     "val": true
+    },
+    "then": [
+     {
+      "if": {
+       "kind": "回合",
+       "cmp": "==",
+       "fix": 1
+      },
+      "then": [
+       {
+        "for": {
+         "kind": "全队"
+        },
+        "body": [
+         {
+          "if": {
+           "kind": "排除上层栈",
+           "cmp": "!=",
+           "上层": 0
+          },
+          "then": [
+           {
+            "if": {
+             "kind": "循环元素",
+             "cmp": "==",
+             "val": 2
+            },
+            "then": [
+             {
+              "cdChange": "$i",
+              "值": -4
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "if": {
+     "kind": "回合",
+     "cmp": "==",
+     "fix": 1
+    },
+    "then": [
+     {
+      "nbf": [
+       "self",
+       "<경심 철갑탄>",
+       0,
+       "조준 사격",
+       3,
+       3
+      ]
+     },
+     {
+      "setSlot": [
+       "stack",
+       3
+      ]
+     },
+     {
+      "cdChange": "self",
+      "值": -4
+     }
+    ]
+   }
+  ]
+ }
+}

@@ -247,7 +247,7 @@
   "leader": [
    {
     "temp": [
-     "v__0x5c8cbe",
+     "v__0x549bb6",
      {
       "countCall": {
        "fn": "getElementCnt",
@@ -261,14 +261,14 @@
    },
    {
     "clampTemp": [
-     "v__0x5c8cbe",
+     "v__0x549bb6",
      4
     ]
    },
    {
     "if": {
      "kind": "temp",
-     "var": "v__0x5c8cbe",
+     "var": "v__0x549bb6",
      "cmp": ">=",
      "fix": 2
     },
@@ -292,7 +292,7 @@
    {
     "if": {
      "kind": "temp",
-     "var": "v__0x5c8cbe",
+     "var": "v__0x549bb6",
      "cmp": ">=",
      "fix": 3
     },
@@ -315,7 +315,7 @@
    {
     "if": {
      "kind": "temp",
-     "var": "v__0x5c8cbe",
+     "var": "v__0x549bb6",
      "cmp": ">=",
      "fix": 4
     },
@@ -336,7 +336,7 @@
      0,
      "이것이 바로 우정의 힘",
      {
-      "tempVal": "v__0x5c8cbe"
+      "tempVal": "v__0x549bb6"
      },
      4
     ]

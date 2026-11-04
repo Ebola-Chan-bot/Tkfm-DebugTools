@@ -1,7 +1,7 @@
 // ============================================================================
 // 机制表 FlatBuffers schema（阶段 0 草案 v0.1，2026-09-19）
 //
-// 定位：191 个角色的全部技能机制 = 纯数据（约束 1：零角色专属函数）。
+// 定位：195 个角色的全部技能机制 = 纯数据（约束 1：零角色专属函数）。
 //   本 schema 是"压平后"的二进制布局；人工可读源是嵌套 JSON（见 机制表/README.md），
 //   经确定性压平器（tools/flatten_core.js）转为本 schema 兼容 JSON，再由 flatc --binary 编译成 .bin。
 //   数据流：可读JSON →(tools/flatten_core.js)→ flat.json →(flatc)→ mechanisms.bin
@@ -13,7 +13,7 @@
 //
 // 定长指令池：每角色 K=256 条 Cmd。**2026-09-19 阶段01实测校准**：原估 K=192（基于
 //   승나미 96 原子调用+块标记 ~146）被 10188 实测 213 条冲破（perLib 5档展开×7条 + 双钩子
-//   门控重复块）；10177 实测 145。K=256 留 ~20% 余量，record≈26.7KB，191角色≈5.1MB。
+//   门控重复块）；10177 实测 145。K=256 留 ~20% 余量，record≈26.7KB，195角色≈5.2MB。
 //   struct 布局即 ABI，K 一经发布不可改，只能加新版 schema；若阶段3发现更密角色超 256，
 //   bump SCHEMA_VERSION 重建，不得静默截断。用 usedCmds 标记有效前缀，
 //   其余槽全零（零 = 无指令，与约束 1 "零即无" 一致）。
@@ -157,10 +157,14 @@ enum Op : ubyte {
   SpliceFirstBuffOn = 89,  // 批次E-5a：自身 buff 循环删除首个点亮项（10190 ultimate `for(i<U.buff.length){if(b[i].name===N&&
                            //   b[i].div==기본&&b[i].on){b.splice(i,1);break}}` 直译）：tgt=self；ps=[div字典, name字典]；
                            //   引擎写死 findIndex(b=>b.name===name&&b.div==div&&b.on) 命中删 1 个（与源码 splice+break 同语义）
-  ThrowRef = 90            // 批次E-5c：未声明标识符 ReferenceError 忠实复刻（10089 leader `hpUpAll(c,30)` 的 c 全文件未声明——
+  ThrowRef = 90,           // 批次E-5c：未声明标识符 ReferenceError 忠实复刻（10089 leader `hpUpAll(c,30)` 的 c 全文件未声明——
                            //   源码 bug，非严格模式读未声明变量抛 ReferenceError）：ps[0]=标识符字典；
                            //   执行期 throw new ReferenceError(name+" is not defined")（V8 消息逐字一致）；
                            //   双跑差分改造：两侧同抛且消息一致=PASS（忠实优先于语义猜测 hpUpAll(30)）
+  SetBuffSizeUpAll = 91,   // 全队同名 buff 尺寸增量（10040 setBuffSizeUpAll）：tgt=单位，ps=[div,name,Fix增量]；
+                           //   直接调用引擎同名原语，含 bumpBuff 缓存失效语义；旧 BuffSizeAddAll 保留兼容
+  TriggerAtbf = 92,        // atbf(...,"트리거",[...],...) 的外层注册参数；下一条必须 TriggerBuff
+  TriggerBuff = 93         // 前一条 TriggerAtbf 的内层延迟 buff 参数；tgt=首参目标，ps=其余 10 个参数
 }
 
 // ---- 参数标签（Param.tag）：一个 32 位载荷的多路解释 ----
@@ -254,7 +258,8 @@ enum CondKind : ubyte {
   CmpGTIn = 12,            // GLOBAL_TURN ∈ mask 集合（源码 GT==1||GT==5||GT==9，10188）
   CmpGTMod = 13,           // 裸取模：(GLOBAL_TURN + a.i) % b.i == nameIdx（源码仅 3 处不带 GT>1）
   CmpSlot = 14,            // slot[ps0] cmp Fix（源码 stack>=50 / s==3 / s==7）
-  CmpNest = 15,            // getNest(typeIdx) cmp Fix（源码 getNest("<이성치>")<1）
+  CmpNest = 15,            // getNest(typeIdx) cmp Fix（源码 getNest("<이성치>")<1）；
+                           //   b=目标 Target 打包（枚举+tgtN*256），b=0/1=self 向后兼容；支持 LoopI/LoopUp（10216/10217 队友叠层门槛）
   CmpTemp = 16,            // 注入快照临时槽 cmp Fix（环绕注入 6 连比较）
   CmpElKind = 17,          // getElKind()：单值模式 cmp+a(定点)；in 集合模式 a=-1 哨兵、b=元素种类数集合位
                            //   （勝나미 in{3,4,5}→b=0b111000；10188 ==1→a=1）
@@ -359,7 +364,7 @@ struct Cmd {                // 104B：一条线性化指令
   ps: [Param: 11];          // 参数区（考古最大 arity=11 的 buff 原语；不足的槽 tag=None）
 }
 
-// ---- 角色记录（定长 26,776B，批次E-4 mnc 改 double 后 flatc 实测；191 角色 ≈ 5.1MB 原始，brotli 后 ~400KB 级）----
+// ---- 角色记录（定长 26,776B，批次E-4 mnc 改 double 后 flatc 实测；195 角色 ≈ 5.2MB 原始，brotli 后 ~400KB 级）----
 struct CharacterRecord {
   id: uint;
   rarity: ubyte;

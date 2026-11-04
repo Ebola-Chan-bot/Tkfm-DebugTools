@@ -2672,5 +2672,61 @@
   "atkMag": 0,
   "atk": 283001,
   "伤害궁": false
+ },
+ "10214": {
+  "id": 10214,
+  "bang触发": false,
+  "haengdong触发": false,
+  "pigyeok触发": false,
+  "伤害向buff": true,
+  "治疗护盾向": false,
+  "defense非默认": false,
+  "role": 4,
+  "ultMag": 257,
+  "atkMag": 100,
+  "atk": 247571,
+  "伤害궁": true
+ },
+ "10215": {
+  "id": 10215,
+  "bang触发": true,
+  "haengdong触发": false,
+  "pigyeok触发": true,
+  "伤害向buff": true,
+  "治疗护盾向": false,
+  "defense非默认": false,
+  "role": 3,
+  "ultMag": 0,
+  "atkMag": 0,
+  "atk": 263957,
+  "伤害궁": false
+ },
+ "10216": {
+  "id": 10216,
+  "bang触发": false,
+  "haengdong触发": false,
+  "pigyeok触发": false,
+  "伤害向buff": true,
+  "治疗护盾向": false,
+  "defense非默认": false,
+  "role": 0,
+  "ultMag": 622.5,
+  "atkMag": 100,
+  "atk": 278130,
+  "伤害궁": true
+ },
+ "10217": {
+  "id": 10217,
+  "bang触发": false,
+  "haengdong触发": false,
+  "pigyeok触发": false,
+  "伤害向buff": true,
+  "治疗护盾向": false,
+  "defense非默认": false,
+  "role": 1,
+  "ultMag": 0,
+  "atkMag": 0,
+  "atk": 218341,
+  "伤害궁": false
  }
 }

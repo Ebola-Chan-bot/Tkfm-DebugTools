@@ -52,6 +52,7 @@ function 扫指令(列, 角色, ctx) {
       if (s[键] !== undefined) {
         const 이름 = String(s.name || '');
         const div = String(s.div || '');
+        if (이름.replace(/\s+/g, '').includes('<방한의힘>')) continue;   // 防寒技能名（源码含可变空格）不是 방 动作响应，不能误判成授予者
         if (이름.includes('방') || div.includes('방')) {
           (방授予[角色.id] = 방授予[角色.id] || []).push({ 键, tgt: String(s[键]), 给他人: s[键] !== 'self', 片段: JSON.stringify(s).replace(/\s+/g, '').slice(0, 160) });
         }

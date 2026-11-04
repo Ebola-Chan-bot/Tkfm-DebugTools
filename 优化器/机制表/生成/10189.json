@@ -470,7 +470,7 @@
      "后置": [
       {
        "temp": [
-        "v__0x5afd67",
+        "v__0xdea6d4",
         {
          "getNest": "<지옥의 화염>"
         }
@@ -481,7 +481,7 @@
        "div": "발동",
        "name": "만물 멸절1",
        "on": {
-        "temp": "v__0x5afd67",
+        "temp": "v__0xdea6d4",
         "cmp": ">=",
         "fix": 1
        }
@@ -491,7 +491,7 @@
        "div": "발동",
        "name": "만물 멸절2",
        "on": {
-        "temp": "v__0x5afd67",
+        "temp": "v__0xdea6d4",
         "cmp": ">=",
         "fix": 2
        }
@@ -501,7 +501,7 @@
        "div": "발동",
        "name": "만물 멸절3",
        "on": {
-        "temp": "v__0x5afd67",
+        "temp": "v__0xdea6d4",
         "cmp": ">=",
         "fix": 3
        }
@@ -511,7 +511,7 @@
        "div": "발동",
        "name": "만물 멸절4",
        "on": {
-        "temp": "v__0x5afd67",
+        "temp": "v__0xdea6d4",
         "cmp": ">=",
         "fix": 4
        }
@@ -521,7 +521,7 @@
        "div": "발동",
        "name": "만물 멸절5",
        "on": {
-        "temp": "v__0x5afd67",
+        "temp": "v__0xdea6d4",
         "cmp": ">=",
         "fix": 5
        }
@@ -531,7 +531,7 @@
        "div": "발동",
        "name": "만물 멸절6",
        "on": {
-        "temp": "v__0x5afd67",
+        "temp": "v__0xdea6d4",
         "cmp": ">=",
         "fix": 6
        }

@@ -242,7 +242,7 @@
   ],
   "leader": [
    {
-    "throwRef": "c"
+    "hpUpAll": 30
    },
    {
     "hpUpMe": [

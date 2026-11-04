@@ -11,7 +11,7 @@
  *
  * 用法：
  *   node 机制抽取器.js --id 10012,10141,10177,10188 --out 生成 [--扫描]
- *     --扫描：全部 191 case 只做"可翻译性扫描"（不写表），输出覆盖率与残差聚类报告
+ *     --扫描：全部 195 case 只做"可翻译性扫描"（不写表），输出覆盖率与残差聚类报告
  *     --out 生成：把抽取表写到 生成/<id>.json
  *   node 机制抽取器.js --骨架 <正则> —— 打印命中骨架的源码行（调试辅助）
  */
@@ -322,6 +322,10 @@ function 翻值(n, env, 上下文) {
     const K = 数字(n.right);
     if (K !== undefined && K !== 0) return { nestByTypeVal: { type: 字面(n.left.arguments[1]), K } };
   }
+  // 트리거 size 参数数组（10217 首次出现）：11 个参数原样延迟到触发时调用 buff(...size)，不是立即执行的独立语句
+  if (n.type === 'ArrayExpression' && n.elements.length === 11) {
+    return { triggerBuff: n.elements.map(el => 翻值(el, env, 上下文 + '.trigger')) };
+  }
   // 批次E-2b：名字典串+循环下标拼接 `"…"+V`（10165 turnstart `"<날개형 유도탄>"+V`，V=栈顶层循环下标）→ NameCat
   if (n.type === 'BinaryExpression' && n.operator === '+' && n.left.type === 'Literal' && typeof n.left.value === 'string' && n.right.type === 'Identifier') {
     const 角V = 查变量(env, n.right.name);
@@ -436,6 +440,7 @@ function 翻hpExpr(n, env) {
     if (x.type === 'Identifier') {
       const 角色2 = 查变量(env, x.name);
       if (角色2 && 角色2.lowestHp) return 'lowestHp';   // 批次B：reduce最低hp绑定变量（10062 V.hp*20）
+      if (角色2 && 角色2.find !== undefined) return { find: 角色2.find };   // findMaxUnit 槽（10138 leader comp[idx].hp*30）
       const lr = 翻循环引用(角色2, env, 'hpExpr'); if (lr === '$i') return '$i'; if (lr !== null && lr !== undefined) return lr;
     }
     if (x.type === 'MemberExpression' && x.computed && 是标识(x.object, 'comp')) {
@@ -444,6 +449,8 @@ function 翻hpExpr(n, env) {
       const lr = 翻循环引用(查变量(env, x.property.name), env, 'hpExpr');
       if (lr === '$i') return '$i';
       if (lr !== null && lr !== undefined) return lr;   // 嵌套层级：ExprHp base 编码仅支持 self/$i → 上层报残差
+      const 角 = 查变量(env, x.property.name);
+      if (角 && 角.find !== undefined) return { find: 角.find };
       return null;
       }
     return null;
@@ -724,8 +731,12 @@ function 翻调用语句(e, env) {
           return { tbf: 翻目标(args[0], env), type: 翻值(args[1], env, 'tbf.type'), size: 翻值(args[2], env, 'tbf.size'), name: 翻值(args[3], env, 'tbf.name'), turn: 翻值(args[4], env, 'tbf.turn') };
         } catch (err) { if (err.__残差) return null; throw err; }
       }
-      // 定位形：{名: [目标, …]}
-      try { const arr = args.map(a => 翻值(a, env, 名 + '[]')); return { [名]: arr }; } catch (err) { if (err.__残差) return null; throw err; }
+      // 定位形：{名: [目标, …]}；atbf 的 size 是延迟 buff 参数数组时单独编码，保留外层注册与内层触发两阶段
+      try {
+        const arr = args.map(a => 翻值(a, env, 名 + '[]'));
+        if (名 === 'atbf' && arr[4] && arr[4].triggerBuff) return { triggerAtbf: arr };
+        return { [名]: arr };
+      } catch (err) { if (err.__残差) return null; throw err; }
     }
     if (名 === 'hpUpAll' && args.length === 1) {
       try { return { hpUpAll: 翻值(args[0], env, 'hpUpAll') }; } catch (err) { if (err.__残差) return null; throw err; }
@@ -766,6 +777,11 @@ function 翻调用语句(e, env) {
     if ((名 === 'setBuffSize' || 名 === 'setBuffSizeAll' || 名 === 'setBuffNest') && args.length === 4) {
       try {
         return { [名]: 翻目标(args[0], env), div: 翻值(args[1], env, 'div'), name: 翻值(args[2], env, 'name'), [名 === 'setBuffNest' ? 'nest' : 'size']: 翻值(args[3], env, 名 + '.值') };
+      } catch (err) { if (err.__残差) return null; throw err; }
+    }
+    if (名 === 'setBuffSizeUpAll' && args.length === 4) {
+      try {
+        return { buffSizeAddAll: { div: 翻值(args[1], env, 'setBuffSizeUpAll.div'), name: 翻值(args[2], env, 'setBuffSizeUpAll.name'), 加: 翻值(args[3], env, 'setBuffSizeUpAll.值') } };
       } catch (err) { if (err.__残差) return null; throw err; }
     }
     // 批次C-4：setBuffSizeUp(u,div,name,N)（引擎=find(div+name)后 size+=N，与 setBuffSize 仅 =/+= 之别；10131 全库唯一）
@@ -1132,6 +1148,13 @@ function 翻条件(n, env) {
     if (左.type === 'CallExpression' && 是成员(左.callee, 是U, 'getNest') && 左.arguments.length === 1 && typeof 字面(左.arguments[0]) === 'string' && cmp集.includes(op)) {
       const rv = 数字(右n);
       if (rv !== undefined) return { kind: 'nest比较', type: 字面(左.arguments[0]), cmp: op, fix: rv };
+    }
+    // <目标>.getNest("S") <op> N（10216/10217：循环队友的技能叠层门槛）→ 目标化叠层比较，b 复用 Target 打包
+    if (左.type === 'CallExpression' && 左.callee.type === 'MemberExpression' && !左.callee.computed && 左.callee.property.name === 'getNest' && 左.arguments.length === 1 && typeof 字面(左.arguments[0]) === 'string' && cmp集.includes(op)) {
+      const rv = 数字(右n);
+      let 目 = null;
+      try { 目 = 翻目标(左.callee.object, env); } catch (e) { if (!e.__残差) throw e; }
+      if (rv !== undefined && 目) return { kind: 'nest比较', type: 字面(左.arguments[0]), cmp: op, fix: rv, 目标: 目 };
     }
     // U.<谓词>() == true/false → 有回合buff / not
     if (左.type === 'CallExpression' && 左.callee.type === 'MemberExpression' && 是U(左.callee.object) && 左.arguments.length === 0 && 右n.type === 'Literal' && typeof 右n.value === 'boolean' && op === '==') {
@@ -2284,7 +2307,7 @@ if (require.main === module) {
   const 有旗 = k => argv.includes('--' + k);
 
   if (有旗('扫描')) {
-    // 全量 191 case 可翻译性扫描 + 残差聚类
+    // 全量 195 case 可翻译性扫描 + 残差聚类
     let 全绿 = 0, 有残 = 0, 崩溃 = 0;
     const 残差总 = [];
     const 每角色 = {};

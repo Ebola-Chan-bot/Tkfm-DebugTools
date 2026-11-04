@@ -134,7 +134,7 @@
   "leader": [
    {
     "temp": [
-     "v__0x4fa54b",
+     "v__0x3b5c12",
      {
       "常数": 0
      }
@@ -152,7 +152,7 @@
     "then": [
      {
       "addTemp": [
-       "v__0x4fa54b",
+       "v__0x3b5c12",
        10
       ]
      },
@@ -223,7 +223,7 @@
     "then": [
      {
       "addTemp": [
-       "v__0x4fa54b",
+       "v__0x3b5c12",
        10
       ]
      },
@@ -285,14 +285,14 @@
    {
     "if": {
      "kind": "temp",
-     "var": "v__0x4fa54b",
+     "var": "v__0x3b5c12",
      "cmp": "!=",
      "fix": 0
     },
     "then": [
      {
       "hpUpAll": {
-       "tempVal": "v__0x4fa54b"
+       "tempVal": "v__0x3b5c12"
       }
      }
     ]

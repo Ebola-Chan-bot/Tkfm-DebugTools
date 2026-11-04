@@ -108,7 +108,12 @@ function __mech_编译条件(cond, names) {
     }
     case 'CmpNest': {
       var tn = names[cond.nameIdx], nv = cond.a / 1e4;
-      return function (ctx) { return __mech_cmp(ctx.u.getNest(tn), code, nv); };
+      // b=目标 Target 打包（低 8 位枚举，高 8 位 tgtN）；0/1=self 兼容旧 bin，其余循环目标按栈取
+      var nt = cond.b & 0xFF, nn = (cond.b >> 8) & 0xFF;
+      if (nt === 0 || nt === 1) return function (ctx) { return __mech_cmp(ctx.u.getNest(tn), code, nv); };
+      if (nt === 5) return function (ctx) { var u = ctx.iStack[ctx.iStack.length - 1]; return u != null && __mech_cmp(u.getNest(tn), code, nv); };
+      if (nt === 6) return function (ctx) { var u = ctx.iStack[ctx.iStack.length - 1 - nn]; return u != null && __mech_cmp(u.getNest(tn), code, nv); };
+      throw new Error('机制解释器: CmpNest 目标枚举 ' + nt + ' 未支持');
     }
     case 'CmpTemp': {
       var vn = names[cond.nameIdx], tv = cond.a / 1e4;
@@ -348,13 +353,14 @@ function __mech_编译hpExpr(bits, 上下文, pad2) {
   var hArmor = (bits >>> 27) & 1;
   var hact = __MECH_ARMOR_ACT[(bits >>> 28) & 3];
   var hmode = __MECH_ARMOR_MODE[(bits >>> 30) & 1];
-  if (hbase !== 1 && hbase !== 5 && hbase !== 7 && hbase !== 6 && hbase !== 4) throw new Error('机制解释器: hpExpr base 仅支持 self(1)/LoopI(5)/LowestHp(7)/$i异源self(6)/compN(4)，出现 ' + hbase + ' @ ' + 上下文);
+  if (hbase !== 1 && hbase !== 5 && hbase !== 7 && hbase !== 6 && hbase !== 4 && hbase !== 3) throw new Error('机制解释器: hpExpr base 仅支持 self(1)/LoopI(5)/LowestHp(7)/$i异源self(6)/compN(4)/TempUnit哨兵(3)，出现 ' + hbase + ' @ ' + 上下文);
   // base=6（批次B2 哨兵）：hp 读循环变量而 armorUp 读 self（10034/10035：V.hp*15*armorUp(U,…)）
   var baseF, armorBaseSelf = false;
   if (hbase === 1) baseF = function (ctx) { return ctx.u; };
   else if (hbase === 5) baseF = function (ctx) { return ctx.iStack[ctx.iStack.length - 1]; };
   else if (hbase === 7) baseF = function (ctx) { return __mech_最低hp(); };
   else if (hbase === 4) { var hcN = (pad2 >>> 4) & 0xFFF; baseF = function (ctx) { return comp[hcN]; }; }   // 批次E-2b：comp[N] 固定位
+  else if (hbase === 3) { var hSlot = (pad2 >>> 4) & 0xF; baseF = function (ctx) { return ctx.unitVars[hSlot]; }; }   // findMaxUnit 槽（10138 leader）
   else { baseF = function (ctx) { return ctx.iStack[ctx.iStack.length - 1]; }; armorBaseSelf = true; }
   var hExt = pad2 & 15;   // 0=字段直读(hp/atk) 2=getCurAtk()方法(10133)
   if (hExt !== 0 && hExt !== 2) throw new Error('机制解释器: hpExpr fieldExt ' + hExt + ' 未知（仅 0/2） @ ' + 上下文);
@@ -684,12 +690,12 @@ function __mech_编译一条(c, cmds, pos, names, out, 上下文) {
       return;
     }
     case 'BuffSizeAddAll': {
-      // 批次E-2b：自身全部同名 buff size 增量（10040 turnstart `for(b of U.buff){if(div&&name)b.size-=12.5}`）：
-      //   引擎 filter+forEach 同构（与 setBuffSizeAll 同构仅 =/+= 之别；迭代中不增删条目安全）
+      // 旧数据兼容路径；新表统一用 SetBuffSizeUpAll 并调用 bumpBuff 保持引擎缓存语义
       var bsaDiv = names[c.ps[0].i], bsaName = names[c.ps[1].i], bsaD = c.ps[2].i / 1e4;
       out.push(function (ctx) {
-        var 列表 = ctx.u.buff.filter(function (b) { return b.div == bsaDiv && b.name == bsaName; });
-        列表.forEach(function (b) { b.size += bsaD; });
+        var u = ctx.u;
+        bumpBuff(u);
+        u.buff.filter(function (b) { return b.div == bsaDiv && b.name == bsaName; }).forEach(function (b) { b.size += bsaD; });
       });
       return;
     }
@@ -769,6 +775,34 @@ function __mech_编译一条(c, cmds, pos, names, out, 上下文) {
       out.push(function (ctx) { sbFn(sbT(ctx), sbDiv, sbName, sbVF(ctx)); });
       return;
     }
+    case 'SetBuffSizeUpAll': {
+      var suT = __mech_编译主目标(c.tgt, c.tgtN), suDiv = names[c.ps[0].i], suName = names[c.ps[1].i], suD = c.ps[2].i / 1e4;
+      out.push(function (ctx) {
+        var u = suT(ctx);
+        bumpBuff(u);   // 与引擎 setBuffSizeUpAll 的缓存失效语义一致，不能直接改 size 漏 bump
+        u.buff.filter(function (b) { return b.div == suDiv && b.name == suName; }).forEach(function (b) { b.size += suD; });
+      });
+      return;
+    }
+    case 'TriggerAtbf': {
+      // 相邻下一条 TriggerBuff 保存内层参数；外层 atbf 注册时保留 size 数组，祝福触发时再执行其中的 buff(...size)
+      var taT = __mech_编译主目标(c.tgt, c.tgtN), taNext = cmds[pos.i];
+      if (!taNext || taNext.op !== 'TriggerBuff') throw new Error('机制解释器: TriggerAtbf 后缺 TriggerBuff @ ' + 上下文);
+      pos.i++;
+      var taFns = [];
+      for (var tai = 0; tai < 7; tai++) if (tai !== 3) taFns[tai] = __mech_编译参数(c.ps[tai], names, 上下文 + '.outer[' + tai + ']');
+      var tiT = __mech_编译主目标(taNext.tgt, taNext.tgtN), tiFns = [];
+      for (var tii = 0; tii < 10; tii++) tiFns.push(__mech_编译参数(taNext.ps[tii], names, 上下文 + '.inner[' + tii + ']'));
+      out.push(function (ctx) {
+        var inner = [tiT(ctx)];
+        for (var tj = 0; tj < 10; tj++) inner.push(tiFns[tj](ctx));
+        var args = [taT(ctx)];
+        for (var tk = 0; tk < 7; tk++) args.push(tk === 3 ? inner : taFns[tk](ctx));
+        atbf.apply(null, args);
+      });
+      return;
+    }
+    case 'TriggerBuff': return;   // 已由前一条 TriggerAtbf 连同消费
 
     case 'SetHpUltDmg': case 'SetHpAtkDmg': {
       // 批次C-4：unit.hpUltDmg|hpAtkDmg = <ExprHp 表达式>（10050/10144；引擎定长字段，伤害期 /100 乘区）
@@ -1102,7 +1136,7 @@ function __mech_应用旗标位(u, bit) {
   }
 }
 
-// ---- 默认钩子骨架（与源码 191 case 的缺省形态逐一同形）----
+// ---- 默认钩子骨架（与源码 195 case 的缺省形态逐一同形）----
 function __mech_装默认钩子(u) {
   u.ultbefore = function () {};
   u.ultafter = function () {};

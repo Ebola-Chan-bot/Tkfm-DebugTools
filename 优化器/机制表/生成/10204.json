@@ -479,7 +479,7 @@
          "快照": [
           {
            "temp": [
-            "v__0xdca31b",
+            "v__0x5ae349",
             {
              "getNest": "<방한 계획>",
              "目标": "$i"
@@ -491,7 +491,7 @@
           {
            "if": {
             "kind": "temp",
-            "var": "v__0xdca31b",
+            "var": "v__0x5ae349",
             "cmp": "==",
             "fix": 0
            },
@@ -513,7 +513,7 @@
             {
              "if": {
               "kind": "temp",
-              "var": "v__0xdca31b",
+              "var": "v__0x5ae349",
               "cmp": "==",
               "fix": 1
              },
@@ -535,7 +535,7 @@
               {
                "if": {
                 "kind": "temp",
-                "var": "v__0xdca31b",
+                "var": "v__0x5ae349",
                 "cmp": "==",
                 "fix": 2
                },

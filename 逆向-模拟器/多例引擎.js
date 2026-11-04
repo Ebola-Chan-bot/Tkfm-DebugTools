@@ -142,9 +142,15 @@ function battle(idList, commandText, bondList, bossElement, optionList) {
 }
 
 function 序列化buff(b) {
+  // 트리거 的 size 是延迟 buff 参数数组，元素可含 Champ 引用（10217）；who 同样只保留 id，不能把整个队友对象交给 JSON.stringify
+  const 值 = v => {
+    if (Array.isArray(v)) return v.map(值);
+    if (v && typeof v === 'object') return v.id !== undefined ? ('id:' + v.id) : String(v);
+    return v;
+  };
   return (b || []).map(function(x) {
     const o = {};
-    for (const k of ['div','act','type','size','name','nest','maxNest','turn','ex','on']) if (x[k] !== undefined) o[k] = x[k];
+    for (const k of ['div','act','type','size','name','nest','maxNest','turn','ex','on']) if (x[k] !== undefined) o[k] = 值(x[k]);
     if (x.who !== undefined) o.who = (x.who && x.who.id !== undefined) ? ('id:' + x.who.id) : String(x.who);
     if (x.from !== undefined) o.from = (x.from && x.from.id !== undefined) ? ('id:' + x.from.id) : String(x.from);
     return JSON.stringify(o);

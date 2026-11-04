@@ -35,7 +35,7 @@ const OP = {
   HookStart:44, BossDefOff:45, AddCd:46, SetCd:47, AddCurCd:48, SetCurCd:49, SetFlag:50,
   If:60, EndIf:61, For:62, EndFor:63, LibIf:64, ElseIf:65, Else:66,
   InjectStart:70, Snapshot:71, InjectEnd:72, PhaseMark:73, FindUnit:74, FindBuff:75, Continue:76, ClampCurCd:77,
-  SetHpUltDmg:78, SetHpAtkDmg:79, SetBuffSizeUp:80, SetSlotFromNest:81, AddTemp:83, ClampTemp:84, ClampCurCdToCd:85, BuffSizeAddAll:86, SetUnitField:87, FindMaxUnit:88, SpliceFirstBuffOn:89, ThrowRef:90,
+  SetHpUltDmg:78, SetHpAtkDmg:79, SetBuffSizeUp:80, SetSlotFromNest:81, AddTemp:83, ClampTemp:84, ClampCurCdToCd:85, BuffSizeAddAll:86, SetUnitField:87, FindMaxUnit:88, SpliceFirstBuffOn:89, ThrowRef:90, SetBuffSizeUpAll:91, TriggerAtbf:92, TriggerBuff:93,
 };
 const TAG = { None:0, NameIdx:1, TypeIdx:2, Fix:3, Always:4, Bool:5, Target:6, ExprAtkRef:7, TernLeader:8, SlotRef:9, HookId:10, ModeId:11, PhaseId:12, FlagId:13, ExprHp:14, TempRef:15, ExprSize:16, CountVal:17, ExprNestByType:19, NameCat:20, TempVal:21, ExprAtkComp:22, NaNVal:23 };
 const TGT = { None:0, Self:1, All:2, Boss:3, CompN:4, LoopI:5, LoopUp:6, LowestHp:7, TempUnit:8, BossHitTarget:9 };
@@ -255,20 +255,26 @@ class 压平器 {
     return P('ExprAtkRef', bits);
   }
 
-  // hpExpr：{base:'self'|'$i'|'lowestHp'|'$i异源self'|'compN',compN?,N,armorUp?:{act,mode},field?:'atk'|'curAtk'} → ExprHp 位域
-  //   act∈{궁:0,평:1,방:2} mode∈{추가:0,발동:1}；base=self(1)/LoopI(5)/LowestHp(7)/$i异源self(6)/compN(4哨兵,_pad2.compN)
+  // hpExpr：{base:'self'|'$i'|'lowestHp'|'$i异源self'|{find:槽}|'compN',compN?,N,armorUp?:{act,mode},field?:'atk'|'curAtk'} → ExprHp 位域
+  //   act∈{궁:0,평:1,방:2} mode∈{추가:0,발동:1}；base=self(1)/LoopI(5)/LowestHp(7)/$i异源self(6)/TempUnit哨兵(3)/compN(4哨兵,_pad2.compN)
   //   field 缺省 hp；'atk'=bit31（<base>.atk*N）；'curAtk'=bit31+_pad2.fieldExt=2（U.getCurAtk()*N，基类返0运行时覆盖）
   encHpExpr(o, 上下文) {
     const BASE = { self: 1, '$i': 5, lowestHp: 7, '$i异源self': 6, compN: 4 };
     const ACT = { '궁': 0, '평': 1, '방': 2 };
     const MODE = { '추가': 0, '발동': 1 };
-    const b = BASE[o.base];
-    if (b === undefined) throw new Error(`hpExpr 未知 base ${JSON.stringify(o.base)} @ ${上下文}（仅 self/$i/lowestHp/$i异源self/compN）`);
+    const 槽 = o.base && typeof o.base === 'object' && o.base.find !== undefined ? o.base.find : null;
+    const b = 槽 !== null ? 3 : BASE[o.base];
+    if (b === undefined) throw new Error(`hpExpr 未知 base ${JSON.stringify(o.base)} @ ${上下文}`);
     const fxd = 定点(o.N, 上下文);
     if (fxd < 0 || fxd > 0xFFFFFF) throw new Error(`hpExpr N 定点 ${fxd} 超 24 位 @ ${上下文}`);
     let bits = fxd;
     bits |= b << 24;   // base 占 bit24-26（3bit）
     let pad2 = 0;
+    if (槽 !== null) {
+      if (!Number.isInteger(槽) || 槽 < 0 || 槽 > 7) throw new Error(`hpExpr find 槽 ${槽} 越界(0..7) @ ${上下文}`);
+      if (o.armorUp || o.field !== undefined) throw new Error(`hpExpr find 基座不支持 armorUp/字段扩展 @ ${上下文}`);
+      pad2 |= (槽 & 0xF) << 4;
+    }
     if (o.base === 'compN') {
       // 批次E-2b：comp[N] 固定位基座（10140 leader `comp[0].hp*100`）：_pad2 bits4-15=N；compN 基座不支持 armorUp/异源
       if (!Number.isInteger(o.compN) || o.compN < 0 || o.compN > 4) throw new Error(`hpExpr compN ${o.compN} 越界(0..4) @ ${上下文}`);
@@ -417,11 +423,21 @@ class 压平器 {
         for (const r of (fm.role过滤 || [])) { if (!Number.isInteger(r) || r < 0 || r > 4) throw new Error(`findMaxUnit role ${r} 越界`); roleMask |= (1 << r); }
         return this.emit(mkCmd(OP.FindMaxUnit, 'None', [P('Bool', fm.槽), P('NameIdx', this.dict.add(fm.field)), P('Fix', roleMask), P('Bool', fm.方向 === 'min' ? 1 : 0)]));
       }
-      // 批次E-2b：自身全部同名 buff size 增量（10040 turnstart `for(b of U.buff){if(div&&name)b.size-=12.5}`）：
-      //   ps=[div字典idx, name字典idx, Fix增量]；tgt 恒 self（源码全库唯一形态）
+      // 全队同名 buff 尺寸增量：直接走引擎 setBuffSizeUpAll 原语，保留 bumpBuff 缓存失效
       case 'buffSizeAddAll': {
         const bs = stmt.buffSizeAddAll;
-        return this.emit(mkCmd(OP.BuffSizeAddAll, 'Self', [P('NameIdx', this.dict.add(bs.div)), P('NameIdx', this.dict.add(bs.name)), P('Fix', 定点(bs.加, 'buffSizeAddAll'))]));
+        return this.emit(mkCmd(OP.SetBuffSizeUpAll, 'Self', [P('NameIdx', this.dict.add(bs.div)), P('NameIdx', this.dict.add(bs.name)), P('Fix', 定点(bs.加, 'buffSizeAddAll'))]));
+      }
+      // atbf(...,"트리거",[...],...)：相邻两条指令分别保存外层注册参数与内层延迟 buff 参数
+      case 'triggerAtbf': {
+        const tr = stmt.triggerAtbf;
+        if (!Array.isArray(tr) || tr.length !== 8 || !tr[4] || !Array.isArray(tr[4].triggerBuff) || tr[4].triggerBuff.length !== 11) throw new Error(`triggerAtbf 参数形态非法 @ ${libK}`);
+        const 内 = tr[4].triggerBuff;
+        const { tgt, tgtN } = this.encTgt(tr[0]);
+        const ps = tr.slice(1).map((v, i) => i === 3 ? None() : this.encValLib(v, libK, `triggerAtbf[${i + 1}]`));
+        this.emit(mkCmd(OP.TriggerAtbf, tgt, ps, null, tgtN));
+        const innerT = this.encTgt(内[0]);
+        return this.emit(mkCmd(OP.TriggerBuff, innerT.tgt, 内.slice(1).map((v, i) => this.encValLib(v, libK, `triggerBuff[${i + 1}]`)), null, innerT.tgtN));
       }
       case 'clampCurCd': {
         // 批次C-3：curCd 三元手卷 clamp（`V.curCd = V.curCd<N ? X : V.curCd-M`，源码全库唯一 10025）；直译三参不做等价推理
@@ -530,7 +546,11 @@ class 压平器 {
       // 回合模：默认带 GT>1 前置守卫（源码 58/59 形态）；源表显式 "守卫":false 才用裸取模
       case '回合模': o.kind = (c.守卫 === false) ? 'CmpGTMod' : 'CmpGTModGated'; o.a = 定点(c.偏移 ?? 0, 上下文); o.b = 定点(c.模, 上下文); o.nameIdx = 定点(c.余, 上下文) & 0xFFFF; break;
       case 'slot比较': o.kind = 'CmpSlot'; o.cmp = cmpOf(c.cmp); o.a = must(SLOT_NAME[c.slot], `未知slot ${c.slot}`); o.b = 定点(c.fix, 上下文); break;
-      case 'nest比较': o.kind = 'CmpNest'; o.cmp = cmpOf(c.cmp); o.nameIdx = this.dict.add(c.type); o.a = 定点(c.fix, 上下文); break;
+      case 'nest比较': {
+        o.kind = 'CmpNest'; o.cmp = cmpOf(c.cmp); o.nameIdx = this.dict.add(c.type); o.a = 定点(c.fix, 上下文);
+        if (c.目标 != null) { const { tgt, tgtN } = this.encTgt(c.目标); o.b = TGT[tgt] + (tgtN << 8); }
+        break;
+      }
       case 'temp': o.kind = 'CmpTemp'; o.cmp = cmpOf(c.cmp); o.nameIdx = this.dict.add(c.var); o.a = 定点(c.fix, 上下文); break;
       case '元素种类':
         o.kind = 'CmpElKind';

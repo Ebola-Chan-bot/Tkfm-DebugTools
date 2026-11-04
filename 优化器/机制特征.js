@@ -1,6 +1,6 @@
 'use strict';
 /*
- * 机制特征（阶段 5.1）：从机制表 bin（build/mechanisms.bin，191 角色数据化收官态）
+ * 机制特征（阶段 5.1）：从机制表 bin（build/mechanisms.bin，195 角色数据化收官态）
  * 提取每角色的高维机制画像，供 难例特征分级 / 束精修闸门 / 条件化填充 使用。
  *
  * ## 为什么需要（施工计划 阶段5 动机）
@@ -73,7 +73,7 @@ const 动态TAG = new Set(['ExprAtkRef', 'ExprHp', 'ExprSize', 'ExprNestByType',
  * 压平器线性化规则（flatten_core.js）：钩子按 HOOK_ORDER 发 HookStart(h) 分隔；if/elif/else→If…EndIf；
  * for→For…EndFor；perLib→每档 LibIf(k*10000)…EndIf。静态扫描无法解运行时条件 → If/For 块内指令
  * 保守保留（宁可高估供给面，不低估门控复杂度）；LibIf 块只保留 lib5（Fix=50000），其余档整块跳过。
- * 返回 [{op, tgt, condKind, ps}] 的浅层数组（只留扫描需要的字段，避免 191×256 全量对象常驻）。
+ * 返回 [{op, tgt, condKind, ps}] 的浅层数组（只留扫描需要的字段，避免 195×256 全量对象常驻）。
  */
 function 展开lib5(cmds) {
   const out = [];

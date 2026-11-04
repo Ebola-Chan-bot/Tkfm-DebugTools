@@ -124,7 +124,8 @@ function 报差异(层, 案, 旧值, 新值) {
 
 // ========== A 层：DB 真实排程 ==========
 console.log('\n========== A: DB 真实排程双跑 ==========');
-const DB = 加载队伍库();
+// --db 0 表示只跑随机差分：本地没有 tenkaassist_data 快照时也能执行 B/C 层，不应在 A 层入口读取失败
+const DB = N_DB > 0 ? 加载队伍库() : [];
 let dbA场 = 0;
 for (const id of 试点ids) {
   const 记录 = DB.filter(d => String(d.compstr).split(/\s+/).filter(Boolean).map(Number).includes(id))
