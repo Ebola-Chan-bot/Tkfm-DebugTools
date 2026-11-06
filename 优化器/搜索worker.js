@@ -17,6 +17,7 @@ const { parentPort, workerData } = require('worker_threads');
 const 适配 = require('./引擎适配.js');
 const 排程器 = require('./排程器.js');
 const 团队搜索器 = require('./团队搜索器.js');
+const 链接条件 = require('./链接条件.js');
 
 parentPort.on('message', (msg) => {
   if (msg && msg.type === 'init') run(msg.config);
@@ -51,13 +52,15 @@ function run(cfg) {
   //   **不存在由猴子补丁记录的状态**：注入层数/内容全部落在 unit.__mech_inj 纯数据里，可被
   //   captureState/restoreState 回滚，不再随评估次数累积到爆栈（万巴队实证）。bin 缺失/混淆源不兼容
   //   由 createEngine 直接 throw（拒绝静默回落原生，同类教训：机制表曾长期未接线→选项静默无效+差分假通过）。
-  const inst = 适配.createEngine();
+  const inst = 链接条件.创建引擎({ bossElement: cfg.bossElement == null ? -1 : cfg.bossElement, options: cfg.options || null });
+  const 角色羁绊 = cfg.角色羁绊 || {};
+  const 羁绊 = ids => Array.isArray(角色羁绊) ? 角色羁绊 : ids.map(id => 角色羁绊[id] || 5);
 
   // 起点排程：优先用户指令集文本；否则贪心基线
   let 起点toks = cfg.起点toks;
-  if (!起点toks && cfg.指令集文本) 起点toks = 排程器.解析指令集(inst, cfg.ids, cfg.指令集文本, [5,5,5,5,5]);
-  if (!起点toks || 排程器.重放(inst, cfg.ids, 起点toks) === 0) {
-    const g = 排程器.贪心基线(inst, cfg.ids, [5,5,5,5,5]);
+  if (!起点toks && cfg.指令集文本) 起点toks = 排程器.解析指令集(inst, cfg.ids, cfg.指令集文本, 羁绊(cfg.ids));
+  if (!起点toks || 排程器.重放(inst, cfg.ids, 起点toks, 羁绊(cfg.ids)) === 0) {
+    const g = 排程器.贪心基线(inst, cfg.ids, 羁绊(cfg.ids));
     起点toks = g && g.dmg > 0 ? g.toks : null;
   }
   if (!起点toks) { parentPort.postMessage({ type: '完成', 最优: null, 统计: null, 已停止: 手动停止, 加深完备: false, 终止原因: '起点无效' }); return; }
@@ -71,17 +74,18 @@ function run(cfg) {
     try {
       const 种子库 = require('./种子库.js');
       种子库.装载();
-      种子提供器 = (ids) => 种子库.找起点(inst, ids, [5,5,5,5,5], cfg.种子上限 || 8);
+      种子提供器 = (ids) => 种子库.找起点(inst, ids, 羁绊(ids), cfg.种子上限 || 8);
       parentPort.postMessage({ type: '进度', 已评估: 0, 名单数: 0, rt已完备: -1, 阶段: '种子库已装载' });
     } catch (e) {
       parentPort.postMessage({ type: '进度', 已评估: 0, 名单数: 0, rt已完备: -1, 阶段: '种子库装载失败:' + e.message });
     }
   }
 
-  const r = 团队搜索器.搜索(inst, { ids: cfg.ids, toks: 起点toks }, cfg.库, {
-    rtMax: cfg.rtMax, K站位: cfg.K站位, 爬山预算: cfg.爬山预算, 预算,
-    束配置: (cfg.束精修N > 0) ? {
-      N站位: cfg.束精修N, width: cfg.束宽 || 10, 评分: 'sync', 时限秒: 60,
+  const 运行一个起点 = (起点, rtMax, 时间限制) => 团队搜索器.搜索(inst, 起点, cfg.库, {
+    rtMax, K站位: cfg.K站位, 爬山预算: cfg.爬山预算, 预算,
+    束配置: (cfg.束精修N > 0 || cfg.全兜底 === true) ? {
+      N站位: cfg.束精修N, width: cfg.束宽 || 10, 评分: 'sync', 时限秒: cfg.束时限 || 60,
+      保守兜底: cfg.全兜底 === true, 节拍兜底: cfg.全兜底 === true, 窗对齐兜底: cfg.全兜底 === true, 独立相位兜底: cfg.全兜底 === true,
       // 难例特征闸门：'易'(buff富余)名单跳过束精修。null=自动(rtMax≥1 的海量名单场景默认开, 起点队豁免;
       // rtMax=0 单团队时 团队搜索器.搜索 内部会强制关——후지카端到端验收靠束精修才达 100% bit级)。
       闸门: cfg.束闸门 == null ? (cfg.rtMax == null ? true : cfg.rtMax >= 1) : cfg.束闸门 === true,
@@ -96,6 +100,24 @@ function run(cfg) {
     },
     onProgress: (n, mn) => { 已评估 += n; if (mn != null) 名单数镜像 = mn; 发进度('名单球', rt镜像); },
   });
+  let r;
+  if (cfg.多起点 && Array.isArray(cfg.多起点)) {
+    const 队结果 = [];
+    for (let i = 0; i < cfg.多起点.length; i++) {
+      const c = cfg.多起点[i];
+      if (stopFlag()) break;
+      发进度(`多起点 ${i + 1}/${cfg.多起点.length}`, rt镜像);
+      const x = 运行一个起点({ ids: c.ids, toks: c.toks }, 0);
+      队结果.push(x);
+      if (x.最优 && (!全局最优 || x.最优.dmg > 全局最优.dmg)) { 全局最优 = x.最优; parentPort.postMessage({ type: '最优', dmg: x.最优.dmg, ids: x.最优.ids, 已评估 }); }
+      已评估 += x.统计.评估数 || 0;
+      名单数镜像 += x.统计.名单数 || 0;
+    }
+    r = { 最优: 全局最优, 统计: { 名单数: 名单数镜像, 评估数: 已评估, rt已完备: -1, 名单已穷尽: false, 范围内完备: false } };
+  } else {
+    r = 运行一个起点({ ids: cfg.ids, toks: 起点toks }, cfg.rtMax);
+    if (!全局最优 && 起点toks) 全局最优 = { ids: cfg.ids, toks: 起点toks, dmg: 排程器.重放(inst, cfg.ids, 起点toks, 羁绊(cfg.ids)) };
+  }
   rt镜像 = r.统计.rt已完备;
   名单数镜像 = r.统计.名单数;
 
@@ -104,7 +126,7 @@ function run(cfg) {
   if (全局最优 && cfg.加深 > 0 && !stopFlag()) {
     let base = 全局最优.toks;
     for (let rr = 1; rr <= cfg.加深 && !stopFlag(); rr++) {
-      排程器.编辑球层(inst, 全局最优.ids, base, [5,5,5,5,5], rr, (toks, dmg) => {
+      排程器.编辑球层(inst, 全局最优.ids, base, 羁绊(全局最优.ids), rr, (toks, dmg) => {
         已评估++;
         if (dmg > 全局最优.dmg) {
           全局最优 = { ...全局最优, dmg, toks }; base = toks;

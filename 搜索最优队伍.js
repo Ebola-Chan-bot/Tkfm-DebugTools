@@ -20,10 +20,12 @@
  * 用法：
  *   node 搜索最优队伍.js --码="xxxx:yyyy"
  *   node 搜索最优队伍.js "xxxx:yyyy" --终搜=3 --束时限=120 --导出=结果.json
+ *   node 搜索最优队伍.js --链接="https://.../make/?list=...&bossEl=dark&options=0,0,0,100,100,0,0,0"
  *   node 搜索最优队伍.js --码="xxxx:yyyy" --只解析      # 只解码打印候选池
  *
  * 选项：
  *   --码=          团队码（也可作为唯一位置参数传入）
+ *   --链接=        tenkaassist make/simulator 链接；自动读取名单、羁绊、Boss/options，并强制 --禁用种子
  *   --终搜=        进入完整深搜的候选队数（默认 3；0=只跑 A/B/C 不终搜）
  *   --束时限=      终搜束搜索秒数（默认 120）
  *   --爬山预算=    终搜单次爬山评估上限（默认 10000）
@@ -76,6 +78,7 @@ const 优化器 = p => path.join(__dirname, '优化器', p);
 const 适配 = require(优化器('引擎适配.js'));
 const 排程器 = require(优化器('排程器.js'));
 const 团队搜索器 = require(优化器('团队搜索器.js'));
+const 链接条件 = require(优化器('链接条件.js'));
 const { 解码 } = require(path.join(__dirname, '解码团队码.js'));
 
 // ===================== 输出：既打印又收集，最后镜像到文件（本机终端回显不可靠时的兜底）=====================
@@ -100,13 +103,19 @@ for (const a of process.argv.slice(2)) {
   else 位置参数.push(a);
 }
 const 码 = 参.码 != null ? String(参.码) : (位置参数[0] || null);
+let 链接 = null;
+if (参.链接) {
+  try { 链接 = 链接条件.解析链接(String(参.链接)); }
+  catch (e) { if (isMainThread) { console.error('链接解析失败：' + e.message); process.exit(2); } throw e; }
+}
+if (链接) 参.禁用种子 = true;   // 主线程与并行worker都禁用DB，且继承完全相同的Boss/options
 const 必须任一 = (参.必须任一 == null ? [] : String(参.必须任一).split(/[,\s]+/).filter(Boolean).map(Number));
 if (必须任一.some(id => !Number.isInteger(id))) {
   console.error('--必须任一 必须全部为角色 id');
   process.exit(2);
 }
-if (!码 && isMainThread) {
-  console.error('用法: node 搜索最优队伍.js --码="<团队码>" [--终搜=3 --束时限=120 --只解析 …]');
+if (!码 && !链接 && isMainThread) {
+  console.error('用法: node 搜索最优队伍.js --码="<团队码>" 或 --链接="<tenkaassist链接>" [--终搜=3 --束时限=120 --只解析 …]');
   process.exit(2);
 }
 // 产物目录：默认 %TEMP%\搜索最优队伍_<时间戳>（仓库外）。产物一律不落 git 工作树
@@ -189,8 +198,9 @@ function 写进度(阶段, 明细, 额外) {
 // meta 指纹：防止不同码/参数的检查点混用（含块大小——块边界变了续跑会错位）
 function 检查点meta(池) {
   const 指纹 = JSON.stringify({
-    码, 池: 池.map(p => `${p.id}:${p.羁绊}`).join(','), 必须任一, 入围数, B名单数, TopN, K站位,
-    粗预算, 深预算, 全扫阈值, D名单数, 终搜N, 束时限, 终搜爬山预算, 块大小, D块大小,
+    码, 链接: 链接 ? 链接.链接 : null, bossElement: 链接 ? 链接.bossElement : -1, options: 链接 ? 链接.options : null,
+    池: 池.map(p => `${p.id}:${p.羁绊}`).join(','), 必须任一, 入围数, B名单数, TopN, K站位,
+    粗预算, 深预算, 全扫阈值, D名单数, 终搜N, 束时限, 终搜爬山预算, 块大小, D块大小, 禁用种子: !!参.禁用种子,
   });
   if (从头跑 && fs.existsSync(检查点目录)) { fs.rmSync(检查点目录, { recursive: true, force: true }); 说(`${时()} --从头：已清空检查点目录重新搜索`); }
   const meta = 读检查点('meta.json');
@@ -271,7 +281,10 @@ function 保障机制表() {
 // ===================== 候选池：解码 + 校验 + 中文名 =====================
 function 建池() {
   let 解;
-  try { 解 = 解码(码); } catch (e) { 说('解码失败: ' + e.message); 落盘(); process.exit(2); }
+  if (链接) 解 = { ids: 链接.持有ids, bonds: 链接.持有ids.map(id => 链接.羁绊.get(id) || 5) };
+  else {
+    try { 解 = 解码(码); } catch (e) { 说('解码失败: ' + e.message); 落盘(); process.exit(2); }
+  }
   const 表 = new Map(适配.角色表().filter(c => c && c.id != null).map(c => [c.id, c]));
   const 见 = new Set(), 池 = [];
   for (let i = 0; i < 解.ids.length; i++) {
@@ -307,7 +320,7 @@ function 打印池(池) {
 let _羁绊表 = null;
 function 建引擎(池) {
   _羁绊表 = new Map(池.map(p => [p.id, p.羁绊]));
-  const inst = 适配.createEngine({ 启用机制表: { binPath: bin路径 } });
+  const inst = 链接条件.创建引擎(链接 || { bossElement: -1, options: null }, { 启用机制表: { binPath: bin路径 } });
   const inc = inst.increment;
   const 原init = inc.initBattle, 原fast = inc.fastReplay;
   const 真 = ids => ids.map(id => (_羁绊表.has(id) ? _羁绊表.get(id) : 5));
@@ -336,14 +349,37 @@ function* 必选组合(arr, k) {
   for (const s of 组合(arr, k)) if (s.some(id => 必须任一.includes(id))) yield s;
 }
 
+// 按字典序序号还原一个组合：大池分块只传 [起,止) 序号，不把上亿个组合对象放进内存。
+function 序号组合(arr, k, 序号) {
+  const n = arr.length, 结果 = [];
+  let 余 = 序号, 起 = 0;
+  for (let 位 = 0; 位 < k; 位++) {
+    const 还需 = k - 位 - 1;
+    for (let i = 起; i <= n - 还需 - 1; i++) {
+      const 数 = 组合数(n - i - 1, 还需);
+      if (余 >= 数) { 余 -= 数; continue; }
+      结果.push(arr[i]); 起 = i + 1; break;
+    }
+  }
+  return 结果;
+}
+function* 序号组合区间(arr, k, 起, 止) {
+  for (let i = 起; i < 止; i++) {
+    const s = 序号组合(arr, k, i);
+    if (!必须任一.length || s.some(id => 必须任一.includes(id))) yield s;
+  }
+}
+
 // ===================== 阶段 A：名单 × 站位 粗评 =====================
 // 小池：全部名单 × 120 站位先验贪心全扫；大池：worker 并行粗筛（每名单 5 队长位×固定队员序）→ 入围名单 × 120 站位精扫。
 async function 阶段A(inst, 池) {
   const ids池 = 池.map(p => p.id);
-  const 名单们 = [...必选组合(ids池, 5)];
-  缩放参数(名单们.length);
-  说(`候选名单数 ${名单们.length}（含必选过滤${必须任一.length ? ' [' + 必须任一.join(',') + ']' : ' 无'}）：${名单们.length <= 全扫阈值 ? '120 站位全扫' : `并行粗筛 ${并发数} workers → 入围${入围数}精扫`}`);
-  return 名单们.length <= 全扫阈值 ? 阶段A全扫(inst, 池, 名单们) : 阶段A大池(inst, 池, 名单们);
+  const 总组合数 = 组合数(ids池.length, 5);
+  const 有效名单数 = 必须任一.length ? 总组合数 - 组合数(ids池.length - 必须任一.length, 5) : 总组合数;
+  缩放参数(有效名单数);
+  说(`候选名单数 ${有效名单数}（含必选过滤${必须任一.length ? ' [' + 必须任一.join(',') + ']' : ' 无'}）：${有效名单数 <= 全扫阈值 ? '120 站位全扫' : `并行粗筛 ${并发数} workers → 入围${入围数}精扫`}`);
+  if (有效名单数 <= 全扫阈值) return 阶段A全扫(inst, 池, [...必选组合(ids池, 5)]);
+  return 阶段A大池(inst, 池, { 总数: 总组合数, 有效数: 有效名单数 });
 }
 
 function 阶段A全扫(inst, 池, 名单们) {
@@ -377,13 +413,15 @@ function 阶段A全扫(inst, 池, 名单们) {
 }
 
 // 大池：粗筛（并行分块 + 逐块检查点）→ 入围名单 120 站位精扫（逐 25 名单续跑检查点）
-async function 阶段A大池(inst, 池, 名单们) {
+async function 阶段A大池(inst, 池, 任务) {
   const 每块Top = 60;
+  // 大池每块限制绝对上限：按比例缩放只决定阶段预算，不能把数百万战斗塞进同一块长期占用引擎。
+  const 实际块大小 = Math.max(1, Math.min(块大小, 5000));
   const 块表 = [];
-  for (let i = 0, 号 = 0; i < 名单们.length; i += 块大小, 号++)
-    块表.push({ 号, 名单们: 名单们.slice(i, Math.min(i + 块大小, 名单们.length)) });
-  说(`${时()} 粗筛分块：${名单们.length} 名单 → ${块表.length} 块 × ≤${块大小} 名单/块（每名单 5 队长位×固定队员序）`);
-  const 集 = await 并行块('A粗筛', 块表, { 模式: '粗筛', 池, 每块Top }, 名单们.length, 'A粗筛');
+  for (let i = 0, 号 = 0; i < 任务.总数; i += 实际块大小, 号++)
+    块表.push({ 号, 起: i, 止: Math.min(i + 实际块大小, 任务.总数) });
+  说(`${时()} 粗筛分块：${任务.有效数} 个有效名单 → ${块表.length} 个序号块 × ≤${实际块大小} 组合/块（流式生成+在线Top60，每名单 5 队长位×固定队员序）`);
+  const 集 = await 并行块('A粗筛', 块表, { 模式: '粗筛', 池, 每块Top }, 任务.总数, 'A粗筛');
   const 粗 = [...集.entries()].sort((a, b) => a[0] - b[0]).flatMap(e => e[1].top).sort(降序比);
   const 入围 = 粗.slice(0, 入围数);
   说(`${时()} 粗筛完成：有效名单 ${粗.length}，入围 ${入围.length}`);
@@ -458,9 +496,16 @@ function 粗筛worker() {
       return { n: 块.任务.length, top: out };
     }
     const { 每块Top } = workerData;
-    const 结果 = [];
+    const 结果 = [];   // 在线Top-K：大池一块可达数百万组合，绝不能先保存全部有效名单再排序
+    const 保留 = r => {
+      if (结果.length < 每块Top || 降序比(r, 结果[结果.length - 1]) < 0) {
+        结果.push(r); 结果.sort(降序比);
+        if (结果.length > 每块Top) 结果.length = 每块Top;
+      }
+    };
+    const 名单序列 = 块.名单们 || 序号组合区间(池.map(p => p.id), 5, 块.起, 块.止);
     let 未报 = 0;
-    for (const S of 块.名单们) {
+    for (const S of 名单序列) {
       let best = null;
       for (const L of S) {
         const 余 = S.filter(x => x !== L).sort((a, b) => a - b);
@@ -469,12 +514,12 @@ function 粗筛worker() {
         const g = 排程器.先验贪心(inst, P, 羁绊序(P));
         if (g && g.toks && g.toks.length >= 65 && (!best || g.dmg > best.dmg)) best = { perm: P, dmg: g.dmg };
       }
-      if (best) 结果.push({ ids: S.slice().sort((x, y) => x - y), perm: best.perm, dmg: best.dmg });
-      if (++未报 >= 4000) { parentPort.postMessage({ type: '进度', n: 未报 }); 未报 = 0; }
+      if (best) 保留({ ids: S.slice().sort((x, y) => x - y), perm: best.perm, dmg: best.dmg });
+      if (++未报 >= 1000) { parentPort.postMessage({ type: '进度', n: 未报 }); 未报 = 0; }
     }
     if (未报) parentPort.postMessage({ type: '进度', n: 未报 });
     结果.sort(降序比);
-    return { n: 块.名单们.length, top: 结果.slice(0, 每块Top) };
+    return { n: 块.名单们 ? 块.名单们.length : 块.止 - 块.起, top: 结果.slice(0, 每块Top) };
   };
   parentPort.on('message', m => {
     if (m.收工) { parentPort.close(); process.exit(0); }
@@ -547,6 +592,7 @@ function 终搜队(池, 项, 序号) {
     优化器('搜索队伍.js'),
     `--ids=${ids.join(',')}`, `--羁绊=${羁绊序(ids).join(',')}`,
     `--束时限=${束时限}`, `--爬山预算=${终搜爬山预算}`,
+    ...(链接 ? [`--链接=${链接.链接}`] : []),
     ...(参.禁用种子 ? ['--禁用种子'] : []),
     `--导出=${导出}`, `--输出=${镜像}`,
   ], { stdio: 'inherit' });
@@ -591,6 +637,7 @@ function 渲染指令(ids, 名称, toks) {
 async function main() {
   说('===== 解码候选池 =====');
   const 池 = 建池();
+  if (链接) { 说(`链接战场：${链接.描述()}`); 说('独立搜索：不读取 DB 起点、迁移种子或 DB 排程；所有候选均由算法生成。'); }
   打印池(池);
   if (参.只解析 === true || 参.只解析 === '1' || 参.只解析 === 'true') {
     const 总数 = 必须任一.length ? 组合数(池.length, 5) - 组合数(池.length - 必须任一.length, 5) : 组合数(池.length, 5);
@@ -660,8 +707,12 @@ async function main() {
   渲染指令(最优.ids, 最优.名称, 最优.toks);
 
   // 导出结构化结果
+  const 独立 = 建引擎(池);
+  const 复算 = 独立.increment.fastReplay(最优.ids, 最优.toks, 最优.羁绊, 链接 ? 链接.bossElement : -1, 链接 ? 链接.options : null);
+  if (复算 !== 最优.dmg) { 说(`独立复算=${复算} 与搜索值=${最优.dmg} 不一致，拒绝导出`); 落盘(); process.exit(6); }
+  说(`独立显式条件复算=${复算.toLocaleString()}；一致=true`);
   fs.writeFileSync(导出路径, JSON.stringify({
-    码, 候选池: 池, 阶段排名: { A: A.slice(0, 10).map(r => ({ ids: r.站位[0].perm, dmg: r.站位[0].dmg })), B: B.slice(0, 10).map(r => ({ ids: r.perm, dmg: r.dmg })), C: C.map(r => ({ ids: r.perm, dmg: r.dmg })), D: (typeof D !== 'undefined' ? D.slice(0, 20) : []).map(r => ({ ids: r.perm, dmg: r.dmg })) },
+    码, 链接: 链接 ? 链接.链接 : null, 战场: 链接 ? { bossElement: 链接.bossElement, options: 链接.options } : null, 独立搜索: true, 独立复算: 复算, 候选池: 池, 阶段排名: { A: A.slice(0, 10).map(r => ({ ids: r.站位[0].perm, dmg: r.站位[0].dmg })), B: B.slice(0, 10).map(r => ({ ids: r.perm, dmg: r.dmg })), C: C.map(r => ({ ids: r.perm, dmg: r.dmg })), D: (typeof D !== 'undefined' ? D.slice(0, 20) : []).map(r => ({ ids: r.perm, dmg: r.dmg })) },
     终搜: 终搜们.map(r => ({ ids: r.ids, 羁绊: r.羁绊, dmg: r.dmg, 来源: r.来源 })),
     最优: { ids: 最优.ids, 名称: 最优.名称, 羁绊: 最优.羁绊, dmg: 最优.dmg, 来源: 最优.来源, toks: 最优.toks, description: 最优.description },
   }, null, 2), 'utf8');

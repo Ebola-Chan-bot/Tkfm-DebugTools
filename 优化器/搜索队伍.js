@@ -19,11 +19,13 @@
  *   node 搜索队伍.js --ids=10206,10152,10196,10171,10191
  *   node 搜索队伍.js 圣剑 古勇 拉尤 丧伊 觉勇 --束时限=120 --导出=结果.json
  *   node 搜索队伍.js --从文件=队伍.txt        # 文件内每行一个角色，或逗号/空格分隔
+ *   node 搜索队伍.js --链接="https://.../make/?list=...&起点=10214,10196,10168,10147,10216&bossEl=dark&options=0,0,0,100,100,0,0,0"
  *   node 搜索队伍.js 娜莉 血魔 花魁 兔妈 夜凯 --只粗评      # 1 秒看 120 站位谁最强（含换队长）
  *   node 搜索队伍.js 娜莉 血魔 花魁 兔妈 夜凯 --排列TopK=1 --束时限=60   # 只深搜粗评冠军站位
  *
  * 选项：
  *   --ids=          5 个角色 id，逗号分隔（等价于位置参数，便于绕开 PowerShell 中文参数问题）
+ *   --链接=         make/simulator 链接，自动读 Boss/options/羁绊；make 链接需带 起点=5个id
  *   --从文件=        从文本文件读角色 token（每行一个，或逗号/空格分隔）
  *   --羁绊=         5 个羁绊等级，逗号分隔（默认 5,5,5,5,5）
  *   --束时限=        束搜索墙钟秒数（默认 180；0=跳过束搜索，仅贪心+爬山，最快）
@@ -55,6 +57,8 @@ const 适配 = require('./引擎适配.js');
 const 排程器 = require('./排程器.js');
 const 名单 = require('./防守名单.js');
 const 机制特征 = require('./机制特征.js');
+const 链接条件 = require('./链接条件.js');
+const { 建别名索引, 解析角色 } = 链接条件;
 // 兜底口径与 团队搜索器.js（生产链路）一致：谷底试探 K=8、兜底爬山预算≥30000（验证P5：K=8 两轮谷需 ~14-18k 评估，旧预算会撞顶）
 const 谷底试探 = 8;
 function 兜底爬山预算(爬山预算) { return Math.max(爬山预算 || 0, 30000); }
@@ -92,68 +96,7 @@ function 解析参数(argv) {
   return { 位置, 选项 };
 }
 
-// ===================== 别称解析（tenkaassist 口径）=====================
-// 数据源：common.js 的 translate 对象（"韩文名":{en,sc,tc,jp}）+ 引擎角色表 chJSON.data（id↔韩文name↔fullname）。
-// 不 new Function 求值 common.js（它依赖 localStorage/document 等浏览器 API），改用文本正则精确提取 translate。
-let _别名索引 = null;
-function 建别名索引() {
-  if (_别名索引) return _别名索引;
-  const 表 = 适配.角色表();                                  // [{id,name(韩文短名),fullname,role,element,rarity,...}]
-  const 韩名指id = new Map(), id指全名 = new Map(), 角色韩名集 = new Set();
-  for (const c of 表) {
-    if (!c || c.id == null || !c.name) continue;
-    韩名指id.set(c.name, c.id); id指全名.set(c.id, c.fullname || c.name); 角色韩名集.add(c.name);
-  }
-  // translate：键为韩文名，值含 sc/tc/en；只取键∈角色韩名集的条目（精确过滤掉 UI 文案）
-  const 韩名指别名 = new Map();                               // 韩文名 → {sc,tc,en}
-  const common = fs.readFileSync(路径.common, 'utf8');
-  const re = /"([^"]+)"\s*:\s*\{([^}]*)\}/g;
-  let m;
-  while ((m = re.exec(common))) {
-    const 韩名 = m[1], 体 = m[2];
-    if (!角色韩名集.has(韩名)) continue;
-    const sc = (体.match(/\bsc\s*:\s*"([^"]*)"/) || [])[1];
-    const tc = (体.match(/\btc\s*:\s*"([^"]*)"/) || [])[1];
-    const en = (体.match(/\ben\s*:\s*"([^"]*)"/) || [])[1];
-    韩名指别名.set(韩名, { sc, tc, en });
-  }
-  // id → 中文别称（优先 sc，回退 tc、fullname）
-  const id指别称 = new Map();
-  for (const [韩名, b] of 韩名指别名) {
-    const id = 韩名指id.get(韩名);
-    if (id != null) id指别称.set(id, b.sc || b.tc || id指全名.get(id) || 韩名);
-  }
-  // 反查索引：小写别名 → 命中 id 集合（sc/tc/en 各建一路）
-  const 别称指ids = new Map();
-  const 加 = (键, id) => { if (!键) return; const k = String(键).toLowerCase(); if (!别称指ids.has(k)) 别称指ids.set(k, new Set()); 别称指ids.get(k).add(id); };
-  for (const [韩名, b] of 韩名指别名) { const id = 韩名指id.get(韩名); if (id == null) continue; 加(b.sc, id); 加(b.tc, id); 加(b.en, id); 加(韩名, id); }
-  // 全部 (id, 别名列表) 供子串兜底
-  const 全体 = [];
-  for (const [韩名, b] of 韩名指别名) { const id = 韩名指id.get(韩名); if (id != null) 全体.push({ id, 名: [b.sc, b.tc, b.en, 韩名].filter(Boolean) }); }
-  _别名索引 = { 韩名指id, id指全名, id指别称, 别称指ids, 全体 };
-  return _别名索引;
-}
-
-// 解析单个角色 token → {id, 别称} 或 {错误} 或 {歧义:[...]}
-function 解析角色(token) {
-  const 索 = 建别名索引();
-  const s = String(token).trim();
-  if (/^\d+$/.test(s)) {                                      // 纯数字 = id
-    const id = Number(s);
-    if (!索.id指全名.has(id)) return { 错误: `id ${id} 不在角色表中` };
-    return { id, 别称: 索.id指别称.get(id) || 索.id指全名.get(id) };
-  }
-  const k = s.toLowerCase();
-  if (索.别称指ids.has(k)) {                                   // 精确命中（sc/tc/en/韩文名）
-    const set = [...索.别称指ids.get(k)];
-    if (set.length === 1) { const id = set[0]; return { id, 别称: 索.id指别称.get(id) || s }; }
-    return { 歧义: `"${s}" 命中多个角色: ` + set.map(id => `${id}(${索.id指别称.get(id) || 索.id指全名.get(id)})`).join(' ') };
-  }
-  const 命中 = 索.全体.filter(e => e.名.some(n => n && n.toLowerCase().includes(k)));   // 子串兜底
-  if (命中.length === 1) { const id = 命中[0].id; return { id, 别称: 索.id指别称.get(id) || s, 子串: true }; }
-  if (命中.length > 1) return { 歧义: `"${s}" 子串命中多个角色: ` + 命中.slice(0, 12).map(e => `${e.id}(${索.id指别称.get(e.id) || '?'})`).join(' ') + (命中.length > 12 ? ' …' : '') };
-  return { 错误: `"${s}" 未匹配到任何角色（tenkaassist sc/tc/en/韩文名/id）` };
-}
+// 别称解析与链接解析统一复用 链接条件.js；跨队与单队入口不再各维护一套 translate 正则。
 
 // ===================== 零伤害自动诊断 =====================
 /* 全路径 dmg=0 的自动归因：
@@ -281,7 +224,7 @@ function 排列粗评(inst, ids, 名称, 羁绊, 设置) {
     评估数++;
     if (g && g.toks && g.toks.length >= 65) 收(pIds, 信息, g.toks, g.dmg, '先验贪心');
   }
-  // DB 同集合种子接种（站位可能与贪心 TopK 不同；羁绊按种子站位上的角色重排）
+  // DB 同集合种子接种仅保留给显式对照实验；链接独立搜索在 main 中默认禁用，绝不读取 DB。
   let 种子条数 = 0;
   if (!设置.禁用种子) {
     const DB = 读DB();
@@ -478,9 +421,17 @@ function 输出结果(最好, ids, 名称) {
 // ===================== 主流程 =====================
 function main() {
   const { 位置, 选项 } = 解析参数(process.argv);
+  let 链接 = null;
+  try { if (选项.链接) 链接 = 链接条件.解析链接(String(选项.链接)); }
+  catch (e) { console.error('链接解析失败：' + e.message); process.exit(2); }
+  if (链接 && 选项.禁用种子 == null) 选项.禁用种子 = true;
+  if (链接 && !链接.起点ids.length && !选项.ids && !位置.length && !选项.从文件) {
+    console.error('单队精修需要 5 人：在 make 链接末尾加 &起点=id1,id2,id3,id4,id5，或用 simulator 五人链接；跨队搜索请用 主程序.js --链接=...');
+    process.exit(2);
+  }
 
   // 收集角色 token：位置参数 + --ids= + --从文件=
-  let tokens = [];
+  let tokens = 链接 && 链接.起点ids.length ? 链接.起点ids.map(String) : [];
   if (选项.ids) tokens.push(...String(选项.ids).split(/[,\s]+/).filter(Boolean));
   tokens.push(...读角色文件(选项.从文件));
   tokens.push(...位置);
@@ -500,9 +451,10 @@ function main() {
   if (错误们.length) { console.error('角色解析失败:\n  ' + 错误们.join('\n  ')); process.exit(2); }
   if (ids.length !== 5) { console.error('解析后角色数≠5'); process.exit(2); }
 
-  // 羁绊
-  let 羁绊 = [5, 5, 5, 5, 5];
+  // 羁绊：链接按角色 id 读取，站位排列时跟随角色；显式 --羁绊 可覆盖。
+  let 羁绊 = 链接 ? 链接.全队羁绊(ids) : [5, 5, 5, 5, 5];
   if (选项.羁绊) { const b = String(选项.羁绊).split(/[,\s]+/).map(Number); if (b.length === 5 && b.every(x => x >= 1 && x <= 5)) 羁绊 = b; else console.error('--羁绊 格式非法，回退默认全 5'); }
+  const 条件 = 链接 || { bossElement: -1, options: null, 描述: () => '无属性、无Boss减益、默认羁绊' };
 
   const 选项规范 = {
     束时限: 选项.束时限 == null ? 180 : Number(选项.束时限),
@@ -525,7 +477,8 @@ function main() {
 
   // 队伍机制画像（role/cd/倍率与站位无关，按输入顺序打印一次即可；
   //   isValidComp 与防守禁用槽位依赖站位——排列模式下逐站位另算，这里只报输入站位供参考）
-  const inst = 适配.createEngine({ 启用机制表: { binPath: 路径.机制bin } });
+  const inst = 链接条件.创建引擎(条件, { 启用机制表: { binPath: 路径.机制bin } });
+  if (链接) 说(`战场：${链接.描述()}`);
   说('\n===== 机制画像（按输入顺序）=====');
   for (let i = 0; i < 5; i++) {
     const c = 适配.角色数据().getCharacter(ids[i]);
@@ -614,6 +567,12 @@ function main() {
     落盘(); process.exit(4);
   }
 
+  // 输出前用未包装的新引擎显式传入 Boss/options，防止搜索包装层遗漏造成静默错口径。
+  const 独立 = 链接条件.创建引擎(条件, { 启用机制表: { binPath: 路径.机制bin } });
+  const 复算 = 独立.increment.fastReplay(最优.ids, 最优.最好.toks, 最优.羁绊, 条件.bossElement, 条件.options);
+  if (复算 !== 最优.最好.dmg) { 说(`独立复算=${复算} 与搜索值=${最优.最好.dmg} 不一致，拒绝输出为最优`); 落盘(); process.exit(6); }
+  说(`独立显式条件复算 = ${复算.toLocaleString()}；一致=true`);
+
   // 输出
   if (!选项规范.原排列) 说(`\n最优站位（槽1=队长）: ${最优.名称.map((n, i) => `槽${i + 1}${n}`).join(' ')}`);
   输出结果(最优.最好, 最优.ids, 最优.名称);
@@ -621,7 +580,7 @@ function main() {
 
   // 导出 JSON
   if (选项.导出) {
-    fs.writeFileSync(String(选项.导出), JSON.stringify({ ids: 最优.ids, 名称: 最优.名称, 羁绊: 最优.羁绊, 输入站位ids: ids, dmg: 最优.最好.dmg, 来源: 最优.最好.来源, toks: 最优.最好.toks, description: 排程器.导出指令集(最优.最好.toks) }, null, 2), 'utf8');
+    fs.writeFileSync(String(选项.导出), JSON.stringify({ ids: 最优.ids, 名称: 最优.名称, 羁绊: 最优.羁绊, 输入站位ids: ids, 战场: { bossElement: 条件.bossElement, options: 条件.options }, dmg: 最优.最好.dmg, 独立复算: 复算, 来源: 最优.最好.来源, toks: 最优.最好.toks, description: 排程器.导出指令集(最优.最好.toks) }, null, 2), 'utf8');
     说(`已导出 JSON: ${选项.导出}`);
   }
   说(`\n[stdout 镜像已写: ${输出文件}]`);
