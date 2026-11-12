@@ -24,7 +24,7 @@
   </header>
   <main>
     <div class="关卡栏"><label for="关卡选择">关卡</label><select id="关卡选择"><option value="颠倒镜">颠倒镜 · SP-4</option><option value="夏日尾声">魔狱塔-55 · 夏日尾声</option></select><span id="关卡编号" class="弱文字"></span></div>
-    <div class="模型标记"><span class="状态点"></span><strong>独立估算模型</strong><span>敌方 AI 手动 · 公式待校准</span><button id="证据" class="文字按钮">数据与边界<i data-lucide="arrow-up-right"></i></button></div>
+    <div class="模型标记"><span class="状态点"></span><strong>独立估算模型</strong><span>敌方 AI 自动 · 待游戏校准</span><button id="证据" class="文字按钮">数据与边界<i data-lucide="arrow-up-right"></i></button></div>
     <nav class="页签" aria-label="模拟器视图">
       <button data-tab="战场" aria-selected="true"><i data-lucide="swords"></i>战场</button>
       <button data-tab="编队" aria-selected="false"><i data-lucide="users-round"></i>编队</button>
@@ -41,9 +41,8 @@
       <div class="段标题"><h2>我方行动<span id="阶段" class="阶段签">我方</span></h2><div class="操作组"><button id="撤销" class="图标按钮" title="撤销上一步" aria-label="撤销上一步"><i data-lucide="undo-2"></i></button><button id="重做" class="图标按钮" title="重做上一步" aria-label="重做上一步"><i data-lucide="redo-2"></i></button><span class="分隔"></span><button id="一回合" class="次按钮"><i data-lucide="fast-forward"></i>本回合</button></div></div>
       <div id="角色队伍" class="角色网格"></div>
       <div id="结局" class="结局" hidden></div>
-      <div class="敌方操作"><div><span class="小标签">敌方行动</span><h3 id="敌方标题">等待我方完成行动</h3></div><div class="敌方输入"><label id="行动敌人标签" hidden>行动者<select id="行动敌人"></select></label><label>技能<select id="敌方技能"></select></label><div id="自定义敌方" hidden><label>基础伤害<input id="自定义伤害" type="number" min="1" value="250000"></label><label>目标<select id="自定义目标"><option value="全体">全体</option><option value="最低上限">最大生命最低者</option><option value="0">站位 1</option><option value="1">站位 2</option><option value="2">站位 3</option><option value="3">站位 4</option><option value="4">站位 5</option></select></label><label class="复选标签"><input id="真实伤害" type="checkbox">真实伤害</label></div><button id="结算敌方" class="主按钮"><i data-lucide="play"></i>结算</button></div></div>
-      <div id="夏日机制栏" class="机制栏" hidden><label>机制校准<select id="夏日机制"></select></label><label id="机制目标标签" hidden>我方目标<select id="机制目标"><option value="全体">全体</option><option value="0">站位 1</option><option value="1">站位 2</option><option value="2">站位 3</option><option value="3">站位 4</option><option value="4">站位 5</option></select></label><button id="触发机制" class="次按钮"><i data-lucide="sliders-horizontal"></i>触发</button></div>
-      <div id="蓄力校准" class="校准栏" hidden><span>蓄力命中数</span><input id="命中数" type="number" min="0" max="99" value="0" aria-label="蓄力命中数"><button id="校准" class="次按钮"><i data-lucide="check"></i>校准</button><span class="弱文字">自动计数按伤害段估计</span></div>
+      <div id="旧记录栏" class="校准栏" hidden><strong>旧版手动记录</strong><button id="启用自动" class="次按钮"><i data-lucide="rotate-ccw"></i>启用自动并重置</button></div>
+      <div class="段标题"><h2>敌方 AI 判定</h2><button id="整场运行" class="次按钮"><i data-lucide="play"></i>运行至结束</button></div><div id="AI预览" class="技能目录"></div>
       <div class="段标题"><h2>最近结算</h2><button class="文字按钮" data-open-tab="记录">完整记录<i data-lucide="arrow-right"></i></button></div>
       <div class="表格区"><table class="日志表"><thead><tr><th>回合</th><th>事件</th><th>结算</th><th class="数值列">数值</th></tr></thead><tbody id="最近日志"></tbody></table></div>
     </section>
@@ -59,6 +58,9 @@
           <label>Boss 最终生命上限<input name="首领生命" type="number" min="1" step="1" required></label>
           <label>Boss 基础攻击<input name="首领攻击" type="number" min="1" step="1" required></label>
           <label>回合上限<input name="回合上限" type="number" min="1" max="100" required></label>
+          <label>AI 初始冷却<input name="AI初始冷却" type="number" min="0" max="100" required></label>
+          <label>AI 事件检查<select name="AI事件时点"><option value="伤害后">每段伤害后</option><option value="行动后">完整行动后</option></select></label>
+          <label>敌方星等<input name="敌方星等" type="number" min="1" max="5" required></label>
           <label>Boss 总减伤（%）<input name="首领减伤" type="number" min="0" max="200" step="0.1" required></label>
           <label>防御减伤（%）<input name="防御减伤" type="number" min="0" max="100" step="0.1" required></label>
           <label>受疗降低（%）<input name="受疗降低" type="number" min="0" max="1000" required></label>
@@ -69,16 +71,17 @@
           <label class="复选标签"><input name="颠倒规则" type="checkbox">启用颠倒世界 / 力量反转</label>
           <label class="复选标签"><input name="零回复触发" type="checkbox">零回复也触发被治疗事件</label>
         </div>
-        <div id="夏日面板区域" hidden><div class="段标题"><h2>五敌面板</h2></div><div id="敌方面板" class="敌方面板"></div><label class="开场设置">寻找泳装<select name="夏日开场"><option value="28759">锁血 / 受盾 -95%</option><option value="28760">锁血 / 受盾 -125% / 夏日 +1</option><option value="0">不开启，手动触发</option></select></label></div>
-        <div class="假设带"><i data-lucide="triangle-alert"></i><p id="模型边界">Boss 面板为占位值；两条 50% 减伤暂按同乘区相加。零回复触发、持续治疗时点、真实伤害与护盾交互均待游戏校准。AI 阈值与官方行动表未还原。</p></div>
-        <div class="段标题"><h2>回合时间表<span class="小标签">用户设定</span></h2></div>
-        <div class="时间表布局"><label>回合与技能<textarea id="时间表" rows="13" spellcheck="false" placeholder="1 普攻"></textarea></label><div><div id="技能目录" class="技能目录"></div><button id="运行时间表" type="button" class="次按钮"><i data-lucide="play"></i>运行时间表</button></div></div>
+        <div id="夏日面板区域" hidden><div class="段标题"><h2>五敌面板</h2></div><div id="敌方面板" class="敌方面板"></div></div>
+        <div class="假设带"><i data-lucide="triangle-alert"></i><p id="模型边界">AI 规则来自客户端配置；CD 比较解释、事件时点、数值乘区和实际面板待游戏校准。</p></div>
+        <div class="段标题"><h2>AI 条件校准<span class="小标签">静态推定</span></h2></div><div id="AI条件配置" class="敌方面板"></div>
+        <div class="段标题"><h2>敌方技能</h2></div><div id="技能目录" class="技能目录"></div>
       </form>
     </section>
     <section data-view="记录" hidden>
       <div class="段标题"><h2>回合报表</h2><button id="导出报表" class="次按钮"><i data-lucide="sheet"></i>导出 CSV</button></div>
       <div class="表格区"><table><thead><tr><th>回合</th><th>敌方技能</th><th>伤害</th><th>有效回复</th><th>理论回复</th><th>护盾生成</th><th>护盾吸收</th><th>承伤</th><th>存活</th></tr></thead><tbody id="报表"></tbody></table></div>
-      <div class="段标题"><h2>事件流水</h2><label class="内联标签">类别<select id="日志类别"><option value="">全部</option><option>行动</option><option>伤害</option><option>治疗</option><option>护盾</option><option>触发</option><option>机制</option><option>敌方</option><option>承伤</option><option>倒下</option></select></label></div>
+      <div class="段标题"><h2>AI 命中轨迹</h2><button id="导出AI" class="次按钮"><i data-lucide="file-json"></i>导出 AI 记录</button></div><div class="表格区"><table><thead><tr><th>回合</th><th>时点</th><th>敌人</th><th>规则</th><th>技能</th><th>条件</th></tr></thead><tbody id="AI轨迹"></tbody></table></div>
+      <div class="段标题"><h2>事件流水</h2><label class="内联标签">类别<select id="日志类别"><option value="">全部</option><option>AI</option><option>行动</option><option>伤害</option><option>治疗</option><option>护盾</option><option>触发</option><option>机制</option><option>敌方</option><option>承伤</option><option>倒下</option></select></label></div>
       <div class="表格区"><table class="日志表"><thead><tr><th>回合</th><th>事件</th><th>结算</th><th class="数值列">数值</th></tr></thead><tbody id="全部日志"></tbody></table></div>
     </section>
     <footer><span>TKFM DebugTools</span><span>独立规则引擎 · 本地存储</span><span id="保存状态">已保存</span></footer>
