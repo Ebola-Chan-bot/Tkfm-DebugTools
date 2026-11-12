@@ -1,0 +1,13 @@
+{
+  "name": "tkfm-mirror-lab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node 构建.mjs",
+    "preview": "node ../静态服务器.js 颠倒镜/dist 5510 --no-spa"
+  },
+  "devDependencies": {
+    "lucide": "^0.468.0",
+    "sharp": "^0.34.0"
+  }
+}

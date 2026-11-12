@@ -1,0 +1,47 @@
+name: 颠倒镜 Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - '颠倒镜/**'
+      - '.github/workflows/颠倒镜-pages.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 颠倒镜-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: 颠倒镜/package-lock.json
+      - run: npm ci
+        working-directory: 颠倒镜
+      - run: npm run build
+        working-directory: 颠倒镜
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: 颠倒镜/dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ 'github-pages' }}
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 发布静态应用
+        id: deployment
+        uses: actions/deploy-pages@v4

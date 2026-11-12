@@ -1,0 +1,16 @@
+{
+  "id": "./",
+  "name": "颠倒镜 · 战斗实验室",
+  "short_name": "颠倒镜",
+  "description": "颠倒镜独立规则沙盘",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f5",
+  "theme_color": "#126b60",
+  "icons": [
+    { "src": "./镜面-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./镜面-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

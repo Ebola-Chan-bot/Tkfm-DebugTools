@@ -1,8 +1,10 @@
 # Tkfm-DebugTools
 
-TKFM-Data-Room 的本地部署调试工具（独立仓库，不含网站代码，不做任何功能修改）。
+TKFM-Data-Room 与 tenkaassist 的本地部署调试工具，以及独立的战斗研究工具。
 
 用途：把 `../TKFM-Data-Room` 构建成静态产物并在本地起服务器，浏览器实测网站可用性；也附带 tenkaassist 的本地实测启动脚本。
+
+[颠倒镜战斗实验室](颠倒镜/README.md) 是独立实现的静态 PWA，支持 GitHub Pages、手动战斗、撤销重放和逐回合报表，不修改或打包发布 tenkaassist 的源码。模型适用范围与待校准项见应用文档。
 
 ## 使用方法
 

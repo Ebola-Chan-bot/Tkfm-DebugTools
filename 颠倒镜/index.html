@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#126b60">
+  <meta name="description" content="独立的颠倒镜战斗规则沙盘">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" href="./镜面-192.png">
+  <link rel="apple-touch-icon" href="./镜面-192.png">
+  <link rel="stylesheet" href="./界面.css">
+  <title>颠倒镜 · 战斗实验室</title>
+</head>
+<body>
+  <header class="顶栏">
+    <div class="品牌"><img src="./镜面-192.png" width="36" height="36" alt=""><div><h1>颠倒镜</h1><span>战斗实验室 <b>SP-4</b></span></div></div>
+    <div class="顶栏工具">
+      <span id="离线状态" class="状态签">本地存档</span>
+      <button id="安装" class="图标按钮" title="安装应用" aria-label="安装应用" hidden><i data-lucide="monitor-down"></i></button>
+      <button id="导入" class="图标按钮" title="导入战斗记录" aria-label="导入战斗记录"><i data-lucide="upload"></i></button>
+      <button id="导出" class="图标按钮" title="导出战斗记录" aria-label="导出战斗记录"><i data-lucide="download"></i></button>
+      <button id="重置" class="图标按钮" title="重置战斗" aria-label="重置战斗"><i data-lucide="rotate-ccw"></i></button>
+    </div>
+  </header>
+  <main>
+    <div class="模型标记"><span class="状态点"></span><strong>独立估算模型</strong><span>敌方 AI 手动 · 公式待校准</span><button id="证据" class="文字按钮">数据与边界<i data-lucide="arrow-up-right"></i></button></div>
+    <nav class="页签" aria-label="模拟器视图">
+      <button data-tab="战场" aria-selected="true"><i data-lucide="swords"></i>战场</button>
+      <button data-tab="编队" aria-selected="false"><i data-lucide="users-round"></i>编队</button>
+      <button data-tab="模型" aria-selected="false"><i data-lucide="sliders-horizontal"></i>模型设置</button>
+      <button data-tab="记录" aria-selected="false"><i data-lucide="list-tree"></i>战斗记录</button>
+    </nav>
+    <section data-view="战场">
+      <div class="首领带">
+        <img class="镜面" src="./镜面-512.png" width="112" height="112" alt="颠倒镜原创镜面标记">
+        <div class="首领主体"><div class="首领标题"><div><span class="小标签">时之裂缝 · 第 27 季</span><h2>颠倒镜</h2></div><span id="回合" class="回合数">01 <small>回合</small></span></div><div class="血量标题"><span id="首领生命"></span><span id="首领比例"></span></div><div class="生命轨 首领生命轨"><div id="首领生命条"></div></div><div id="首领状态" class="首领状态"></div></div>
+      </div>
+      <div class="统计带" aria-label="本场统计"><div><span>累计造成伤害</span><strong id="总伤害">0</strong></div><div><span>本回合有效回复</span><strong id="本回合回复">0</strong></div><div><span>本回合承伤</span><strong id="本回合承伤">0</strong></div><div><span>存活角色</span><strong id="存活">5 <small>/ 5</small></strong></div></div>
+      <div class="段标题"><h2>我方行动<span id="阶段" class="阶段签">我方</span></h2><div class="操作组"><button id="撤销" class="图标按钮" title="撤销上一步" aria-label="撤销上一步"><i data-lucide="undo-2"></i></button><button id="重做" class="图标按钮" title="重做上一步" aria-label="重做上一步"><i data-lucide="redo-2"></i></button><span class="分隔"></span><button id="一回合" class="次按钮"><i data-lucide="fast-forward"></i>本回合</button></div></div>
+      <div id="角色队伍" class="角色网格"></div>
+      <div id="结局" class="结局" hidden></div>
+      <div class="敌方操作"><div><span class="小标签">敌方行动</span><h3 id="敌方标题">等待我方完成行动</h3></div><div class="敌方输入"><label>技能<select id="敌方技能"></select></label><div id="自定义敌方" hidden><label>基础伤害<input id="自定义伤害" type="number" min="1" value="250000"></label><label>目标<select id="自定义目标"><option value="全体">全体</option><option value="最低上限">最大生命最低者</option><option value="0">站位 1</option><option value="1">站位 2</option><option value="2">站位 3</option><option value="3">站位 4</option><option value="4">站位 5</option></select></label><label class="复选标签"><input id="真实伤害" type="checkbox">真实伤害</label></div><button id="结算敌方" class="主按钮"><i data-lucide="play"></i>结算</button></div></div>
+      <div id="蓄力校准" class="校准栏" hidden><span>蓄力命中数</span><input id="命中数" type="number" min="0" max="99" value="0" aria-label="蓄力命中数"><button id="校准" class="次按钮"><i data-lucide="check"></i>校准</button><span class="弱文字">自动计数按伤害段估计</span></div>
+      <div class="段标题"><h2>最近结算</h2><button class="文字按钮" data-open-tab="记录">完整记录<i data-lucide="arrow-right"></i></button></div>
+      <div class="表格区"><table class="日志表"><thead><tr><th>回合</th><th>事件</th><th>结算</th><th class="数值列">数值</th></tr></thead><tbody id="最近日志"></tbody></table></div>
+    </section>
+    <section data-view="编队" hidden>
+      <div class="段标题"><h2>五人编队</h2><button id="应用编队" class="主按钮"><i data-lucide="check"></i>应用并重置</button></div>
+      <div class="编队表头"><span>站位 / 角色</span><span>羁绊</span><span>解放</span><span>生命上限</span><span>基础攻击</span><span>顺序</span></div><div id="编队表"></div>
+      <div class="段标题"><h2>规则覆盖</h2><button id="编辑规则" class="次按钮"><i data-lucide="file-json"></i>编辑编队 JSON</button></div><div id="角色覆盖" class="覆盖列表"></div>
+    </section>
+    <section data-view="模型" hidden>
+      <form id="模型表单">
+        <div class="段标题"><h2>面板与结算假设</h2><button type="submit" class="主按钮"><i data-lucide="check"></i>应用并重置</button></div>
+        <div class="设置网格">
+          <label>Boss 最终生命上限<input name="首领生命" type="number" min="1" step="1" required></label>
+          <label>Boss 基础攻击<input name="首领攻击" type="number" min="1" step="1" required></label>
+          <label>回合上限<input name="回合上限" type="number" min="1" max="100" required></label>
+          <label>Boss 总减伤（%）<input name="首领减伤" type="number" min="0" max="200" step="0.1" required></label>
+          <label>防御减伤（%）<input name="防御减伤" type="number" min="0" max="100" step="0.1" required></label>
+          <label>受疗降低（%）<input name="受疗降低" type="number" min="0" max="1000" required></label>
+          <label>受盾降低（%）<input name="受盾降低" type="number" min="0" max="1000" required></label>
+          <label>持续治疗时点<select name="持续治疗时点"><option value="敌方后">敌方行动后</option><option value="敌方前">敌方行动前</option></select></label>
+          <label>防御触发的易伤目标<select name="防御易伤目标"><option value="首领">Boss</option><option value="自身">防御者自身</option></select></label>
+          <label>颠倒加攻归属<select name="倒置增益归属"><option value="首领">Boss 方</option><option value="我方">我方全体</option></select></label>
+          <label class="复选标签"><input name="颠倒规则" type="checkbox">启用颠倒世界 / 力量反转</label>
+          <label class="复选标签"><input name="零回复触发" type="checkbox">零回复也触发被治疗事件</label>
+        </div>
+        <div class="假设带"><i data-lucide="triangle-alert"></i><p>Boss 面板为占位值；两条 50% 减伤暂按同乘区相加。零回复触发、持续治疗时点、真实伤害与护盾交互均待游戏校准。AI 阈值与官方行动表未还原。</p></div>
+        <div class="段标题"><h2>回合时间表<span class="小标签">用户设定</span></h2></div>
+        <div class="时间表布局"><label>回合与技能<textarea id="时间表" rows="13" spellcheck="false" placeholder="1 普攻"></textarea></label><div><div id="技能目录" class="技能目录"></div><button id="运行时间表" type="button" class="次按钮"><i data-lucide="play"></i>运行时间表</button></div></div>
+      </form>
+    </section>
+    <section data-view="记录" hidden>
+      <div class="段标题"><h2>回合报表</h2><button id="导出报表" class="次按钮"><i data-lucide="sheet"></i>导出 CSV</button></div>
+      <div class="表格区"><table><thead><tr><th>回合</th><th>敌方技能</th><th>伤害</th><th>有效回复</th><th>理论回复</th><th>护盾生成</th><th>护盾吸收</th><th>承伤</th><th>存活</th></tr></thead><tbody id="报表"></tbody></table></div>
+      <div class="段标题"><h2>事件流水</h2><label class="内联标签">类别<select id="日志类别"><option value="">全部</option><option>行动</option><option>伤害</option><option>治疗</option><option>护盾</option><option>触发</option><option>机制</option><option>敌方</option><option>承伤</option><option>倒下</option></select></label></div>
+      <div class="表格区"><table class="日志表"><thead><tr><th>回合</th><th>事件</th><th>结算</th><th class="数值列">数值</th></tr></thead><tbody id="全部日志"></tbody></table></div>
+    </section>
+    <footer><span>TKFM DebugTools</span><span>独立规则引擎 · 本地存储</span><span id="保存状态">已保存</span></footer>
+  </main>
+  <input id="导入文件" type="file" accept=".json,application/json" hidden>
+  <div id="通知" role="status" aria-live="polite" hidden></div>
+  <dialog id="详情弹窗"><div class="弹窗标题"><h2 id="详情标题">角色状态</h2><button class="图标按钮" data-close title="关闭" aria-label="关闭"><i data-lucide="x"></i></button></div><div id="详情正文"></div></dialog>
+  <dialog id="规则弹窗"><div class="弹窗标题"><h2>编队规则 JSON</h2><button class="图标按钮" data-close title="关闭" aria-label="关闭"><i data-lucide="x"></i></button></div><textarea id="规则输入" rows="18" spellcheck="false" aria-label="编队规则 JSON"></textarea><div class="弹窗操作"><button id="保存规则" class="主按钮"><i data-lucide="check"></i>应用并重置</button></div></dialog>
+  <script src="./图标.js"></script>
+  <script type="module" src="./应用.mjs"></script>
+</body>
+</html>
