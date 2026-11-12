@@ -1,12 +1,12 @@
-name: 颠倒镜 Pages
+name: 战斗模拟器 Pages
 
 on:
   workflow_dispatch:
   push:
     branches: [main, master]
     paths:
-      - '颠倒镜/**'
-      - '.github/workflows/颠倒镜-pages.yml'
+      - '战斗模拟器/**'
+      - '.github/workflows/战斗模拟器-pages.yml'
 
 permissions:
   contents: read
@@ -14,7 +14,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 颠倒镜-pages
+  group: 战斗模拟器-pages
   cancel-in-progress: true
 
 jobs:
@@ -26,15 +26,15 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: 颠倒镜/package-lock.json
+          cache-dependency-path: 战斗模拟器/package-lock.json
       - run: npm ci
-        working-directory: 颠倒镜
+        working-directory: 战斗模拟器
       - run: npm run build
-        working-directory: 颠倒镜
+        working-directory: 战斗模拟器
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: 颠倒镜/dist
+          path: 战斗模拟器/dist
   deploy:
     needs: build
     runs-on: ubuntu-latest

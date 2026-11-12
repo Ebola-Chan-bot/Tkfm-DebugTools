@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "颠倒镜 · 战斗实验室",
-  "short_name": "颠倒镜",
-  "description": "颠倒镜独立规则沙盘",
+  "name": "TKFM · 战斗实验室",
+  "short_name": "战斗实验室",
+  "description": "颠倒镜与魔狱塔55夏日尾声的独立规则沙盘",
   "lang": "zh-CN",
   "start_url": "./",
   "scope": "./",

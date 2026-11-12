@@ -4,7 +4,7 @@ TKFM-Data-Room 与 tenkaassist 的本地部署调试工具，以及独立的战�
 
 用途：把 `../TKFM-Data-Room` 构建成静态产物并在本地起服务器，浏览器实测网站可用性；也附带 tenkaassist 的本地实测启动脚本。
 
-[颠倒镜战斗实验室](颠倒镜/README.md) 是独立实现的静态 PWA，支持 GitHub Pages、手动战斗、撤销重放和逐回合报表，不修改或打包发布 tenkaassist 的源码。模型适用范围与待校准项见应用文档。
+[战斗模拟器](战斗模拟器/README.md) 是独立实现的静态 PWA，包含颠倒镜与魔狱塔-55「夏日尾声」，支持 GitHub Pages、手动战斗、撤销重放和逐回合报表，不修改或打包发布 tenkaassist 的源码。模型适用范围与待校准项见应用文档。
 
 ## 使用方法
 

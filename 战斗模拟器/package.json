@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node 构建.mjs",
-    "preview": "node ../静态服务器.js 颠倒镜/dist 5510 --no-spa"
+    "preview": "node ../静态服务器.js 战斗模拟器/dist 5510 --no-spa"
   },
   "devDependencies": {
     "lucide": "^0.468.0",

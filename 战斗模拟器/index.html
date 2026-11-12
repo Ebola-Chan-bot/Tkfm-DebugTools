@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#126b60">
-  <meta name="description" content="独立的颠倒镜战斗规则沙盘">
+  <meta name="description" content="颠倒镜与魔狱塔55夏日尾声的独立战斗规则沙盘">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" href="./镜面-192.png">
   <link rel="apple-touch-icon" href="./镜面-192.png">
   <link rel="stylesheet" href="./界面.css">
-  <title>颠倒镜 · 战斗实验室</title>
+  <title>战斗实验室 · TKFM</title>
 </head>
 <body>
   <header class="顶栏">
-    <div class="品牌"><img src="./镜面-192.png" width="36" height="36" alt=""><div><h1>颠倒镜</h1><span>战斗实验室 <b>SP-4</b></span></div></div>
+    <div class="品牌"><img id="品牌图" src="./镜面-192.png" width="36" height="36" alt=""><div><h1>战斗实验室</h1><span>TKFM DebugTools <b id="关卡简称">SP-4</b></span></div></div>
     <div class="顶栏工具">
       <span id="离线状态" class="状态签">本地存档</span>
       <button id="安装" class="图标按钮" title="安装应用" aria-label="安装应用" hidden><i data-lucide="monitor-down"></i></button>
@@ -23,6 +23,7 @@
     </div>
   </header>
   <main>
+    <div class="关卡栏"><label for="关卡选择">关卡</label><select id="关卡选择"><option value="颠倒镜">颠倒镜 · SP-4</option><option value="夏日尾声">魔狱塔-55 · 夏日尾声</option></select><span id="关卡编号" class="弱文字"></span></div>
     <div class="模型标记"><span class="状态点"></span><strong>独立估算模型</strong><span>敌方 AI 手动 · 公式待校准</span><button id="证据" class="文字按钮">数据与边界<i data-lucide="arrow-up-right"></i></button></div>
     <nav class="页签" aria-label="模拟器视图">
       <button data-tab="战场" aria-selected="true"><i data-lucide="swords"></i>战场</button>
@@ -33,13 +34,15 @@
     <section data-view="战场">
       <div class="首领带">
         <img class="镜面" src="./镜面-512.png" width="112" height="112" alt="颠倒镜原创镜面标记">
-        <div class="首领主体"><div class="首领标题"><div><span class="小标签">时之裂缝 · 第 27 季</span><h2>颠倒镜</h2></div><span id="回合" class="回合数">01 <small>回合</small></span></div><div class="血量标题"><span id="首领生命"></span><span id="首领比例"></span></div><div class="生命轨 首领生命轨"><div id="首领生命条"></div></div><div id="首领状态" class="首领状态"></div></div>
+        <div class="首领主体"><div class="首领标题"><div><span id="关卡标签" class="小标签">时之裂缝 · 第 27 季</span><h2 id="关卡名称">颠倒镜</h2></div><span id="回合" class="回合数">01 <small>回合</small></span></div><div class="血量标题"><span id="首领生命"></span><span id="首领比例"></span></div><div class="生命轨 首领生命轨"><div id="首领生命条"></div></div><div id="首领状态" class="首领状态"></div></div>
       </div>
+      <div id="多敌区域" hidden><div class="段标题"><h2>敌方队伍<span id="当前目标" class="阶段签"></span></h2></div><div id="敌方队伍" class="敌方网格" role="group" aria-label="攻击目标"></div></div>
       <div class="统计带" aria-label="本场统计"><div><span>累计造成伤害</span><strong id="总伤害">0</strong></div><div><span>本回合有效回复</span><strong id="本回合回复">0</strong></div><div><span>本回合承伤</span><strong id="本回合承伤">0</strong></div><div><span>存活角色</span><strong id="存活">5 <small>/ 5</small></strong></div></div>
       <div class="段标题"><h2>我方行动<span id="阶段" class="阶段签">我方</span></h2><div class="操作组"><button id="撤销" class="图标按钮" title="撤销上一步" aria-label="撤销上一步"><i data-lucide="undo-2"></i></button><button id="重做" class="图标按钮" title="重做上一步" aria-label="重做上一步"><i data-lucide="redo-2"></i></button><span class="分隔"></span><button id="一回合" class="次按钮"><i data-lucide="fast-forward"></i>本回合</button></div></div>
       <div id="角色队伍" class="角色网格"></div>
       <div id="结局" class="结局" hidden></div>
-      <div class="敌方操作"><div><span class="小标签">敌方行动</span><h3 id="敌方标题">等待我方完成行动</h3></div><div class="敌方输入"><label>技能<select id="敌方技能"></select></label><div id="自定义敌方" hidden><label>基础伤害<input id="自定义伤害" type="number" min="1" value="250000"></label><label>目标<select id="自定义目标"><option value="全体">全体</option><option value="最低上限">最大生命最低者</option><option value="0">站位 1</option><option value="1">站位 2</option><option value="2">站位 3</option><option value="3">站位 4</option><option value="4">站位 5</option></select></label><label class="复选标签"><input id="真实伤害" type="checkbox">真实伤害</label></div><button id="结算敌方" class="主按钮"><i data-lucide="play"></i>结算</button></div></div>
+      <div class="敌方操作"><div><span class="小标签">敌方行动</span><h3 id="敌方标题">等待我方完成行动</h3></div><div class="敌方输入"><label id="行动敌人标签" hidden>行动者<select id="行动敌人"></select></label><label>技能<select id="敌方技能"></select></label><div id="自定义敌方" hidden><label>基础伤害<input id="自定义伤害" type="number" min="1" value="250000"></label><label>目标<select id="自定义目标"><option value="全体">全体</option><option value="最低上限">最大生命最低者</option><option value="0">站位 1</option><option value="1">站位 2</option><option value="2">站位 3</option><option value="3">站位 4</option><option value="4">站位 5</option></select></label><label class="复选标签"><input id="真实伤害" type="checkbox">真实伤害</label></div><button id="结算敌方" class="主按钮"><i data-lucide="play"></i>结算</button></div></div>
+      <div id="夏日机制栏" class="机制栏" hidden><label>机制校准<select id="夏日机制"></select></label><label id="机制目标标签" hidden>我方目标<select id="机制目标"><option value="全体">全体</option><option value="0">站位 1</option><option value="1">站位 2</option><option value="2">站位 3</option><option value="3">站位 4</option><option value="4">站位 5</option></select></label><button id="触发机制" class="次按钮"><i data-lucide="sliders-horizontal"></i>触发</button></div>
       <div id="蓄力校准" class="校准栏" hidden><span>蓄力命中数</span><input id="命中数" type="number" min="0" max="99" value="0" aria-label="蓄力命中数"><button id="校准" class="次按钮"><i data-lucide="check"></i>校准</button><span class="弱文字">自动计数按伤害段估计</span></div>
       <div class="段标题"><h2>最近结算</h2><button class="文字按钮" data-open-tab="记录">完整记录<i data-lucide="arrow-right"></i></button></div>
       <div class="表格区"><table class="日志表"><thead><tr><th>回合</th><th>事件</th><th>结算</th><th class="数值列">数值</th></tr></thead><tbody id="最近日志"></tbody></table></div>
@@ -66,7 +69,8 @@
           <label class="复选标签"><input name="颠倒规则" type="checkbox">启用颠倒世界 / 力量反转</label>
           <label class="复选标签"><input name="零回复触发" type="checkbox">零回复也触发被治疗事件</label>
         </div>
-        <div class="假设带"><i data-lucide="triangle-alert"></i><p>Boss 面板为占位值；两条 50% 减伤暂按同乘区相加。零回复触发、持续治疗时点、真实伤害与护盾交互均待游戏校准。AI 阈值与官方行动表未还原。</p></div>
+        <div id="夏日面板区域" hidden><div class="段标题"><h2>五敌面板</h2></div><div id="敌方面板" class="敌方面板"></div><label class="开场设置">寻找泳装<select name="夏日开场"><option value="28759">锁血 / 受盾 -95%</option><option value="28760">锁血 / 受盾 -125% / 夏日 +1</option><option value="0">不开启，手动触发</option></select></label></div>
+        <div class="假设带"><i data-lucide="triangle-alert"></i><p id="模型边界">Boss 面板为占位值；两条 50% 减伤暂按同乘区相加。零回复触发、持续治疗时点、真实伤害与护盾交互均待游戏校准。AI 阈值与官方行动表未还原。</p></div>
         <div class="段标题"><h2>回合时间表<span class="小标签">用户设定</span></h2></div>
         <div class="时间表布局"><label>回合与技能<textarea id="时间表" rows="13" spellcheck="false" placeholder="1 普攻"></textarea></label><div><div id="技能目录" class="技能目录"></div><button id="运行时间表" type="button" class="次按钮"><i data-lucide="play"></i>运行时间表</button></div></div>
       </form>
