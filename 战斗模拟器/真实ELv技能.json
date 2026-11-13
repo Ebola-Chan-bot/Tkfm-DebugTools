@@ -1,0 +1,374 @@
+[
+  {
+    "编号": 40501,
+    "分类": "profession1",
+    "职业": "攻击者",
+    "属性": null,
+    "名称": "攻击者：攻击+",
+    "说明": "攻击力增加30%",
+    "英文说明": "Increase Attack Power by 30%.",
+    "资料指纹": "aff853d75dc2b2aeaebdaabb0c025957d97d859bde63d42e964aad9f82005e8e"
+  },
+  {
+    "编号": 40502,
+    "分类": "profession1",
+    "职业": "攻击者",
+    "属性": null,
+    "名称": "攻击者：伤害+",
+    "说明": "造成伤害增加9%",
+    "英文说明": "Increase Damage Output by 9%.",
+    "资料指纹": "1c7aa81986c4450551fa9f3f29047082fd4593aa10a34a9190144ce7d98f4f33"
+  },
+  {
+    "编号": 40503,
+    "分类": "profession1",
+    "职业": "守护者",
+    "属性": null,
+    "名称": "守护者：全体攻击+",
+    "说明": "第1回合时，触发「以自身最大HP1%使我方全体攻击力增加(50回合)」(触发1次后清除)",
+    "英文说明": "On the 1st turn, trigger the following effect: Increase the party's Attack Power for 1% of your max HP for 50 turns (removes after triggering once).",
+    "资料指纹": "764048130edd425229b40923077798797e29be0f6d3f88148ac873572f8fb83a"
+  },
+  {
+    "编号": 40504,
+    "分类": "profession1",
+    "职业": "守护者",
+    "属性": null,
+    "名称": "守护者：全体减伤+",
+    "说明": "我方全体受到伤害减少3%",
+    "英文说明": "Decrease the party's Damage Taken by 3%.",
+    "资料指纹": "2dbfc81922c7b2377c2f07137af70de960d79c8e557bce1d068b60da12c5458e"
+  },
+  {
+    "编号": 40505,
+    "分类": "profession1",
+    "职业": "治疗者",
+    "属性": null,
+    "名称": "治疗者：全体攻击+",
+    "说明": "我方全体攻击力增加10%",
+    "英文说明": "Increase the party's Attack Power by 10%.",
+    "资料指纹": "b21e4f293d4191614ddb34c679a618b41903ded5fb5931970d5dbe54bbb1e7af"
+  },
+  {
+    "编号": 40506,
+    "分类": "profession1",
+    "职业": "治疗者",
+    "属性": null,
+    "名称": "治疗者：全体回復+",
+    "说明": "我方全体被治疗时回復量增加10%",
+    "英文说明": "Increase the party's Recovery Rate by 10%.",
+    "资料指纹": "e32e9e9eb1f6abdf3f7ac6663c3aea5ee38427b0ae88e77c11a77a9dc9d37156"
+  },
+  {
+    "编号": 40507,
+    "分类": "profession1",
+    "职业": "辅助者",
+    "属性": null,
+    "名称": "辅助者：全体伤害+",
+    "说明": "我方全体造成伤害增加5.4%",
+    "英文说明": "Increase the party's Damage Output by 5.4%.",
+    "资料指纹": "edf9515d98227ce915098ae6f7419285605db36e66ccbcf5be5bd6c15d3ef3d9"
+  },
+  {
+    "编号": 40508,
+    "分类": "profession1",
+    "职业": "辅助者",
+    "属性": null,
+    "名称": "辅助者：全体攻击+",
+    "说明": "攻击时，触发「以自身攻击力3%使我方全体攻击力增加(1回合)」",
+    "英文说明": "On Attack, trigger the following effect: Increase the party's Attack Power for 3% of your Attack Power for 1 turn.",
+    "资料指纹": "43175234393a9f299ff698f31f36c33ee5a2c5d7890a0827ad471955b7b36d15"
+  },
+  {
+    "编号": 40509,
+    "分类": "profession1",
+    "职业": "妨碍者",
+    "属性": null,
+    "名称": "妨碍者：伤害+",
+    "说明": "每Wave第1回合时，触发「使敌方全体受到伤害增加6%(最多5层)」",
+    "英文说明": "On the 1st turn of each wave, trigger the following effect: Increase all enemies' Damage Taken by 6% (max 5 stacks).",
+    "资料指纹": "8e8c627becac3e73176ab325a5fe7c80c549d7c8988523b6485958c2655291a0"
+  },
+  {
+    "编号": 40510,
+    "分类": "profession1",
+    "职业": "妨碍者",
+    "属性": null,
+    "名称": "妨碍者：减疗+",
+    "说明": "每Wave第1回合时，触发「使敌方全体被治疗时回復量减少15%(最多5层)」",
+    "英文说明": "On the 1st turn of each wave, trigger the following effect: Decrease all enemies' Recovery Rate by 15% (max 5 stacks).",
+    "资料指纹": "4a7e0d0a9e7069ec484a6b4365cdb4d2b2d976a70f5f04d7328a3f44f039c64c"
+  },
+  {
+    "编号": 40511,
+    "分类": "common",
+    "职业": null,
+    "属性": null,
+    "名称": "通用：最大HP+",
+    "说明": "最大HP增加5%",
+    "英文说明": "Increase max HP by 5%.",
+    "资料指纹": "ebacd3725254c077698586a4a047c82a2c5b1e9850f057d55633b9d56c028cb7"
+  },
+  {
+    "编号": 40512,
+    "分类": "common",
+    "职业": null,
+    "属性": null,
+    "名称": "通用：攻击+",
+    "说明": "攻击力增加10%",
+    "英文说明": "Increase Attack Power by 10%.",
+    "资料指纹": "e2001e9007b0276496ddd269e78e9ea7ea8011d4483d70ff086294b8f6ddb08c"
+  },
+  {
+    "编号": 40513,
+    "分类": "element",
+    "职业": null,
+    "属性": "火",
+    "名称": "火属性：伤害+",
+    "说明": "每Wave第1回合时，触发「使敌方全体受到火属性伤害增加3%(最多5层)」",
+    "英文说明": "On the 1st turn of each wave, trigger the following effect: Increase all enemies' Damage Taken from Fire attacks by 3% (max 5 stacks).",
+    "资料指纹": "f120d6a175262709abe39f177d66e4b164254b3ac6914bbfb483906894150448"
+  },
+  {
+    "编号": 40514,
+    "分类": "element",
+    "职业": null,
+    "属性": "火",
+    "名称": "火属性：减伤+",
+    "说明": "受到水属性伤害减少33.33%",
+    "英文说明": "Decrease Damage Taken from Water attacks by 33.33%.",
+    "资料指纹": "4e292d11e9143b4d079ac4fdf74e64c4720ff3af6b8c908ef4721f8d5a9251a9"
+  },
+  {
+    "编号": 40515,
+    "分类": "element",
+    "职业": null,
+    "属性": "水",
+    "名称": "水属性：伤害+",
+    "说明": "每Wave第1回合时，触发「使敌方全体受到水属性伤害增加3%(最多5层)」",
+    "英文说明": "On the 1st turn of each wave, trigger the following effect: Increase all enemies' Damage Taken from Water attacks by 3% (max 5 stacks).",
+    "资料指纹": "3f106154502c9d35d42d22eb936d63eaa59b6048358f3184961f6a3f1d16ad21"
+  },
+  {
+    "编号": 40516,
+    "分类": "element",
+    "职业": null,
+    "属性": "水",
+    "名称": "水属性：减伤+",
+    "说明": "受到风属性伤害减少33.33%",
+    "英文说明": "Decrease Damage Taken from Wind attacks by 33.33%.",
+    "资料指纹": "65b5f53ab3d31984757198305665a34852089aa1e321bf1b74a0e92e78477977"
+  },
+  {
+    "编号": 40517,
+    "分类": "element",
+    "职业": null,
+    "属性": "风",
+    "名称": "风属性：伤害+",
+    "说明": "每Wave第1回合时，触发「使敌方全体受到风属性伤害增加3%(最多5层)」",
+    "英文说明": "On the 1st turn of each wave, trigger the following effect: Increase all enemies' Damage Taken from Wind attacks by 3% (max 5 stacks).",
+    "资料指纹": "240c47184bb3e74c9932c6ee685ce921da415adf5e7fd999a2ff8b68e7455611"
+  },
+  {
+    "编号": 40518,
+    "分类": "element",
+    "职业": null,
+    "属性": "风",
+    "名称": "风属性：减伤+",
+    "说明": "受到火属性伤害减少33.33%",
+    "英文说明": "Decrease Damage Taken from Fire attacks by 33.33%.",
+    "资料指纹": "c6c9fe7469a46532ead2698c55a413487ef1701b94eaf8dafd60abca3687957a"
+  },
+  {
+    "编号": 40519,
+    "分类": "element",
+    "职业": null,
+    "属性": "光",
+    "名称": "光属性：伤害+",
+    "说明": "每Wave第1回合时，触发「使敌方全体受到光属性伤害增加3%(最多5层)」",
+    "英文说明": "On the 1st turn of each wave, trigger the following effect: Increase all enemies' Damage Taken from Light attacks by 3% (max 5 stacks).",
+    "资料指纹": "c7653ad998dc28b48d254d352cd488f63416651a91876fccad88540e108474f8"
+  },
+  {
+    "编号": 40520,
+    "分类": "element",
+    "职业": null,
+    "属性": "光",
+    "名称": "光属性：减伤+",
+    "说明": "受到闇属性伤害减少33.33%",
+    "英文说明": "Decrease Damage Taken from Dark attacks by 33.33%.",
+    "资料指纹": "6c29d7b07711a78d42503e38549564cfa6984ea2a8638947c3c7a5ca7c154705"
+  },
+  {
+    "编号": 40521,
+    "分类": "element",
+    "职业": null,
+    "属性": "暗",
+    "名称": "闇属性：伤害+",
+    "说明": "每Wave第1回合时，触发「使敌方全体受到闇属性伤害增加3%(最多5层)」",
+    "英文说明": "On the 1st turn of each wave, trigger the following effect: Increase all enemies' Damage Taken from Dark attacks by 3% (max 5 stacks).",
+    "资料指纹": "ba3416b2595a6d14f161f071fac7fc2780b4ddc96a161134112f85e65bac26c2"
+  },
+  {
+    "编号": 40522,
+    "分类": "element",
+    "职业": null,
+    "属性": "暗",
+    "名称": "闇属性：减伤+",
+    "说明": "受到光属性伤害减少33.33%",
+    "英文说明": "Decrease Damage Taken from Light attacks by 33.33%.",
+    "资料指纹": "f9ef75c76d359acb6efbcf8a92eac4343c9af282e6aa27bcab6c74f230b75b3e"
+  },
+  {
+    "编号": 40523,
+    "分类": "profession2",
+    "职业": "攻击者",
+    "属性": null,
+    "名称": "攻击者：必杀追击+",
+    "说明": "必杀时，追加「以自身攻击力20%对目标造成伤害」",
+    "英文说明": "On Ultimate Skill, deal additional damage to the target (20% Attack Power).",
+    "资料指纹": "f71632dd632ac14f0c840315cca43387eba4607e9444336dc05e33eac4c6685d"
+  },
+  {
+    "编号": 40524,
+    "分类": "profession2",
+    "职业": "攻击者",
+    "属性": null,
+    "名称": "攻击者：普攻追击+",
+    "说明": "普攻时，追加「以自身攻击力10%对目标造成伤害」",
+    "英文说明": "On Basic Attack, deal additional damage to the target (10% Attack Power).",
+    "资料指纹": "c98366d953eeb1fdc510cbb68ea2fcd314127eacb5f40fb4cfd98e4ecbc7903c"
+  },
+  {
+    "编号": 40525,
+    "分类": "profession2",
+    "职业": "攻击者",
+    "属性": null,
+    "名称": "攻击者：攻击触发+",
+    "说明": "攻击时，触发「以自身攻击力6%对目标造成伤害」",
+    "英文说明": "On Attack, trigger the following effect: Damage the target (6% Attack Power).",
+    "资料指纹": "25cfb201a9dce54194dc884279381968faaba9a8078803a15c53dd317edbe692"
+  },
+  {
+    "编号": 40526,
+    "分类": "profession2",
+    "职业": "守护者",
+    "属性": null,
+    "名称": "守护者：全体攻击+",
+    "说明": "我方全体攻击力增加5%",
+    "英文说明": "Increase the party's Attack Power by 5%.",
+    "资料指纹": "4c5b680f13e77d329a8c1a9945a3b20c439eb01ff0b14395b6100ff29e5eed14"
+  },
+  {
+    "编号": 40527,
+    "分类": "profession2",
+    "职业": "守护者",
+    "属性": null,
+    "名称": "守护者：全体防禦减伤+",
+    "说明": "我方全体防禦减伤效果增加2%",
+    "英文说明": "Decrease the party's Damage Taken in Guard Stance by 2%.",
+    "资料指纹": "595d3072f9955926f9d9fdf909dbb683eb5ea86cfa4012a58c9b729eca1a9dab"
+  },
+  {
+    "编号": 40528,
+    "分类": "profession2",
+    "职业": "守护者",
+    "属性": null,
+    "名称": "守护者：全体护盾+",
+    "说明": "我方全体受到护盾效果增加15%",
+    "英文说明": "Increase the party's Shield effect by 15%.",
+    "资料指纹": "10bf179094213f3437ba9a61af782fd73f22bc4f70e040831f6ad1c2480ccbdf"
+  },
+  {
+    "编号": 40529,
+    "分类": "profession2",
+    "职业": "治疗者",
+    "属性": null,
+    "名称": "治疗者：全体伤害+",
+    "说明": "我方全体造成伤害增加3%",
+    "英文说明": "Increase the party's Damage Output by 3%.",
+    "资料指纹": "4e5104f2d500875a27c81a8fc1fcad8f2f2148c5105e9b8ac2a8702af4f7229b"
+  },
+  {
+    "编号": 40530,
+    "分类": "profession2",
+    "职业": "治疗者",
+    "属性": null,
+    "名称": "治疗者：治疗+",
+    "说明": "造成治疗增加10%",
+    "英文说明": "Increase heal effect by 10%.",
+    "资料指纹": "059a9af779dde57b5157227fdfb58c16a39a9fcf03c60f6ee37eb7d2172e6141"
+  },
+  {
+    "编号": 40531,
+    "分类": "profession2",
+    "职业": "治疗者",
+    "属性": null,
+    "名称": "治疗者：持续治疗+",
+    "说明": "造成持续型治疗增加10%",
+    "英文说明": "Increase turn-by-turn heal effect by 10%.",
+    "资料指纹": "c9632275eb843c2d81675242701e8fd6f82a3441ae4ade35315cab03275c67fa"
+  },
+  {
+    "编号": 40532,
+    "分类": "profession2",
+    "职业": "辅助者",
+    "属性": null,
+    "名称": "辅助者：必杀追击+",
+    "说明": "我方全体攻击者、守护者、妨碍者获得「必杀时，追加『以自身攻击力10%对目标造成伤害』」",
+    "英文说明": "Allied Attackers, Defenders, and Obstructors gain the following effect: On Ultimate Skill, deal additional damage to the target (10% Attack Power).",
+    "资料指纹": "96c03999084bf3f096d29cfd1e7fe347b59a96ef18f450f8b84b9a588ff26d4b"
+  },
+  {
+    "编号": 40533,
+    "分类": "profession2",
+    "职业": "辅助者",
+    "属性": null,
+    "名称": "辅助者：普攻追击+",
+    "说明": "我方全体攻击者、守护者、妨碍者获得「普攻时，追加『以自身攻击力5%对目标造成伤害』」",
+    "英文说明": "Allied Attackers, Defenders, and Obstructors gain the following effect: On Basic Attack, deal additional damage to the target (5% Attack Power).",
+    "资料指纹": "6ef964e3e509eae56e51415798c4456340bd1fc4f4f1323e2f385db5e0663921"
+  },
+  {
+    "编号": 40534,
+    "分类": "profession2",
+    "职业": "辅助者",
+    "属性": null,
+    "名称": "辅助者：攻击触发+",
+    "说明": "我方全体攻击者、守护者、妨碍者获得「攻击时，触发『以自身攻击力3%对目标造成伤害』」",
+    "英文说明": "Allied Attackers, Defenders, and Obstructors gain the following effect: On Attack, trigger the following effect: Damage the target (3% Attack Power).",
+    "资料指纹": "5979c04cfd30332279a96772ee0af87d9a2a4c77bce8da089e80c8e709eb6c41"
+  },
+  {
+    "编号": 40535,
+    "分类": "profession2",
+    "职业": "妨碍者",
+    "属性": null,
+    "名称": "妨碍者：必杀+",
+    "说明": "每Wave第1回合时，触发「使敌方全体受到必杀技伤害增加5%(最多5层)」",
+    "英文说明": "On the 1st turn of each wave, trigger the following effect: Increase all enemies' Damage Taken from Ultimate Skills by 5% (max 5 stacks).",
+    "资料指纹": "9c6abf12d163a7144a60e1b6512860191352dbfa6193fef8272b71561a166fae"
+  },
+  {
+    "编号": 40536,
+    "分类": "profession2",
+    "职业": "妨碍者",
+    "属性": null,
+    "名称": "妨碍者：普攻+",
+    "说明": "每Wave第1回合时，触发「使敌方全体受到普攻伤害7.5%(最多5层)」",
+    "英文说明": "On the 1st turn of each wave, trigger the following effect: Increase all enemies' Damage Taken from Basic Attacks by 7.5% (max 5 stacks).",
+    "校核说明": "每Wave第1回合时，触发「使敌方全体受到普攻伤害增加7.5%(最多5层)」",
+    "校核依据": "同源英文、日文与韩文明确为受到普攻伤害增加；原文缺动词",
+    "资料指纹": "0fff96551f1a528cdca518b7a31f0fb899799a174ec935a4b27e1dfb31e483bc"
+  },
+  {
+    "编号": 40537,
+    "分类": "profession2",
+    "职业": "妨碍者",
+    "属性": null,
+    "名称": "妨碍者：触发+",
+    "说明": "每Wave第1回合时，触发「使敌方全体受到触发技伤害增加10%(最多5层)」",
+    "英文说明": "On the 1st turn of each wave, trigger the following effect: Increase all enemies' Damage Taken from trigger abilities by 10% (max 5 stacks).",
+    "资料指纹": "a7c645631abe5abe1fc0b1b931c84d01c6b82a7f1532f3e7d21b97275a967738"
+  }
+]
