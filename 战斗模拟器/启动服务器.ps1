@@ -32,6 +32,30 @@ function 获取节点程序 {
     throw '未找到 Node.js。请安装 Node.js 并加入 PATH 后重新启动。'
 }
 
+function 运行节点命令([string]$节点程序, [string[]]$参数) {
+    # 显式传全路径时仍确保子进程能找到同目录 npm 与 node；不改变调用者的全局环境
+    $原路径 = $env:PATH
+    try {
+        $env:PATH = (Split-Path -Parent $节点程序) + ';' + $原路径
+        & $节点程序 @参数
+        if ($LASTEXITCODE -ne 0) { throw "命令执行失败，退出码：$LASTEXITCODE" }
+    }
+    finally { $env:PATH = $原路径 }
+}
+
+function 保障构建产物 {
+    $清单 = Join-Path $PSScriptRoot 'package.json'
+    $锁文件 = Join-Path $PSScriptRoot 'package-lock.json'
+    $npm入口 = Join-Path (Split-Path -Parent $节点程序) 'node_modules\npm\bin\npm-cli.js'
+    if (-not (Test-Path -LiteralPath $npm入口 -PathType Leaf)) { throw "未找到配套 npm：$npm入口" }
+    if (-not (Test-Path -LiteralPath $清单 -PathType Leaf) -or -not (Test-Path -LiteralPath $锁文件 -PathType Leaf)) { throw '缺少 package.json 或 package-lock.json，无法自动安装构建依赖。' }
+    Write-Host '缺少 dist 构建产物，正在自动安装依赖并构建…'
+    运行节点命令 $节点程序 @($npm入口, 'ci', '--no-audit', '--no-fund', '--prefix', $PSScriptRoot)
+    运行节点命令 $节点程序 @($npm入口, 'run', 'build', '--prefix', $PSScriptRoot)
+    if (-not (Test-Path -LiteralPath (Join-Path $发布目录 'index.html') -PathType Leaf)) { throw '构建已完成但 dist/index.html 仍不存在。' }
+    Write-Host '自动构建完成。'
+}
+
 function 确认服务就绪([uint32]$进程编号) {
     $截止 = [DateTime]::UtcNow.AddSeconds(15)
     $最后错误 = ''
@@ -53,9 +77,6 @@ $启动锁 = $null
 $已持锁 = $false
 try {
     if (-not (Test-Path -LiteralPath $服务器脚本 -PathType Leaf)) { throw "缺少静态服务器：$服务器脚本" }
-    if (-not (Test-Path -LiteralPath (Join-Path $发布目录 'index.html') -PathType Leaf)) {
-        throw '缺少 dist 构建产物。请先在战斗模拟器目录执行 npm ci 和 npm run build。'
-    }
     $启动锁 = [Threading.Mutex]::new($false, "Local\TKFM-战斗模拟器-$端口")
     try { $已持锁 = $启动锁.WaitOne(0) }
     catch [Threading.AbandonedMutexException] { $已持锁 = $true }
@@ -74,6 +95,7 @@ try {
     }
     else {
         $节点程序 = 获取节点程序
+        保障构建产物
         $启动属性 = New-CimInstance -ClassName Win32_ProcessStartup -ClientOnly -Property @{ ShowWindow = [uint16]0 }
         $启动命令 = '"{0}" "{1}" "{2}" {3} --no-spa' -f $节点程序, $服务器脚本, $发布目录, $端口
         $结果 = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{
