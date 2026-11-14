@@ -7,7 +7,7 @@ import 图像 from 'sharp';
 const 根目录 = 路径.dirname(文件地址转路径(import.meta.url));
 const 输出 = 路径.join(根目录, 'dist');
 await 文件系统.mkdir(输出, { recursive: true });
-const 文件列表 = ['index.html', '界面.css', '应用.mjs', '战斗引擎.mjs', '角色数据.mjs', '编译技能文本.mjs', '真实角色目录.json', '真实角色技能.json', '真实ELv技能.json', '真实养成数据.json', '关卡数据.mjs', '敌方行动规则.mjs', 'manifest.webmanifest'];
+const 文件列表 = ['index.html', '界面.css', '应用.mjs', '战斗引擎.mjs', '角色数据.mjs', '编译技能文本.mjs', '真实角色目录.json', '真实角色技能.json', '真实ELv技能.json', '真实养成数据.json', '真实敌方资料.json', '关卡数据.mjs', '敌方行动规则.mjs', 'manifest.webmanifest'];
 for (const 文件 of 文件列表) await 文件系统.copyFile(路径.join(根目录, 文件), 路径.join(输出, 文件));
 await 文件系统.copyFile(路径.join(根目录, 'node_modules/lucide/dist/umd/lucide.min.js'), 路径.join(输出, '图标.js'));
 await 文件系统.copyFile(路径.join(根目录, 'node_modules/lucide/LICENSE'), 路径.join(输出, '图标-LICENSE.txt'));

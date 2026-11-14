@@ -1,7 +1,7 @@
 import 真实目录 from './真实角色目录.json' with { type: 'json' };
 import 真实技能 from './真实角色技能.json' with { type: 'json' };
 import 养成数据 from './真实养成数据.json' with { type: 'json' };
-import { 编译角色技能, 选取角色技能, 盘点角色技能, 获取适用ELv技能, 盘点ELv技能 } from './编译技能文本.mjs';
+import { 编译角色技能, 编译ELv技能, 选取角色技能, 盘点角色技能, 获取适用ELv技能, 盘点ELv技能 } from './编译技能文本.mjs';
 export { 获取适用ELv技能 };
 
 const 增益 = (属性, 数值, 持续 = 9999, 目标 = '全体', 层数 = 1, 附加 = {}) => ({ 类型: '增益', 属性, 数值, 持续, 目标, 层数, ...附加 });
@@ -15,7 +15,7 @@ export const 调教加成 = [0, 5, 15, 30];
 export const 普通等级范围 = 养成数据.普通等级;
 export const ELV突破档位 = 养成数据.ELV突破;
 export const ELV技能解锁等级 = 养成数据.ELV技能解锁;
-export const 技能模型规则 = '真实SSR技能与独立解放/相对阵营/时限叠加/动作事件批次/ELv显式选择/普通等级与ELV突破/角色基础属性自动面板';
+export const 技能模型规则 = '真实SSR技能与独立解放/相对阵营/时限叠加/动作事件批次/ELv显式选择/普通等级与ELV突破/角色基础属性自动面板/ELv分类单选';
 
 function 稳定取整(值) {
     return Math.floor(值 + Number.EPSILON * Math.max(1, Math.abs(值)) * 4);
@@ -178,7 +178,11 @@ export function 准备角色技能(单位) {
     const 潜力 = 获取潜力养成(单位);
     const 未解锁 = 获取适用ELv技能(单位.编号).filter(项 => (单位.ELv技能 || []).includes(项.编号) && ((单位.普通等级 ?? 普通等级范围.最高) !== 普通等级范围.最高 || (单位.ELV突破等级 ?? 0) < ELV技能解锁等级[项.分类]));
     if (未解锁.length) return { ...单位, 技能已建模: false, 未支持技能: 未解锁.map(项 => `${项.名称}要求ELV${ELV技能解锁等级[项.分类]}`), 覆盖说明: '所选突破技能尚未达到解锁等级，请确认ELV突破等级。' };
-    if (单位.已录入技能) return { ...单位, 技能已建模: true, 技能来源: '已录入模型' };
+    if (单位.已录入技能) {
+        const 强化 = 编译ELv技能(单位.编号, 单位.ELv技能 ?? []);
+        if (!强化.完整) return { ...单位, 技能已建模: false, 未支持技能: 强化.未支持, 覆盖说明: 强化.未支持.join('；') };
+        return { ...单位, 技能已建模: true, 技能来源: '已录入模型' };
+    }
     const 手工 = 角色库.find(项 => 项.编号 === 单位.编号);
     const 资料 = 技能索引.get(单位.编号);
     if (!资料) return { ...单位, 技能已建模: false, 未支持技能: ['缺少真实技能资料'] };

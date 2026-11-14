@@ -1,6 +1,6 @@
 import { 新建战斗, 结算操作, 重放战斗, 当前攻击, 当前护盾, 加成, 可选敌人, 预览敌方行动 } from './战斗引擎.mjs';
 import { 角色库, 真实角色目录, 获取真实角色, 获取真实技能, 创建角色, 职业列表, 属性列表, 调教加成, 普通等级范围, ELV突破档位, ELV技能解锁等级, 获取潜力养成, 计算调教面板, 统一面板基准, 准备角色技能, 获取技能覆盖报告, 技能模型规则, 获取适用ELv技能 } from './角色数据.mjs';
-import { 当前关卡, 创建关卡配置, 敌方技能目录, 敌方技能名称 } from './关卡数据.mjs';
+import { 当前关卡, 创建关卡配置, 敌方技能目录, 敌方技能名称, 夏日敌方面板依据, 是旧夏日默认面板, 修正夏日默认面板 } from './关卡数据.mjs';
 import { 默认CD条件, 比较方式 } from './敌方行动规则.mjs';
 
 const 查 = 选择器 => document.querySelector(选择器);
@@ -65,18 +65,20 @@ function 载入本地记录(关卡) {
     const 键 = 关卡存档键(关卡);
     const 已存 = localStorage.getItem(键);
     const 最近备份键 = localStorage.getItem(`${键}-最近旧模型备份`);
-    旧记录备份 = (最近备份键 && localStorage.getItem(最近备份键)) || localStorage.getItem(`${键}-真实角色修正前备份`);
+    const 切换备份键 = localStorage.getItem(`${键}-最近编队切换备份`);
+    旧记录备份 = (切换备份键 && localStorage.getItem(切换备份键)) || (最近备份键 && localStorage.getItem(最近备份键)) || localStorage.getItem(`${键}-真实角色修正前备份`);
     if (已存) {
         const 记录 = JSON.parse(已存);
         try { 导入记录(记录); return; }
         catch (错误) {
             const 旧规则 = 记录.配置?.模型规则 !== 技能模型规则;
-            if (!旧规则 && !记录.配置?.队伍?.some(单位 => !获取真实角色(单位.编号) || 单位.手动角色 || 单位.星级 === undefined)) throw 错误;
-            const 备份键 = `${键}-技能模型备份-${Date.now()}`;
+            const 旧敌方面板 = 是旧夏日默认面板(记录.配置);
+            if (!旧规则 && !旧敌方面板 && !记录.配置?.队伍?.some(单位 => !获取真实角色(单位.编号) || 单位.手动角色 || 单位.星级 === undefined)) throw 错误;
+            const 备份键 = `${键}-${旧敌方面板 ? '敌方面板修正前备份' : '技能模型备份'}-${Date.now()}`;
             localStorage.setItem(备份键, 已存);
             localStorage.setItem(`${键}-最近旧模型备份`, 备份键);
             旧记录备份 = 已存;
-            配置 = 创建关卡配置(关卡);
+            配置 = 旧敌方面板 && !旧规则 ? 修正夏日默认面板(structuredClone(记录.配置)) : 创建关卡配置(关卡);
             状态 = 新建战斗(配置);
             操作列表 = [];
             游标 = 0;
@@ -87,7 +89,8 @@ function 载入本地记录(关卡) {
                     return { ...真实, 羁绊: 单位.羁绊 ?? 5, 调教: 单位.调教 ?? 3, 面板调教: 单位.面板调教 ?? 3 };
                 } catch { return 单位; }
             });
-            通知('旧记录需按自动面板与当前技能重新开始，原记录已备份；请确认潜力及解放后应用编队。', true);
+            if (旧敌方面板 && !旧规则) 存档();
+            通知(旧敌方面板 && !旧规则 ? '旧敌方面板的等级／星级或被动门槛有误：原记录已备份，编队和其他设置保留，按原包属性公式重新开始。' : '旧记录需按自动面板与当前技能重新开始，原记录已备份；请确认潜力及解放后应用编队。', true);
             return;
         }
     }
@@ -136,7 +139,7 @@ function 渲染关卡() {
     查('#敌方队伍').innerHTML = 状态.敌人.map(单位 => {
         const 可选择 = 可选.some(项 => 项.位置 === 单位.位置);
         const 标签 = [单位.生命 <= 0 ? '击破' : 单位.已行动 ? '已行动' : '待行动', 加成(单位, '嘲讽') > 0 ? '嘲讽' : '', 单位.防御 || 加成(单位, '防御') > 0 ? '防御' : '', 加成(单位, '锁血') > 0 ? '锁血' : ''].filter(Boolean).join(' · ');
-        return `<button class="敌人卡" data-enemy="${单位.位置}" aria-pressed="${攻击目标 === 单位.位置}" aria-label="攻击目标 ${转义(单位.名称)}" ${可选择 ? '' : 'disabled'}><span class="敌人卡标题"><strong>${转义(单位.名称)}</strong><small>${单位.位置 + 1}</small></span><span>${简数(单位.生命)} / ${简数(单位.生命上限)}</span><span class="生命轨"><span style="width:${Math.max(0, 单位.生命 / 单位.生命上限 * 100)}%"></span></span><small>攻击 ${简数(当前攻击(单位))}</small><small>${标签}</small></button>`;
+        return `<button class="敌人卡" data-enemy="${单位.位置}" aria-pressed="${攻击目标 === 单位.位置}" aria-label="攻击目标 ${转义(单位.名称)}" title="${转义(`生命 ${数字(单位.生命)} / ${数字(单位.生命上限)}；默认生命由原包基础HP、等级68和四星1.8计算，四星不启用被动3；五敌实测验算一致。攻击按同一属性公式计算，尚无攻击实测。用户校准值另计。`)}" ${可选择 ? '' : 'disabled'}><span class="敌人卡标题"><strong>${转义(单位.名称)}</strong><small>${单位.位置 + 1}</small></span><span>${简数(单位.生命)} / ${简数(单位.生命上限)}</span><span class="生命轨"><span style="width:${Math.max(0, 单位.生命 / 单位.生命上限 * 100)}%"></span></span><small>攻击 ${简数(当前攻击(单位))}</small><small>${标签}</small></button>`;
     }).join('');
 }
 
@@ -200,7 +203,12 @@ function 解放选择(单位, 位置) {
 function ELv选择(单位, 位置) {
     const 技能 = 获取适用ELv技能(单位.编号);
     const 分类 = { profession1: '职业强化Ⅰ', common: '通用强化', element: '属性强化', profession2: '职业强化Ⅱ' };
-    return `<details class="ELv详情"><summary title="按所选真实技能计算，不推定游戏槽位与解锁级别">ELv技能 <span class="ELv已选">${单位.ELv技能?.length || 0}项</span></summary>${Object.entries(分类).map(([键, 名]) => `<div class="ELv分类"><strong>${名}</strong><div class="ELv网格">${技能.filter(项 => 项.分类 === 键).map(项 => `<label class="ELv选项" title="${转义(`${项.编号}${项.校核依据 ? ` · ${项.校核依据}` : ''}`)}"><input type="checkbox" data-elv="${项.编号}" value="${项.编号}" ${(单位.ELv技能 || []).includes(项.编号) ? 'checked' : ''} aria-label="站位${位置 + 1} ELv ${转义(项.名称)}"><span><b>${转义(项.名称)}</b><small>${转义(项.校核说明 || 项.说明)}</small></span></label>`).join('')}</div></div>`).join('')}</details>`;
+    return `<details class="ELv详情"><summary title="每个强化分类最多选择一项">ELv技能 <span class="ELv已选">${单位.ELv技能?.length || 0}项</span></summary>${Object.entries(分类).map(([键, 名]) => {
+        const 项目 = 技能.filter(项 => 项.分类 === 键);
+        const 已选 = 项目.filter(项 => (单位.ELv技能 || []).includes(项.编号));
+        const 组名 = `ELv-${位置}-${键}`;
+        return `<div class="ELv分类"><strong>${名}</strong><div class="ELv网格" role="radiogroup" aria-label="站位${位置 + 1}${名}">${项目.map(项 => `<label class="ELv选项" title="${转义(`${项.编号}${项.校核依据 ? ` · ${项.校核依据}` : ''}`)}"><input type="radio" name="${组名}" data-elv="${项.编号}" value="${项.编号}" ${已选.length === 1 && 已选[0].编号 === 项.编号 ? 'checked' : ''} aria-label="站位${位置 + 1} ELv ${转义(项.名称)}"><span><b>${转义(项.名称)}</b><small>${转义(项.校核说明 || 项.说明)}</small></span></label>`).join('')}<label class="ELv选项"><input type="radio" name="${组名}" data-elv-none="${键}" value="" ${已选.length === 0 ? 'checked' : ''} aria-label="站位${位置 + 1} ELv ${名}未强化"><span><b>未强化</b></span></label></div></div>`;
+    }).join('')}</details>`;
 }
 
 function 渲染编队() {
@@ -226,10 +234,11 @@ function 渲染编队() {
             <div class="排序工具"><button class="图标按钮" data-move="${位置}:上" ${位置 === 0 ? 'disabled' : ''} title="上移站位" aria-label="上移站位"><i data-lucide="arrow-up"></i></button><button class="图标按钮" data-move="${位置}:下" ${位置 === 4 ? 'disabled' : ''} title="下移站位" aria-label="下移站位"><i data-lucide="arrow-down"></i></button></div>
         </div>
         <div class="潜力养成"><label>潜力<select data-field="潜力等级" aria-label="站位${位置 + 1}潜力等级">${Array.from({ length: 12 }, (_, 序) => 序 + 1).map(阶 => `<option ${阶 === 单位.潜力等级 ? 'selected' : ''}>${阶}</option>`).join('')}</select></label><fieldset class="潜力节点"><legend>本阶节点</legend>${Array.from({ length: 6 }, (_, 序) => `<label><input type="checkbox" data-potential="${序}" aria-label="站位${位置 + 1}潜力节点${序 + 1}"><span></span></label>`).join('')}</fieldset></div>
-        <div class="编队参数"><label>职业<select aria-label="站位${位置 + 1}职业" disabled><option>${转义(单位.职业)}</option></select></label><label>属性<select aria-label="站位${位置 + 1}属性" disabled><option>${转义(单位.属性)}</option></select></label><span class="档案标签"></span></div>
+        <div class="编队参数"><span><span>职业</span><strong>${转义(单位.职业)}</strong></span><span><span>属性</span><strong>${转义(单位.属性)}</strong></span><span class="档案标签"></span></div>
     </div>`).join('');
     for (const [位置, 单位] of 编队草稿.entries()) {
         const 行 = 查(`[data-team-row="${位置}"]`);
+        行.prepend(查('#编队表头模板').content.firstElementChild.cloneNode(true));
         行.insertAdjacentHTML('beforeend', ELv选择(单位, 位置));
     }
     渲染编队说明();
@@ -255,6 +264,7 @@ function 渲染编队说明() {
             输入.disabled = (单位.普通等级 ?? 普通等级范围.最高) !== 普通等级范围.最高 || !潜力.可突破 || 突破等级 < 门槛;
             输入.closest('label').title = `${技能.编号} · ELV${门槛}解锁${技能.校核依据 ? ` · ${技能.校核依据}` : ''}`;
         }
+        for (const 输入 of 行.querySelectorAll('[data-elv-none]')) 输入.checked = !突破技能.some(项 => 项.分类 === 输入.dataset.elvNone && (单位.ELv技能 || []).includes(项.编号));
         const ELv标签 = 查(`[data-team-row="${位置}"] .ELv已选`);
         if (ELv标签) ELv标签.textContent = `${单位.ELv技能?.length || 0}项`;
         const 标签 = 查(`[data-team-row="${位置}"] .编队参数 .档案标签:last-child`);
@@ -309,7 +319,7 @@ function 渲染设置() {
         else 输入.value = ['首领减伤', '防御减伤', '受疗降低', '受盾降低'].includes(名称) ? 配置[名称] * 100 : 配置[名称] ?? (名称 === 'AI初始冷却' ? 1 : 名称 === 'AI事件时点' ? '伤害后' : 夏日 ? 4 : 5);
     }
     查('#敌方面板').innerHTML = 夏日 ? 配置.敌人.map((单位, 位置) => `<div class="敌方面板行" data-enemy-stats="${位置}"><strong>${转义(单位.名称)}</strong><label>生命上限<input data-enemy-field="生命上限" type="number" min="1" value="${单位.生命上限}" required></label><label>基础攻击<input data-enemy-field="攻击" type="number" min="1" value="${单位.攻击}" required></label></div>`).join('') : '';
-    查('#模型边界').textContent = 'AI 按原表条件与槽位调度；CD 解释、事件时点和敌方面板仍需实测校准。明确属性参与克制，未设属性按中性。';
+    查('#模型边界').textContent = 配置.关卡 === '夏日尾声' ? `生命：${夏日敌方面板依据.生命依据}；攻击：${夏日敌方面板依据.攻击依据}。实测只用于验证，原包参数与星级公式来源见真实敌方资料。AI的CD解释与事件时点仍需实测。` : 'AI 按原表条件与槽位调度；CD 解释、事件时点和敌方面板仍需实测校准。明确属性参与克制，未设属性按中性。';
     查('#AI条件配置').innerHTML = Object.entries(默认CD条件).map(([编号, 默认]) => {
         const 条件 = 配置.AICD条件?.[编号] || 默认;
         return `<div class="敌方面板行" data-ai-condition="${编号}"><strong>条件 ${编号}</strong><label>字段<select data-ai-field="字段" aria-label="条件${编号}字段">${['当前冷却', '最大冷却'].map(字段 => `<option ${字段 === 条件.字段 ? 'selected' : ''}>${字段}</option>`).join('')}</select></label><label>比较<select data-ai-field="比较" aria-label="条件${编号}比较">${比较方式.map(方式 => `<option ${方式 === 条件.比较 ? 'selected' : ''} value="${转义(方式)}">${转义(方式)}</option>`).join('')}</select></label></div>`;
@@ -383,8 +393,32 @@ function 角色详情(位置) {
 全查('[data-close]').forEach(按钮 => 按钮.addEventListener('click', () => 按钮.closest('dialog').close()));
 查('#关卡选择').addEventListener('change', 包装(事件 => {
     const 关卡 = 事件.target.value;
+    const 当前队伍 = structuredClone(配置.队伍);
+    const 当前草稿 = 编队草稿 ? 读取编队输入() : null;
+    const 编队标识 = 队伍 => JSON.stringify(队伍.map(单位 => ({
+        ...Object.fromEntries(['编号', '羁绊', '星级', '调教', '普通等级', 'ELV突破等级', '潜力等级', '潜力节点', '解放', '技能版本'].map(字段 => [字段, 单位[字段] ?? null])),
+        ELv技能: [...(单位.ELv技能 || [])].sort((前, 后) => 前 - 后),
+        录入模型: 单位.已录入技能 ? 单位 : null,
+    })));
     存档();
     载入本地记录(关卡);
+    if (编队标识(配置.队伍) !== 编队标识(当前队伍)) {
+        const 新配置 = { ...配置, 队伍: 当前队伍 };
+        const 初始 = 新建战斗(新配置);
+        const 键 = 关卡存档键(关卡);
+        const 原记录 = localStorage.getItem(键);
+        if (原记录) {
+            const 备份键 = `${键}-切换编队前备份-${Date.now()}`;
+            localStorage.setItem(备份键, 原记录);
+            localStorage.setItem(`${键}-最近编队切换备份`, 备份键);
+            旧记录备份 = 原记录;
+        }
+        配置 = 新配置;
+        状态 = 初始;
+        操作列表 = [];
+        游标 = 0;
+    }
+    编队草稿 = 当前草稿;
     攻击目标 = 0;
     存档(); 渲染战场(); 渲染记录(); 切换视图('战场');
 }));
@@ -425,7 +459,7 @@ function 角色详情(位置) {
 查('#日志类别').addEventListener('change', 渲染记录);
 查('#应用编队').addEventListener('click', 包装(() => { 应用新配置({ ...配置, 队伍: 读取编队输入() }); 切换视图('战场'); 通知('编队已应用'); }));
 查('#编队表').addEventListener('change', 包装(事件 => {
-    if (!事件.target.dataset.field && !事件.target.dataset.elv && !事件.target.hasAttribute('data-potential')) return;
+    if (!事件.target.dataset.field && !事件.target.dataset.elv && !事件.target.hasAttribute('data-elv-none') && !事件.target.hasAttribute('data-potential')) return;
     try { 编队草稿 = 读取编队输入(); 事件.target.setCustomValidity(''); }
     catch (错误) { 事件.target.setCustomValidity(错误.message); throw 错误; }
     if (事件.target.dataset.field === '角色输入') 渲染编队();
@@ -466,7 +500,9 @@ function 角色详情(位置) {
     if (配置.关卡 === '夏日尾声') {
         新配置.敌人 = 配置.敌人.map((单位, 位置) => {
             const 行 = 查(`[data-enemy-stats="${位置}"]`);
-            return { ...单位, 生命上限: Number(行.querySelector('[data-enemy-field="生命上限"]').value), 攻击: Number(行.querySelector('[data-enemy-field="攻击"]').value) };
+            const 生命上限 = Number(行.querySelector('[data-enemy-field="生命上限"]').value);
+            const 攻击 = Number(行.querySelector('[data-enemy-field="攻击"]').value);
+            return { ...单位, 生命上限, 攻击, 自定义校准: 单位.自定义校准 || 生命上限 !== 单位.生命上限 || 攻击 !== 单位.攻击 };
         });
         新配置.首领生命 = 新配置.敌人[0].生命上限;
         新配置.首领攻击 = 新配置.敌人[0].攻击;

@@ -717,10 +717,13 @@ export function 编译ELv技能(角色编号, 选择 = []) {
     const 效果 = [];
     const 未支持 = [];
     const 文本依据 = [];
+    const 已选分类 = new Set();
     const 标记 = (列, 编号, 前缀 = '') => 列.map((项, 序) => ({ ...项, 名称: `ELv:${编号}:${前缀}${序}`, 来源技能: `ELv:${编号}`, ELv编号: 编号, ...(项.效果 ? { 效果: 标记(项.效果, 编号, `${前缀}${序}:`) } : {}) }));
     for (const 编号 of 选择) {
         const 技能 = 允许.find(项 => 项.编号 === 编号);
         if (!技能) { 未支持.push(`未知或不适用于该SSR的ELv技能：${编号}`); continue; }
+        if (已选分类.has(技能.分类)) return { 完整: false, 未支持: [`ELv强化同一分类只能选择一项：${技能.名称}`], 效果: [], 文本依据: [] };
+        已选分类.add(技能.分类);
         const 结果 = 编译技能文本(技能.校核说明 || 技能.说明, { 角色编号, 目标: '自身' });
         if (结果.未解析.length || !结果.效果.length) 未支持.push(...(结果.详细未解析?.length ? 结果.详细未解析 : 结果.未解析.length ? 结果.未解析 : ['没有可执行效果']).map(句 => `ELv${编号} ${技能.名称}：${句}`));
         else 效果.push(...标记(结果.效果, 编号));
@@ -821,7 +824,7 @@ if (typeof process !== 'undefined' && process.versions?.node && process.argv[1])
         const 包含历史 = process.argv.includes('--包含历史');
         const { createHash: 创建摘要 } = await import('node:crypto');
         const 源码指纹 = {};
-        for (const 文件 of ['编译技能文本.mjs', '战斗引擎.mjs', '角色数据.mjs', '真实角色目录.json', '真实角色技能.json', '真实ELv技能.json', '真实养成数据.json']) 源码指纹[文件] = 创建摘要('sha256').update(await 文件系统.readFile(new URL(文件, import.meta.url))).digest('hex');
+        for (const 文件 of ['编译技能文本.mjs', '战斗引擎.mjs', '角色数据.mjs', '真实角色目录.json', '真实角色技能.json', '真实ELv技能.json', '真实养成数据.json', '关卡数据.mjs', '真实敌方资料.json']) 源码指纹[文件] = 创建摘要('sha256').update(await 文件系统.readFile(new URL(文件, import.meta.url))).digest('hex');
         const 结果 = 盘点角色技能(资料, { 全档位, 包含历史, 进度: process.argv.includes('--显示进度') ? 编号 => process.stderr.write(`盘点角色 ${编号}\n`) : null });
         const 频次 = new Map();
         for (const 角色 of 结果) {

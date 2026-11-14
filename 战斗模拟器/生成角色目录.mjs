@@ -222,6 +222,87 @@ const 养成资料 = {
     来源指纹: Object.fromEntries(养成来源.map(文件 => [文件, 创建摘要('sha256').update(文件系统.readFileSync(路径.join(工作区, 文件))).digest('hex')])),
 };
 文件系统.writeFileSync(路径.join(目录, '真实养成数据.json'), JSON.stringify(养成资料, null, 2) + '\n', 'utf8');
+const 数值公式 = 养成源码[2];
+const 星级式 = 找声明(数值公式, 'starBuff');
+if (!星级式 || !解析器.isBinaryExpression(星级式) || 星级式.operatorToken.kind !== 解析器.SyntaxKind.SlashToken) throw new Error('缺少可校核的星级倍率公式');
+const 加成项 = 表达式 => {
+    const 式 = 解析器.isParenthesizedExpression(表达式) ? 表达式.expression : 表达式;
+    if (!解析器.isBinaryExpression(式) || 式.operatorToken.kind !== 解析器.SyntaxKind.PlusToken || 字面值(式.left) !== 1 || !解析器.isBinaryExpression(式.right) || 式.right.operatorToken.kind !== 解析器.SyntaxKind.AsteriskToken) throw new Error('星级倍率结构变化，需要重新校核');
+    return { 系数: 字面值(式.right.left), 字段: 式.right.right.getText() };
+};
+const 目标星级 = 加成项(星级式.left);
+const 初始星级 = 加成项(星级式.right);
+if (目标星级.系数 !== 初始星级.系数 || 目标星级.字段 !== 'stat.star' || 初始星级.字段 !== 'stat.initStar') throw new Error('星级倍率字段不一致');
+const 原表目录 = 路径.join(工作区, '原包分析/当前配置/maindata');
+const 原始表 = new Map();
+function 原包表(名称, 行长, 四字节编号 = false) {
+    const 数据 = 文件系统.readFileSync(路径.join(原表目录, `${名称}.bytes`));
+    const 数量 = 数据.readUInt32LE(0);
+    if (数据.length !== 4 + 数量 * 行长) throw new Error(`${名称}记录边界不正确`);
+    const 条目 = new Map();
+    for (let 序 = 0; 序 < 数量; 序++) {
+        const 偏移 = 4 + 序 * 行长;
+        const 字节 = 数据.subarray(偏移, 偏移 + 行长);
+        const 编号 = 四字节编号 ? 字节.readUInt32LE(0) : 字节.readUInt16LE(0);
+        if (条目.has(编号)) throw new Error(`${名称}主键重复`);
+        条目.set(编号, { 偏移, 字节 });
+    }
+    原始表.set(名称, { 记录数: 数量, 行长, SHA256: 创建摘要('sha256').update(数据).digest('hex') });
+    return 条目;
+}
+const 原包角色 = 原包表('Character_C', 55);
+const 原包关卡 = 原包表('Stage_C', 60);
+const 原包编组 = 原包表('MonsterGroup', 22);
+const 原包技能组 = 原包表('SkillGroup', 44, true);
+const 被动文本文件 = 路径.join(工作区, '原包分析/语言包/技能说明.json');
+const 被动文本字节 = 文件系统.readFileSync(被动文本文件);
+const 被动文本 = JSON.parse(被动文本字节.toString('utf8'));
+const 关卡条目 = 原包关卡.get(60155);
+const 编组编号 = 关卡条目.字节.readUInt16LE(17);
+const 编组条目 = 原包编组.get(编组编号);
+const 对照 = [10001, 10006, 10137].map(编号 => {
+    const 原 = 原包角色.get(编号);
+    const 角色 = 结果.find(项 => 项.编号 === 编号);
+    const 生命 = Number(原.字节.readBigUInt64LE(10));
+    const 攻击 = Number(原.字节.readBigUInt64LE(18));
+    const 倍率 = 1 + 目标星级.系数 * 角色.初始星等;
+    if (Math.abs(生命 * 倍率 - 角色.初始生命) > 1e-8 || Math.abs(攻击 * 倍率 - 角色.初始攻击) > 1e-8) throw new Error(`原包基础属性与资料站初始星级不一致：${编号}`);
+    return { 编号, 原包偏移: 原.偏移, 原包基础生命: 生命, 原包基础攻击: 攻击, 初始星等: 角色.初始星等, 资料站初始生命: 角色.初始生命, 资料站初始攻击: 角色.初始攻击 };
+});
+const 属性审计 = { 角色数: 结果.length, 生命一致数: 0, 攻击一致数: 0, 差异: [] };
+for (const 角色 of 结果) {
+    const 原 = 原包角色.get(角色.编号);
+    if (!原) { 属性审计.差异.push({ 编号: 角色.编号, 类型: '原包中缺少单位' }); continue; }
+    const 生命 = Number(原.字节.readBigUInt64LE(10));
+    const 攻击 = Number(原.字节.readBigUInt64LE(18));
+    const 倍率 = 1 + 目标星级.系数 * 角色.初始星等;
+    const 生命一致 = Math.abs(生命 * 倍率 - 角色.初始生命) < 1e-7;
+    const 攻击一致 = Math.abs(攻击 * 倍率 - 角色.初始攻击) < 1e-7;
+    属性审计.生命一致数 += Number(生命一致);
+    属性审计.攻击一致数 += Number(攻击一致);
+    if (!生命一致 || !攻击一致) 属性审计.差异.push({ 编号: 角色.编号, 原包偏移: 原.偏移, 原包基础生命: 生命, 原包基础攻击: 攻击, 资料站初始生命: 角色.初始生命, 资料站初始攻击: 角色.初始攻击, 说明: '资料源数值不一致，可能为版本差异或条目错误；不静默覆盖玩家数据' });
+}
+const 实测验算 = [1068027439, 907823323, 854421951, 827721265, 881122637];
+const 敌人资料 = 实测验算.map((生命, 序) => {
+    const 编号 = 编组条目.字节.readUInt16LE(2 + 序 * 4);
+    if (编号 !== 42281 + 序 || 编号 !== 编组条目.字节.readUInt16LE(4 + 序 * 4)) throw new Error('塔55编组身份或双编号不一致');
+    const 原 = 原包角色.get(编号);
+    const 技能组编号 = 原.字节.readUInt32LE(26);
+    const 技能组 = 原包技能组.get(技能组编号);
+    const 被动三编号 = 技能组.字节.readUInt32LE(40);
+    const 被动三 = 被动文本.find(项 => 项.分表 === 0 && 项.编号 === 被动三编号);
+    const 生命被动值 = 被动三?.文本[1]?.match(/(?:^|\n)最大HP增加([\d.]+)%/);
+    if (!生命被动值) throw new Error(`缺少敌方被动3的生命文本依据：${编号}`);
+    const 基础生命 = Number(原.字节.readBigUInt64LE(10));
+    const 基础攻击 = Number(原.字节.readBigUInt64LE(18));
+    const 等级 = 关卡条目.字节.readUInt8(19);
+    const 星等 = 关卡条目.字节.readUInt8(20);
+    const 计算生命 = Math.floor(基础生命 * 养成资料.普通等级.每级倍率 ** (等级 - 1) * (1 + 目标星级.系数 * 星等));
+    if (计算生命 !== 生命) throw new Error(`敌方原始参数不能复现实测HP：${编号}，计算${计算生命}，实测${生命}`);
+    return { 编号, 基础生命, 基础攻击, 五星生命被动: Number(生命被动值[1]) / 100, 角色偏移: 原.偏移, 角色原始字节: 原.字节.toString('hex'), 技能组编号, 技能组偏移: 技能组.偏移, 被动技能: [8, 9, 10].map(槽 => 技能组.字节.readUInt32LE(槽 * 4)), 被动三原文: 被动三.文本[1], 被动文本偏移: 被动三.文件偏移, 验算: { 实测生命: 生命, 计算生命, 误差: 计算生命 - 生命 } };
+});
+const 敌方资料 = { 算法: { 每级倍率: 养成资料.普通等级.每级倍率, 每星加成: 目标星级.系数, 公式来源: 养成来源[2], 来源SHA256: 养成资料.来源指纹[养成来源[2]], 原始星级表达式: 星级式.getText(), 初始属性对照: 对照, 被动说明: 'HP+50%从技能组被动3对应的原包文本提取；本关四星未生效，实测与未启用被动3一致；非本关条件须另行校核' }, 属性审计, 原包表: Object.fromEntries(原始表), 被动文本来源: { 文件: '原包分析/语言包/技能说明.json', SHA256: 创建摘要('sha256').update(被动文本字节).digest('hex') }, 夏日尾声: { 关卡编号: 60155, 关卡偏移: 关卡条目.偏移, 关卡原始字节: 关卡条目.字节.toString('hex'), 编组编号, 编组偏移: 编组条目.偏移, 编组原始字节: 编组条目.字节.toString('hex'), 等级: 关卡条目.字节.readUInt8(19), 星等: 关卡条目.字节.readUInt8(20), 敌人: 敌人资料 } };
+文件系统.writeFileSync(路径.join(目录, '真实敌方资料.json'), JSON.stringify(敌方资料, null, 2) + '\n', 'utf8');
 console.log(`SSR 角色目录：${结果.length}，面板完整：${结果.filter(项 => 项.生命上限 && 项.攻击 && 项.冷却).length}`);
 console.log(`技能资料：${技能资料.length}，版本数：${技能资料.reduce((总, 项) => 总 + 项.版本.length, 0)}`);
 console.log(`ELv真实技能：${强化技能.length}，按资料中的5／10／15／20级解锁分类，不推定账号已持有项目`);

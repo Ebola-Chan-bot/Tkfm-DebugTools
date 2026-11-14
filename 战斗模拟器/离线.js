@@ -1,6 +1,6 @@
 const 缓存名称 = '颠倒镜-应用-__缓存指纹__';
 const 目录 = new URL('./', self.location.href);
-const 资源 = ['index.html', '界面.css', '应用.mjs', '战斗引擎.mjs', '角色数据.mjs', '编译技能文本.mjs', '真实角色目录.json', '真实角色技能.json', '真实ELv技能.json', '真实养成数据.json', '关卡数据.mjs', '敌方行动规则.mjs', '图标.js', 'manifest.webmanifest', '镜面-192.png', '镜面-512.png', '海岸-512.png'];
+const 资源 = ['index.html', '界面.css', '应用.mjs', '战斗引擎.mjs', '角色数据.mjs', '编译技能文本.mjs', '真实角色目录.json', '真实角色技能.json', '真实ELv技能.json', '真实养成数据.json', '真实敌方资料.json', '关卡数据.mjs', '敌方行动规则.mjs', '图标.js', 'manifest.webmanifest', '镜面-192.png', '镜面-512.png', '海岸-512.png'];
 
 self.addEventListener('install', 事件 => {
     事件.waitUntil(caches.open(缓存名称).then(缓存 => 缓存.addAll(资源.map(文件 => new Request(new URL(文件, 目录), { cache: 'reload' })))).then(() => self.skipWaiting()));
