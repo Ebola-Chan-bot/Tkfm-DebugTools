@@ -26,6 +26,7 @@
     <div class="关卡栏"><label for="关卡选择">关卡</label><select id="关卡选择"><option value="颠倒镜">颠倒镜 · SP-4</option><option value="夏日尾声">魔狱塔-55 · 夏日尾声</option></select><span id="关卡编号" class="弱文字"></span></div>
     <nav class="页签" aria-label="模拟器视图">
       <button data-tab="战场" aria-selected="true"><i data-lucide="swords"></i>战场</button>
+      <button data-tab="角色池" aria-selected="false"><i data-lucide="contact-round"></i>角色池</button>
       <button data-tab="编队" aria-selected="false"><i data-lucide="users-round"></i>编队</button>
       <button data-tab="模型" aria-selected="false"><i data-lucide="sliders-horizontal"></i>战斗设置</button>
       <button data-tab="记录" aria-selected="false"><i data-lucide="list-tree"></i>战斗记录</button>
@@ -33,7 +34,7 @@
     <section data-view="战场">
       <div class="首领带">
         <img class="镜面" src="./镜面-512.png" width="112" height="112" alt="颠倒镜">
-        <div class="首领主体"><div class="首领标题"><div><span id="关卡标签" class="小标签">时之裂缝 · 第 27 季</span><h2 id="关卡名称">颠倒镜</h2></div><span id="回合" class="回合数">01 <small>回合</small></span></div><div class="血量标题"><span id="首领生命"></span><span id="首领比例"></span></div><div class="生命轨 首领生命轨"><div id="首领生命条"></div></div><div id="首领状态" class="首领状态"></div></div>
+        <div class="首领主体"><div class="首领标题"><div><span id="关卡标签" class="小标签">时之裂缝 · 第 27 季</span><h2 id="关卡名称">颠倒镜</h2></div><button id="首领详情" class="图标按钮" title="敌方状态详情" aria-label="敌方状态详情"><i data-lucide="ellipsis"></i></button><span id="回合" class="回合数">01 <small>回合</small></span></div><div class="血量标题"><span id="首领生命"></span><span id="首领比例"></span></div><div class="生命轨 首领生命轨"><div id="首领生命条"></div></div><div id="首领状态" class="首领状态"></div></div>
       </div>
       <div id="多敌区域" hidden><div class="段标题"><h2>敌方队伍<span id="当前目标" class="阶段签"></span></h2></div><div id="敌方队伍" class="敌方网格" role="group" aria-label="攻击目标"></div></div>
       <div class="统计带" aria-label="本场统计"><div><span>累计造成伤害</span><strong id="总伤害">0</strong></div><div><span>本回合有效回复</span><strong id="本回合回复">0</strong></div><div><span>本回合承伤</span><strong id="本回合承伤">0</strong></div><div><span>存活角色</span><strong id="存活">5 <small>/ 5</small></strong></div></div>
@@ -46,8 +47,13 @@
       <div class="表格区"><table class="日志表"><thead><tr><th>回合</th><th>事件</th><th>结算</th><th class="数值列">数值</th></tr></thead><tbody id="最近日志"></tbody></table></div>
     </section>
     <section data-view="编队" hidden>
-      <div class="段标题"><h2>编队<small id="角色目录数量"></small></h2><div class="操作组 编队操作"><button id="添加角色" class="次按钮"><i data-lucide="user-plus"></i>添加角色</button><button id="导出编队" class="次按钮"><i data-lucide="download"></i>导出编队</button><button id="载入编队" class="次按钮"><i data-lucide="folder-open"></i>载入编队</button><button id="导出旧记录" class="次按钮" hidden><i data-lucide="download"></i>导出原记录</button><button id="应用编队" class="主按钮"><i data-lucide="check"></i>应用编队</button></div></div>
-      <template id="编队表头模板"><div class="编队表头"><span>站位 / 角色</span><span>普通等级</span><span>ELV突破</span><span>羁绊</span><span>星级</span><span>调教</span><span>解放</span><span>生命</span><span>攻击</span><span>顺序</span></div></template><div id="编队表"></div><datalist id="角色候选"></datalist>
+      <div class="段标题"><h2>编队<small id="角色目录数量"></small></h2><div class="操作组 编队操作"><button id="添加角色" class="次按钮"><i data-lucide="user-plus"></i>加入角色</button><button id="导出编队" class="次按钮"><i data-lucide="download"></i>导出编队</button><button id="载入编队" class="次按钮"><i data-lucide="folder-open"></i>载入编队</button><button id="导出旧记录" class="次按钮" hidden><i data-lucide="download"></i>导出原记录</button><button id="应用编队" class="主按钮"><i data-lucide="check"></i>应用编队</button></div></div>
+      <template id="编队表头模板"><div class="引用表头"><span>站位 / 角色</span><span>生命</span><span>攻击</span><span>养成</span><span>顺序</span></div></template><div id="编队表"></div>
+    </section>
+    <section data-view="角色池" hidden>
+      <div class="段标题"><h2>我的角色<small id="角色池数量"></small></h2><div class="操作组 编队操作"><button id="池添加角色" class="主按钮"><i data-lucide="user-plus"></i>添加角色</button><button id="导出角色池" class="次按钮"><i data-lucide="download"></i>导出角色池</button><button id="载入角色池" class="次按钮"><i data-lucide="folder-open"></i>载入角色池</button></div></div>
+      <div class="角色池筛选"><input id="角色池搜索" type="search" placeholder="搜索名称或编号" aria-label="搜索我的角色"><select id="角色池职业" aria-label="按职业筛选"><option value="">全部职业</option></select><select id="角色池属性" aria-label="按属性筛选"><option value="">全部属性</option></select></div>
+      <div id="角色池列表" class="角色池列表"></div>
     </section>
     <section data-view="模型" hidden>
       <form id="模型表单">
@@ -71,8 +77,11 @@
   </main>
   <input id="导入文件" type="file" accept=".json,application/json" hidden>
   <input id="编队文件" type="file" accept=".json,application/json" hidden>
+  <input id="角色池文件" type="file" accept=".json,application/json" hidden>
   <div id="通知" role="status" aria-live="polite" hidden></div>
   <dialog id="详情弹窗"><div class="弹窗标题"><h2 id="详情标题">角色状态</h2><button class="图标按钮" data-close title="关闭" aria-label="关闭"><i data-lucide="x"></i></button></div><div id="详情正文"></div></dialog>
+  <dialog id="角色编辑弹窗" class="角色编辑弹窗"><div class="弹窗标题"><h2 id="角色编辑标题">角色养成</h2><button class="图标按钮" data-close title="取消编辑" aria-label="取消编辑"><i data-lucide="x"></i></button></div><div id="角色编辑表"></div><div class="弹窗操作"><button id="保存池角色" class="主按钮"><i data-lucide="save"></i>保存角色</button></div></dialog>
+  <datalist id="角色候选"></datalist>
   <script src="./图标.js"></script>
   <script type="module" src="./应用.mjs"></script>
 </body>
