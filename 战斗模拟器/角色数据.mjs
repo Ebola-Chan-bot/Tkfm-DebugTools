@@ -230,6 +230,34 @@ export function 创建角色(输入) {
     }));
 }
 
+const 编队养成字段 = ['羁绊', '星级', '调教', '普通等级', 'ELV突破等级', '潜力等级', '潜力节点', '解放', 'ELv技能'];
+
+export function 校验文件编队(队伍) {
+    if (!Array.isArray(队伍) || 队伍.length < 1 || 队伍.length > 5) throw new Error('编队须有1至5位角色');
+    if (队伍.some(单位 => !单位 || typeof 单位 !== 'object' || !Number.isSafeInteger(单位.编号))) throw new Error('编队文件包含无效角色');
+    if (new Set(队伍.map(单位 => 单位.编号)).size !== 队伍.length) throw new Error('队伍中不能有重复角色');
+    return 队伍.map((单位, 位置) => {
+        const 默认 = 创建角色(单位.编号);
+        const 养成 = Object.fromEntries(编队养成字段.filter(字段 => Object.hasOwn(单位, 字段)).map(字段 => [字段, structuredClone(单位[字段])]));
+        const 角色 = 准备角色技能(统一面板基准({ ...默认, ...养成 }));
+        if (!Number.isInteger(角色.羁绊) || 角色.羁绊 < 1 || 角色.羁绊 > 5) throw new Error(`第${位置 + 1}位角色的羁绊须为1至5`);
+        if (!角色.技能已建模) throw new Error(`第${位置 + 1}位角色的技能或ELV选择无效，请确认养成设置`);
+        return 角色;
+    });
+}
+
+export function 生成编队文件(队伍) {
+    return { 类型: 'TKFM编队', 版本: 1, 队伍: 校验文件编队(队伍).map(单位 => Object.fromEntries(['编号', ...编队养成字段].map(字段 => [字段, structuredClone(单位[字段])]))) };
+}
+
+export function 解析编队文件(内容) {
+    let 文件;
+    try { 文件 = JSON.parse(内容); }
+    catch { throw new Error('无法读取此编队文件，请选择导出的编队文件'); }
+    if (!文件 || 文件.类型 !== 'TKFM编队' || 文件.版本 !== 1) throw new Error('这不是有效的编队文件，请选择导出的编队文件');
+    return 校验文件编队(文件.队伍);
+}
+
 export const 首领技能 = [
     ['普攻', 22807, '100% 攻击，全体伤害'],
     ['黑桃A', 22816, '350% 攻击，站位 1'],

@@ -18,5 +18,10 @@ self.addEventListener('fetch', 事件 => {
         事件.respondWith(fetch(请求).catch(() => caches.match(new URL('index.html', 目录).href)));
         return;
     }
-    事件.respondWith(caches.open(缓存名称).then(async 缓存 => (await 缓存.match(请求, { ignoreSearch: true })) || fetch(请求)));
+    事件.respondWith(fetch(请求).catch(async 错误 => {
+        const 缓存 = await caches.open(缓存名称);
+        const 已缓存 = await 缓存.match(请求, { ignoreSearch: true });
+        if (已缓存) return 已缓存;
+        throw 错误;
+    }));
 });

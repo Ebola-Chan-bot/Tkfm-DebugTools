@@ -2,8 +2,8 @@
   "验证范围": "真实资料编译完整性；档位数不穷举普通等级、潜力节点与ELV组合，不代替执行检查、官方实测或账号解锁确认",
   "源码指纹": {
     "编译技能文本.mjs": "39d1f916763c8f55b1acad2b702b5ef91f75433bfa302eaab852161e33eb1928",
-    "战斗引擎.mjs": "30874e1edb26eb8ed2086b5be2db2fae405aff615f2883b9adf5ee1846815bcb",
-    "角色数据.mjs": "1231cb61acabe70f1274fa7ff1c7f062e4d3157f3c824b52067c59ad1f89a74c",
+    "战斗引擎.mjs": "65cd68f64792265e9d5224c1438128700bf017b545721b4f42a78124fa190db6",
+    "角色数据.mjs": "1170bbedab68f1114d9ce19796a0c0218ff53b833eb9176587c84508f14f2a72",
     "真实角色目录.json": "04f99a1ea850759033def71b8ce20a13d86a5f5c58f7c967f3401d6e5e51f26a",
     "真实角色技能.json": "c1a22895d0b4d4219d648dbdf9a9bffe81b93febdeecf75678b8422a116b8f52",
     "真实ELv技能.json": "dd4ef08972fb54f024e4e40c4896cdc5090569f5d08abb29bf5ffa9670dfe402",

@@ -143,8 +143,8 @@ export function 新建战斗(配置) {
     if (配置.自动敌方) 校验AI配置(配置);
     if (配置.自动敌方 && (!Number.isInteger(配置.AI初始冷却 ?? 1) || (配置.AI初始冷却 ?? 1) < 0 || (配置.AI初始冷却 ?? 1) > 100)) throw new Error('AI 初始冷却须为 0 至 100');
     if (夏日 && 配置.颠倒规则) throw new Error('夏日尾声不能启用颠倒镜规则');
-    if (!Array.isArray(配置.队伍) || 配置.队伍.length !== 5) throw new Error('请选择五位角色');
-    if (new Set(配置.队伍.map(单位 => 单位.编号)).size !== 5) throw new Error('队伍中不能有重复角色');
+    if (!Array.isArray(配置.队伍) || 配置.队伍.length < 1 || 配置.队伍.length > 5) throw new Error('编队须有1至5位角色');
+    if (new Set(配置.队伍.map(单位 => 单位.编号)).size !== 配置.队伍.length) throw new Error('队伍中不能有重复角色');
     for (const [名称, 下限, 上限] of [['首领减伤', 0, 2], ['防御减伤', 0, 1], ['受疗降低', 0, 10], ['受盾降低', 0, 10]]) {
         if (!Number.isFinite(配置[名称]) || 配置[名称] < 下限 || 配置[名称] > 上限) throw new Error(`${名称}超出范围`);
     }
