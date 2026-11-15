@@ -33,9 +33,13 @@
 .养成摘要 .文字按钮{margin-left:0;font-size:11px;gap:4px;padding:0;line-height:20px}
 .养成摘要 .文字按钮 svg{width:14px;height:14px}
 @media(max-width:1200px){.引用表头{display:none}.引用主行{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.引用主行 .位置输入{grid-column:1/-1}.引用主行 .面板结果{grid-column:span 1}.引用主行>div[data-label]:before{display:block;content:attr(data-label);font-size:10px;color:var(--次墨);margin-bottom:4px}.引用主行 .排序工具{grid-column:1/-1;margin-top:4px}}
-.角色池筛选{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px}
+.角色池筛选{display:flex;flex-wrap:nowrap;align-items:center;gap:10px;margin:0 0 14px}
 .角色池筛选 input[type=search]{flex:1 1 200px;min-width:0;background:var(--纸);border:1px solid var(--线);border-radius:4px;padding:9px 12px;font-size:13px;color:var(--墨)}
-.角色池筛选 select{background:var(--纸);border:1px solid var(--线);border-radius:4px;padding:9px 10px;font-size:13px;color:var(--墨)}
+.角色池筛选 select{flex:0 1 130px;width:130px;min-width:0;background:var(--纸);border:1px solid var(--线);border-radius:4px;padding:9px 10px;font-size:13px;color:var(--墨)}
+.Have导入{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 16px}
+.Have导入 label{font-size:12px;color:var(--次墨);white-space:nowrap}
+.Have导入 input{flex:1 1 260px;min-width:0;background:var(--纸);border:1px solid var(--线);border-radius:4px;padding:9px 12px;font-size:13px;color:var(--墨)}
+.Have导入 button{flex:0 0 auto}
 .角色池列表{display:grid;gap:10px}
 .池角色{display:grid;grid-template-columns:34px minmax(140px,1.3fr) minmax(120px,.9fr) minmax(180px,1.5fr) auto;gap:14px;align-items:center;padding:12px 14px;border:1px solid var(--线);border-radius:6px;background:var(--纸)}
 .池名称{min-width:0}
@@ -54,7 +58,7 @@
 .空状态 h3{margin:8px 0 4px;font-size:14px;color:var(--墨)}
 .空状态 p{margin:0;font-size:12px;line-height:1.7}
 @media(max-width:1000px){.池角色{grid-template-columns:34px minmax(120px,1.3fr) minmax(110px,.9fr) auto;gap:10px}.池养成{grid-column:2/-1}}
-@media(max-width:650px){.池角色{grid-template-columns:30px minmax(0,1fr) auto;padding:12px 10px}.池面板{grid-column:2/-1}.池养成{grid-column:1/-1}.池工具{grid-column:1/-1;justify-content:flex-end}.角色池筛选 input[type=search]{flex-basis:100%}}
+@media(max-width:650px){.池角色{grid-template-columns:30px minmax(0,1fr) auto;padding:12px 10px}.池面板{grid-column:2/-1}.池养成{grid-column:1/-1}.池工具{grid-column:1/-1;justify-content:flex-end}.角色池筛选{gap:6px}.角色池筛选 input[type=search]{flex:1 1 0;min-width:0;padding:8px;font-size:12px}.角色池筛选 select{flex:0 1 74px;width:74px;min-width:0;padding:8px 2px;font-size:11px}.Have导入{gap:7px}.Have导入 label{flex:1 0 100%}.Have导入 input{flex:1 1 0;padding:8px;font-size:11px}.Have导入 button{font-size:11px;padding:7px 8px}}
 .角色编辑弹窗{width:min(760px,calc(100% - 30px))}
 .编辑网格{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 14px;align-items:end}
 .编辑网格>label{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:11px;color:var(--次墨)}
