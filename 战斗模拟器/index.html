@@ -38,11 +38,11 @@
       </div>
       <div id="多敌区域" hidden><div class="段标题"><h2>敌方队伍<span id="当前目标" class="阶段签"></span></h2></div><div id="敌方队伍" class="敌方网格" role="group" aria-label="攻击目标"></div></div>
       <div class="统计带" aria-label="本场统计"><div><span>累计造成伤害</span><strong id="总伤害">0</strong></div><div><span>本回合有效回复</span><strong id="本回合回复">0</strong></div><div><span>本回合承伤</span><strong id="本回合承伤">0</strong></div><div><span>存活角色</span><strong id="存活">5 <small>/ 5</small></strong></div></div>
-      <div class="段标题"><h2>我方行动<span id="阶段" class="阶段签">我方</span></h2><div class="操作组"><button id="撤销" class="图标按钮" title="撤销上一步" aria-label="撤销上一步"><i data-lucide="undo-2"></i></button><button id="重做" class="图标按钮" title="重做上一步" aria-label="重做上一步"><i data-lucide="redo-2"></i></button><span class="分隔"></span><button id="一回合" class="次按钮"><i data-lucide="fast-forward"></i>本回合</button></div></div>
+      <div class="段标题"><h2>我方行动<span id="阶段" class="阶段签">我方</span></h2><div class="操作组"><button id="撤销" class="图标按钮" title="撤销上一步" aria-label="撤销上一步"><i data-lucide="undo-2"></i></button><button id="重做" class="图标按钮" title="重做上一步" aria-label="重做上一步"><i data-lucide="redo-2"></i></button><span class="分隔"></span><button id="一回合" class="次按钮" title="仅结算敌方，不替玩家选择动作"><i data-lucide="fast-forward"></i>敌方回合</button></div></div>
       <div id="角色队伍" class="角色网格"></div>
       <div id="结局" class="结局" hidden></div>
       <div id="旧记录栏" class="校准栏" hidden><strong>此记录需重新开始</strong><button id="启用自动" class="次按钮"><i data-lucide="rotate-ccw"></i>重新开始</button></div>
-      <div class="段标题"><h2>敌方行动</h2><button id="整场运行" class="次按钮"><i data-lucide="play"></i>运行至结束</button></div><div id="AI预览" class="技能目录"></div>
+      <div class="段标题"><h2>敌方行动</h2><button id="整场运行" class="次按钮" title="连续结算敌方；需要我方操作时暂停，不替玩家选择动作"><i data-lucide="play"></i>连续敌方</button></div><div id="AI预览" class="技能目录"></div>
       <div class="段标题"><h2>最近行动</h2><button class="文字按钮" data-open-tab="记录">完整记录<i data-lucide="arrow-right"></i></button></div>
       <div class="表格区"><table class="日志表"><thead><tr><th>回合</th><th>事件</th><th>结算</th><th class="数值列">数值</th></tr></thead><tbody id="最近日志"></tbody></table></div>
     </section>

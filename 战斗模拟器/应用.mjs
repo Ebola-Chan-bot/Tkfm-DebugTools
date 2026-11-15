@@ -1,15 +1,15 @@
 import { 新建战斗, 结算操作, 重放战斗, 当前攻击, 当前护盾, 加成, 可选敌人, 预览敌方行动 } from './战斗引擎.mjs';
 import { 真实角色目录, 获取真实角色, 获取真实技能, 创建角色, 职业列表, 属性列表, 调教加成, 普通等级范围, ELV突破档位, ELV技能解锁等级, 获取潜力养成, 计算调教面板, 技能模型规则, 获取适用ELv技能, 提取角色养成 } from './角色数据.mjs';
 import { 更新池角色, 删除池角色, 校验编队引用, 解析角色引用, 生成角色池文件, 解析角色池文件, 合并角色池, 生成引用编队文件, 解析引用编队文件, 新建池角色 } from './玩家角色池.mjs';
-import { 关卡列表, 当前关卡, 创建关卡配置, 敌方技能目录, 敌方技能名称, 是旧夏日默认面板, 修正夏日默认面板 } from './关卡数据.mjs';
+import { 关卡列表, 当前关卡, 创建关卡配置, 敌方技能目录, 敌方技能名称, 是旧夏日默认面板, 修正夏日默认面板, 是旧爱你默认面板, 修正爱你默认面板 } from './关卡数据.mjs';
 
 const 查 = 选择器 => document.querySelector(选择器);
 const 全查 = 选择器 => [...document.querySelectorAll(选择器)];
 const 转义 = 内容 => String(内容 ?? '').replace(/[&<>"']/g, 字符 => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[字符]));
 const 数字 = 数值 => Math.floor(数值).toLocaleString('zh-CN');
 const 简数 = 数值 => Math.abs(数值) >= 1e8 ? `${(数值 / 1e8).toFixed(2)} 亿` : Math.abs(数值) >= 1e4 ? `${(数值 / 1e4).toFixed(2)} 万` : 数字(数值);
-const 职业图标 = { 攻击者: 'attacker', 治疗者: 'healer', 守护者: 'protector', 辅助者: 'supporter', 妨碍者: 'obstructer' };
-const 职业像 = 职业 => `<img class="职业像 ${转义(职业)}" src="./职业图标/${职业图标[职业] ?? 'attacker'}.png" width="34" height="38" alt="${转义(职业)}" title="${转义(职业)}">`;
+const 角色头像地址 = 编号 => `./角色头像/cs${编号}_0_0.webp`;
+const 职业像 = (职业, 编号, 名称 = 职业) => `<img class="职业像 ${转义(职业)}" src="${角色头像地址(编号)}" width="34" height="38" alt="${转义(名称)}" title="${转义(名称)}" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="职业像 头像回退 ${转义(职业)}" hidden aria-label="${转义(名称)}">${转义(String(名称).slice(0, 1))}</span>`;
 const 存档键 = '颠倒镜-战斗存档';
 const 关卡存档键 = 关卡 => ({ 夏日尾声: '夏日尾声-战斗存档', 爱你至死不渝SP: '爱你至死不渝SP-战斗存档' }[关卡] || 存档键);
 const 角色池存档键 = 'TKFM-玩家角色池';
@@ -145,6 +145,19 @@ function 载入本地记录(关卡) {
     旧记录备份 = (切换备份键 && localStorage.getItem(切换备份键)) || (最近备份键 && localStorage.getItem(最近备份键)) || localStorage.getItem(`${键}-真实角色修正前备份`);
     if (已存) {
         const 记录 = JSON.parse(已存);
+        if (是旧爱你默认面板(记录.配置)) {
+            const 备份键 = `${键}-71级面板修正前备份-${Date.now()}`;
+            localStorage.setItem(备份键, 已存);
+            localStorage.setItem(`${键}-最近旧模型备份`, 备份键);
+            旧记录备份 = 已存;
+            配置 = 修正爱你默认面板(structuredClone(记录.配置));
+            状态 = 新建战斗(配置);
+            操作列表 = [];
+            游标 = 0;
+            存档();
+            通知('已按71级与实测生命更新优璃面板，原记录已备份并重新开始。', true);
+            return;
+        }
         try { 导入记录(记录); return; }
         catch (错误) {
             const 旧规则 = 记录.配置?.模型规则 !== 技能模型规则;
@@ -222,9 +235,9 @@ function 渲染关卡() {
     查('#关卡简称').textContent = 关卡.简称;
     查('#关卡编号').textContent = 夏日 ? '五名敌人' : '首领战';
     document.title = `${关卡.名称} · 战斗模拟器`;
-    查('.镜面').src = 夏日 ? './海岸-512.png' : './镜面-512.png';
-    查('.镜面').alt = 夏日 ? '夏日海岸' : 爱你 ? '病娇天使 优璃' : '颠倒镜';
-    查('#品牌图').src = 夏日 ? './海岸-512.png' : './镜面-192.png';
+    查('.镜面').src = 关卡.头像;
+    查('.镜面').alt = 关卡.头像角色 || 关卡.名称;
+    查('#品牌图').src = 关卡.头像;
     for (const 标识 of ['多敌区域', '夏日面板区域']) 查(`#${标识}`).hidden = !夏日;
     查('#首领详情').hidden = !状态;
     if (!夏日 || !状态) {
@@ -260,7 +273,7 @@ function 渲染未开战() {
     查('#存活').innerHTML = `0 <small>/ ${玩家编队.length}</small>`;
     查('#阶段').textContent = '未开始';
     for (const 键 of ['#撤销', '#重做', '#一回合', '#整场运行']) 查(键).disabled = true;
-    查('#整场运行').innerHTML = '<i data-lucide="play"></i>运行至结束';
+    查('#整场运行').innerHTML = '<i data-lucide="play"></i>连续敌方';
     查('#旧记录栏').hidden = true;
     查('#AI预览').innerHTML = '';
     查('#角色队伍').innerHTML = '<div class="空状态"><i data-lucide="swords"></i><h3>战斗尚未开始</h3><p>到「编队」页从角色池选择角色并应用后即可开战</p></div>';
@@ -292,10 +305,10 @@ function 渲染战场() {
     查('#阶段').textContent = 状态.阶段 === '我方' ? '我方' : 状态.阶段 === '敌方' ? '敌方' : '已结束';
     查('#撤销').disabled = 游标 === 0 || 运行中;
     查('#重做').disabled = 游标 >= 操作列表.length || 运行中;
-    查('#一回合').disabled = 状态.阶段 !== '我方' || 运行中 || !配置.自动敌方;
+    查('#一回合').disabled = 状态.阶段 !== '敌方' || 运行中 || !配置.自动敌方;
     查('#旧记录栏').hidden = Boolean(配置.自动敌方);
     查('#整场运行').disabled = 状态.阶段 === '结束' || !配置.自动敌方;
-    查('#整场运行').innerHTML = 运行中 ? '<i data-lucide="pause"></i>停止' : '<i data-lucide="play"></i>运行至结束';
+    查('#整场运行').innerHTML = 运行中 ? '<i data-lucide="pause"></i>停止' : '<i data-lucide="play"></i>连续敌方';
     查('#AI预览').innerHTML = 预览敌方行动(状态).map(项 => `<div><strong>${转义(项.名称)}</strong><span>${转义(项.技能?.map(编号 => 编号 === '普攻' ? 编号 : 敌方技能名称(配置, 编号)).join(' + ') || 项.行动)}</span><span>${项.冷却 === null ? '' : `CD ${项.冷却}`}</span></div>`).join('');
     查('#角色队伍').innerHTML = 状态.队伍.map(单位 => {
         const 可行动 = 状态.阶段 === '我方' && 单位.生命 > 0 && !单位.已行动 && !运行中 && 配置.自动敌方;
@@ -305,7 +318,7 @@ function 渲染战场() {
         const 状态条 = 单位.生命 <= 0 ? '倒下' : 动作状态.控制.length ? 动作状态.控制.join(' · ') : 单位.防御 ? '防御中' : 单位.已行动 ? '已行动' : '待行动';
         const 全名 = 单位.全名 || 获取真实角色(单位.编号)?.全名 || 单位.名称;
         const 关卡标记 = 配置.关卡 === '爱你至死不渝SP' ? (单位.状态标记 || []).map(项 => `<span>${转义(项.标记)}${项.层数 > 1 ? ` ${项.层数}` : ''}</span>`).join('') : '';
-        return `<article class="角色卡 ${类名}" data-unit="${单位.位置}"><div class="角色卡头"><span class="站位标">${String(单位.位置 + 1).padStart(2, '0')} ${单位.位置 === 0 ? ' / 队长' : ''}</span><button class="图标按钮" data-detail="${单位.位置}" title="${转义(全名)}状态与技能" aria-label="${转义(全名)}状态与技能"><i data-lucide="ellipsis"></i></button></div><div class="角色名行">${职业像(单位.职业)}<div><h3 class="角色姓名">${转义(全名)}</h3><div class="角色属性">${转义(单位.属性)} · ${转义(单位.职业)} · 羁绊 ${单位.羁绊}</div></div></div><div class="角色血量"><span>${数字(单位.生命)}</span><span class="比例">${百分比.toFixed(0)}%</span></div><div class="生命轨"><div style="width:${百分比}%;${百分比 < 30 ? 'background:var(--红)' : ''}"></div></div><div class="角色参数"><div><span>当前攻击</span><strong>${简数(当前攻击(单位))}</strong></div><div><span>有效护盾</span><strong>${简数(当前护盾(单位))}</strong></div></div><div class="角色状态"><span>${状态条}</span>${单位.冷却剩余 ? `<span>CD ${单位.冷却剩余}</span>` : '<span>必杀就绪</span>'}${单位.计数.守护 ? `<span>守护 ${单位.计数.守护}</span>` : ''}${关卡标记}</div><div class="动作栏"><button data-action="普攻" data-position="${单位.位置}" ${可行动 && 动作状态.可攻击 ? '' : 'disabled'} title="${动作状态.可攻击 ? '普攻' : '受控，无法攻击'}">普攻</button><button data-action="必杀" data-position="${单位.位置}" ${可行动 && 动作状态.可必杀 ? '' : 'disabled'} title="${动作状态.控制.length ? '受控或沉默，无法施放必杀' : 单位.冷却剩余 ? `冷却 ${单位.冷却剩余} 回合` : '必杀'}">${单位.冷却剩余 ? `CD ${单位.冷却剩余}` : '必杀'}</button><button data-action="防御" data-position="${单位.位置}" ${可行动 ? '' : 'disabled'} title="${动作状态.跳过 ? '受控，跳过本次行动' : '防御'}" aria-label="${转义(单位.名称)}${动作状态.跳过 ? '跳过行动' : '防御'}"><i data-lucide="${动作状态.跳过 ? 'step-forward' : 'shield'}"></i></button></div></article>`;
+        return `<article class="角色卡 ${类名}" data-unit="${单位.位置}"><div class="角色卡头"><span class="站位标">${String(单位.位置 + 1).padStart(2, '0')} ${单位.位置 === 0 ? ' / 队长' : ''}</span><button class="图标按钮" data-detail="${单位.位置}" title="${转义(全名)}状态与技能" aria-label="${转义(全名)}状态与技能"><i data-lucide="ellipsis"></i></button></div><div class="角色名行">${职业像(单位.职业, 单位.编号, 全名)}<div><h3 class="角色姓名">${转义(全名)}</h3><div class="角色属性">${转义(单位.属性)} · ${转义(单位.职业)} · 羁绊 ${单位.羁绊}</div></div></div><div class="角色血量"><span>${数字(单位.生命)}</span><span class="比例">${百分比.toFixed(0)}%</span></div><div class="生命轨"><div style="width:${百分比}%;${百分比 < 30 ? 'background:var(--红)' : ''}"></div></div><div class="角色参数"><div><span>当前攻击</span><strong>${简数(当前攻击(单位))}</strong></div><div><span>有效护盾</span><strong>${简数(当前护盾(单位))}</strong></div></div><div class="角色状态"><span>${状态条}</span>${单位.冷却剩余 ? `<span>CD ${单位.冷却剩余}</span>` : '<span>必杀就绪</span>'}${单位.计数.守护 ? `<span>守护 ${单位.计数.守护}</span>` : ''}${关卡标记}</div><div class="动作栏"><button data-action="普攻" data-position="${单位.位置}" ${可行动 && 动作状态.可攻击 ? '' : 'disabled'} title="${动作状态.可攻击 ? '普攻' : '受控，无法攻击'}">普攻</button><button data-action="必杀" data-position="${单位.位置}" ${可行动 && 动作状态.可必杀 ? '' : 'disabled'} title="${动作状态.控制.length ? '受控或沉默，无法施放必杀' : 单位.冷却剩余 ? `冷却 ${单位.冷却剩余} 回合` : '必杀'}">${单位.冷却剩余 ? `CD ${单位.冷却剩余}` : '必杀'}</button><button data-action="防御" data-position="${单位.位置}" ${可行动 && !动作状态.跳过 ? '' : 'disabled'} title="${动作状态.跳过 ? '受控，本次行动自动待机' : '防御'}" aria-label="${转义(单位.名称)}防御"><i data-lucide="shield"></i></button></div></article>`;
     }).join('');
     const 结束 = 状态.阶段 === '结束';
     查('#结局').hidden = !结束;
@@ -415,7 +428,7 @@ function 渲染角色池() {
             const 面板 = 面板预览(养成);
             const 站位 = 玩家编队.indexOf(养成.编号);
             return `<article class="池角色" data-pool-id="${养成.编号}">
-                ${职业像(档案.职业)}
+                ${职业像(档案.职业, 档案.编号, 档案.全名)}
                 <div class="池名称"><h3>${转义(档案.全名)}</h3><small>${养成.编号} · ${转义(档案.职业)} · ${转义(档案.属性)}${站位 >= 0 ? ` · <b class="入队签">编队站位 ${站位 + 1}</b>` : ''}</small></div>
                 <div class="池面板"><span>生命<strong>${面板 ? 数字(面板.生命上限) : '--'}</strong></span><span>攻击<strong>${面板 ? 数字(面板.攻击) : '--'}</strong></span></div>
                 <div class="池养成">${转义(养成摘要(养成))}</div>
@@ -568,19 +581,8 @@ function 执行(操作, 重绘 = true) {
     if (重绘) { 存档(); 渲染战场(); 渲染记录(); }
 }
 
-function 自动我方() {
-    const 可用 = 状态.队伍.filter(单位 => 单位.生命 > 0 && !单位.已行动);
-    for (const 单位 of 可用) {
-        if (状态.阶段 !== '我方') break;
-        const 当前单位 = 状态.队伍[单位.位置];
-        if (当前单位.生命 <= 0) continue;
-        const 动作状态 = 角色动作状态(当前单位);
-        const 计划动作 = 配置.关卡 === '夏日尾声' ? (动作状态.可必杀 ? '必杀' : '普攻') : 当前单位.职业 === '治疗者' && 动作状态.可必杀 ? '必杀' : 当前单位.职业 === '辅助者' ? '普攻' : '防御';
-        const 动作 = !动作状态.可攻击 ? '防御' : 计划动作;
-        const 敌人列表 = 可选敌人(状态, 当前单位);
-        const 目标 = 敌人列表.some(敌人 => 敌人.位置 === 攻击目标) ? 攻击目标 : 敌人列表[0]?.位置 ?? 0;
-        执行({ 类型: '角色', 位置: 单位.位置, 动作, 目标 }, false);
-    }
+function 结算已完成的敌方回合() {
+    if (状态.阶段 === '敌方') 执行({ 类型: '敌方自动' }, false);
 }
 
 function 保存下载(名称, 内容, 类型 = 'application/json') {
@@ -695,7 +697,14 @@ function 角色详情(位置) {
     if (游标 && !confirm('重置本场战斗？编队和战斗设置保留。')) return;
     应用新配置(配置);
 });
-查('#一回合').addEventListener('click', 包装(() => { if (!状态) return; 自动我方(); 存档(); 渲染战场(); 渲染记录(); }));
+查('#一回合').addEventListener('click', 包装(() => {
+    if (!状态) return;
+    if (状态.阶段 === '我方') throw new Error('请先手动完成本回合可行动角色的操作');
+    结算已完成的敌方回合();
+    存档();
+    渲染战场();
+    渲染记录();
+}));
 查('#启用自动').addEventListener('click', 包装(() => {
     if (!状态) { 通知('请先应用编队开始战斗', true); return; }
     if (游标 && !confirm('保留当前编队与面板，使用自动 AI 重新开始？原记录请先导出。')) return;
@@ -877,9 +886,12 @@ function 角色详情(位置) {
     渲染战场();
     try {
         while (运行中 && 状态.阶段 !== '结束') {
+            if (状态.阶段 === '我方') {
+                通知('已暂停：请手动完成可行动角色的操作，自动运行不会代替玩家选择动作');
+                break;
+            }
             const 原游标 = 游标;
-            自动我方();
-            if (状态.阶段 === '敌方') 执行({ 类型: '敌方自动' }, false);
+            结算已完成的敌方回合();
             if (游标 === 原游标) throw new Error('战斗未推进，请检查当前状态');
             await new Promise(resolve => requestAnimationFrame(resolve));
         }
