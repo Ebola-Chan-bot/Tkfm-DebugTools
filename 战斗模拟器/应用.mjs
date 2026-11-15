@@ -1,7 +1,7 @@
 import { 新建战斗, 结算操作, 重放战斗, 当前攻击, 当前护盾, 加成, 可选敌人, 预览敌方行动 } from './战斗引擎.mjs';
 import { 真实角色目录, 获取真实角色, 获取真实技能, 创建角色, 职业列表, 属性列表, 调教加成, 普通等级范围, ELV突破档位, ELV技能解锁等级, 获取潜力养成, 计算调教面板, 技能模型规则, 获取适用ELv技能, 提取角色养成 } from './角色数据.mjs';
 import { 更新池角色, 删除池角色, 校验编队引用, 解析角色引用, 生成角色池文件, 解析角色池文件, 合并角色池, 生成引用编队文件, 解析引用编队文件, 新建池角色 } from './玩家角色池.mjs';
-import { 当前关卡, 创建关卡配置, 敌方技能目录, 敌方技能名称, 是旧夏日默认面板, 修正夏日默认面板 } from './关卡数据.mjs';
+import { 关卡列表, 当前关卡, 创建关卡配置, 敌方技能目录, 敌方技能名称, 是旧夏日默认面板, 修正夏日默认面板 } from './关卡数据.mjs';
 
 const 查 = 选择器 => document.querySelector(选择器);
 const 全查 = 选择器 => [...document.querySelectorAll(选择器)];
@@ -11,7 +11,7 @@ const 简数 = 数值 => Math.abs(数值) >= 1e8 ? `${(数值 / 1e8).toFixed(2)}
 const 职业图标 = { 攻击者: 'attacker', 治疗者: 'healer', 守护者: 'protector', 辅助者: 'supporter', 妨碍者: 'obstructer' };
 const 职业像 = 职业 => `<img class="职业像 ${转义(职业)}" src="./职业图标/${职业图标[职业] ?? 'attacker'}.png" width="34" height="38" alt="${转义(职业)}" title="${转义(职业)}">`;
 const 存档键 = '颠倒镜-战斗存档';
-const 关卡存档键 = 关卡 => 关卡 === '夏日尾声' ? '夏日尾声-战斗存档' : 存档键;
+const 关卡存档键 = 关卡 => ({ 夏日尾声: '夏日尾声-战斗存档', 爱你至死不渝SP: '爱你至死不渝SP-战斗存档' }[关卡] || 存档键);
 const 角色池存档键 = 'TKFM-玩家角色池';
 const 玩家编队存档键 = 'TKFM-玩家编队';
 let 玩家角色池 = [];
@@ -96,7 +96,7 @@ function 初始化玩家数据(关卡) {
     }
     if (已存池) 玩家角色池 = 已存池;
     else {
-        const 原记录 = Object.fromEntries(['颠倒镜', '夏日尾声'].map(名称 => [名称, localStorage.getItem(关卡存档键(名称))]).filter(([, 内容]) => 内容));
+        const 原记录 = Object.fromEntries(关卡列表.map(关卡 => [关卡.编号, localStorage.getItem(关卡存档键(关卡.编号))]).filter(([, 内容]) => 内容));
         if (Object.keys(原记录).length || 原草稿?.length) {
             try { localStorage.setItem(`TKFM-角色池迁移前备份-${Date.now()}`, JSON.stringify({ 原记录, 草稿: 原草稿 })); } catch {}
             for (const 单位 of 当前存档?.配置?.队伍 || []) {
@@ -215,6 +215,7 @@ function 日志行(列表) {
 function 渲染关卡() {
     const 关卡 = 当前关卡(配置);
     const 夏日 = 关卡.编号 === '夏日尾声';
+    const 爱你 = 关卡.编号 === '爱你至死不渝SP';
     查('#关卡选择').value = 关卡.编号;
     查('#关卡名称').textContent = 关卡.名称;
     查('#关卡标签').textContent = 关卡.标签;
@@ -222,7 +223,7 @@ function 渲染关卡() {
     查('#关卡编号').textContent = 夏日 ? '五名敌人' : '首领战';
     document.title = `${关卡.名称} · 战斗模拟器`;
     查('.镜面').src = 夏日 ? './海岸-512.png' : './镜面-512.png';
-    查('.镜面').alt = 夏日 ? '夏日海岸' : '颠倒镜';
+    查('.镜面').alt = 夏日 ? '夏日海岸' : 爱你 ? '病娇天使 优璃' : '颠倒镜';
     查('#品牌图').src = 夏日 ? './海岸-512.png' : './镜面-192.png';
     for (const 标识 of ['多敌区域', '夏日面板区域']) 查(`#${标识}`).hidden = !夏日;
     查('#首领详情').hidden = !状态;
@@ -279,7 +280,11 @@ function 渲染战场() {
     查('#首领比例').textContent = `${比例.toFixed(2)}%`;
     查('#首领生命条').style.width = `${比例}%`;
     const 叠层 = 配置.颠倒规则 ? Math.min(50, 状态.回合 - 1) : 0;
-    查('#首领状态').innerHTML = 配置.关卡 === '夏日尾声' ? `<span>夏日 ${状态.首领.夏日层数} / 100</span><span>铃兰攻击 +${(加成(状态.首领, '攻击比例') * 100).toFixed(1)}%</span><span>回合回血 ${状态.首领.每回合回血 ? '5%' : '已移除'}</span>${状态.首领.蓄力 ? `<span>蓄力 · 关心 ${状态.首领.蓄力.关心} / 3 · 剩余 ${Math.max(0, 2 - (状态.回合 - 状态.首领.蓄力.开始回合))} 回合</span>` : ''}` : `<span>攻击 +${叠层 * 5}%</span><span>受盾 −${配置.颠倒规则 ? 配置.受盾降低 * 100 : 0}%</span><span>受疗 −${配置.颠倒规则 ? 配置.受疗降低 * 100 : 0}%</span>${状态.首领.蓄力 ? `<span>蓄力 ${状态.首领.蓄力.命中} / 99</span>` : ''}`;
+    const 命定 = 状态.队伍.find(单位 => (单位.状态标记 || []).some(项 => 项.标记 === '命定之人'));
+    const 过从甚密 = Math.max(0, ...状态.队伍.map(单位 => (单位.状态标记 || []).filter(项 => 项.标记 === '过从甚密').reduce((和, 项) => 和 + 项.层数, 0)));
+    const 协作 = 状态.爱你?.协作来源 === null || 状态.爱你?.协作来源 === undefined ? '未建立' : `${状态.爱你.协作来源 + 1}号位`;
+    const 爱你状态 = `<span>命定 ${命定 ? `${命定.位置 + 1}号位` : '待首次行动'}</span><span>协作 ${协作}</span><span>过从甚密 ${过从甚密} / 5</span><span>锁血 ${(状态.首领.锁血阈值 || []).map(项 => `${(项.比例 * 100).toFixed(2)}%`).join(' / ') || '已解除'}</span><span>攻击 +${(加成(状态.首领, '攻击比例') * 100).toFixed(0)}%</span>`;
+    查('#首领状态').innerHTML = 配置.关卡 === '夏日尾声' ? `<span>夏日 ${状态.首领.夏日层数} / 100</span><span>铃兰攻击 +${(加成(状态.首领, '攻击比例') * 100).toFixed(1)}%</span><span>回合回血 ${状态.首领.每回合回血 ? '5%' : '已移除'}</span>${状态.首领.蓄力 ? `<span>蓄力 · 关心 ${状态.首领.蓄力.关心} / 3 · 剩余 ${Math.max(0, 2 - (状态.回合 - 状态.首领.蓄力.开始回合))} 回合</span>` : ''}` : 配置.关卡 === '爱你至死不渝SP' ? 爱你状态 : `<span>攻击 +${叠层 * 5}%</span><span>受盾 −${配置.颠倒规则 ? 配置.受盾降低 * 100 : 0}%</span><span>受疗 −${配置.颠倒规则 ? 配置.受疗降低 * 100 : 0}%</span>${状态.首领.蓄力 ? `<span>蓄力 ${状态.首领.蓄力.命中} / 99</span>` : ''}`;
     查('#总伤害').textContent = 简数(状态.累计伤害);
     查('#本回合回复').textContent = 简数(状态.本回合.回复);
     查('#本回合承伤').textContent = 简数(状态.本回合.承伤);
@@ -299,7 +304,8 @@ function 渲染战场() {
         const 类名 = [单位.已行动 ? '已行动' : '', 单位.生命 <= 0 ? '已倒下' : '', 单位.防御 ? '防御中' : ''].join(' ');
         const 状态条 = 单位.生命 <= 0 ? '倒下' : 动作状态.控制.length ? 动作状态.控制.join(' · ') : 单位.防御 ? '防御中' : 单位.已行动 ? '已行动' : '待行动';
         const 全名 = 单位.全名 || 获取真实角色(单位.编号)?.全名 || 单位.名称;
-        return `<article class="角色卡 ${类名}" data-unit="${单位.位置}"><div class="角色卡头"><span class="站位标">${String(单位.位置 + 1).padStart(2, '0')} ${单位.位置 === 0 ? ' / 队长' : ''}</span><button class="图标按钮" data-detail="${单位.位置}" title="${转义(全名)}状态与技能" aria-label="${转义(全名)}状态与技能"><i data-lucide="ellipsis"></i></button></div><div class="角色名行">${职业像(单位.职业)}<div><h3 class="角色姓名">${转义(全名)}</h3><div class="角色属性">${转义(单位.属性)} · ${转义(单位.职业)} · 羁绊 ${单位.羁绊}</div></div></div><div class="角色血量"><span>${数字(单位.生命)}</span><span class="比例">${百分比.toFixed(0)}%</span></div><div class="生命轨"><div style="width:${百分比}%;${百分比 < 30 ? 'background:var(--红)' : ''}"></div></div><div class="角色参数"><div><span>当前攻击</span><strong>${简数(当前攻击(单位))}</strong></div><div><span>有效护盾</span><strong>${简数(当前护盾(单位))}</strong></div></div><div class="角色状态"><span>${状态条}</span>${单位.冷却剩余 ? `<span>CD ${单位.冷却剩余}</span>` : '<span>必杀就绪</span>'}${单位.计数.守护 ? `<span>守护 ${单位.计数.守护}</span>` : ''}</div><div class="动作栏"><button data-action="普攻" data-position="${单位.位置}" ${可行动 && 动作状态.可攻击 ? '' : 'disabled'} title="${动作状态.可攻击 ? '普攻' : '受控，无法攻击'}">普攻</button><button data-action="必杀" data-position="${单位.位置}" ${可行动 && 动作状态.可必杀 ? '' : 'disabled'} title="${动作状态.控制.length ? '受控或沉默，无法施放必杀' : 单位.冷却剩余 ? `冷却 ${单位.冷却剩余} 回合` : '必杀'}">${单位.冷却剩余 ? `CD ${单位.冷却剩余}` : '必杀'}</button><button data-action="防御" data-position="${单位.位置}" ${可行动 ? '' : 'disabled'} title="${动作状态.跳过 ? '受控，跳过本次行动' : '防御'}" aria-label="${转义(单位.名称)}${动作状态.跳过 ? '跳过行动' : '防御'}"><i data-lucide="${动作状态.跳过 ? 'step-forward' : 'shield'}"></i></button></div></article>`;
+        const 关卡标记 = 配置.关卡 === '爱你至死不渝SP' ? (单位.状态标记 || []).map(项 => `<span>${转义(项.标记)}${项.层数 > 1 ? ` ${项.层数}` : ''}</span>`).join('') : '';
+        return `<article class="角色卡 ${类名}" data-unit="${单位.位置}"><div class="角色卡头"><span class="站位标">${String(单位.位置 + 1).padStart(2, '0')} ${单位.位置 === 0 ? ' / 队长' : ''}</span><button class="图标按钮" data-detail="${单位.位置}" title="${转义(全名)}状态与技能" aria-label="${转义(全名)}状态与技能"><i data-lucide="ellipsis"></i></button></div><div class="角色名行">${职业像(单位.职业)}<div><h3 class="角色姓名">${转义(全名)}</h3><div class="角色属性">${转义(单位.属性)} · ${转义(单位.职业)} · 羁绊 ${单位.羁绊}</div></div></div><div class="角色血量"><span>${数字(单位.生命)}</span><span class="比例">${百分比.toFixed(0)}%</span></div><div class="生命轨"><div style="width:${百分比}%;${百分比 < 30 ? 'background:var(--红)' : ''}"></div></div><div class="角色参数"><div><span>当前攻击</span><strong>${简数(当前攻击(单位))}</strong></div><div><span>有效护盾</span><strong>${简数(当前护盾(单位))}</strong></div></div><div class="角色状态"><span>${状态条}</span>${单位.冷却剩余 ? `<span>CD ${单位.冷却剩余}</span>` : '<span>必杀就绪</span>'}${单位.计数.守护 ? `<span>守护 ${单位.计数.守护}</span>` : ''}${关卡标记}</div><div class="动作栏"><button data-action="普攻" data-position="${单位.位置}" ${可行动 && 动作状态.可攻击 ? '' : 'disabled'} title="${动作状态.可攻击 ? '普攻' : '受控，无法攻击'}">普攻</button><button data-action="必杀" data-position="${单位.位置}" ${可行动 && 动作状态.可必杀 ? '' : 'disabled'} title="${动作状态.控制.length ? '受控或沉默，无法施放必杀' : 单位.冷却剩余 ? `冷却 ${单位.冷却剩余} 回合` : '必杀'}">${单位.冷却剩余 ? `CD ${单位.冷却剩余}` : '必杀'}</button><button data-action="防御" data-position="${单位.位置}" ${可行动 ? '' : 'disabled'} title="${动作状态.跳过 ? '受控，跳过本次行动' : '防御'}" aria-label="${转义(单位.名称)}${动作状态.跳过 ? '跳过行动' : '防御'}"><i data-lucide="${动作状态.跳过 ? 'step-forward' : 'shield'}"></i></button></div></article>`;
     }).join('');
     const 结束 = 状态.阶段 === '结束';
     查('#结局').hidden = !结束;
@@ -606,7 +612,8 @@ function 敌方详情(位置) {
     const 标记 = [单位.生命 <= 0 ? '击破' : 单位.已行动 ? '已行动' : '待行动', 加成(单位, '嘲讽') > 0 ? '嘲讽' : '', 单位.防御 || 加成(单位, '防御') > 0 ? '防御' : '', 加成(单位, '锁血') > 0 ? '锁血' : '', 单位.蓄力 ? `蓄力 · 关心 ${单位.蓄力.关心 ?? 0}/3` : ''].filter(Boolean).join(' · ');
     const 效果 = (单位.效果 || []).map(效果 => `<tr><td>${转义(效果.属性)}</td><td>${效果数值(效果)}</td><td>${效果.层数 ?? 1}</td><td>${效果.剩余 >= 999 ? '常驻' : 效果.剩余 ?? '—'}</td></tr>`).join('');
     const 夏日字段 = 配置.关卡 === '夏日尾声' ? `<dt>夏日层数</dt><dd>${单位.夏日层数 ?? 0}</dd><dt>夏日攻击层数</dt><dd>${单位.夏日攻击层数 ?? 0}</dd><dt>每回合回血</dt><dd>${单位.每回合回血 ? '5%' : '无'}</dd>` : '';
-    打开详情(`${单位.位置 + 1} · ${单位.名称} · 敌方状态`, `<p>${转义(单位.全名 || 当前关卡(配置).名称)}</p><dl><dt>当前生命</dt><dd>${数字(单位.生命)} / ${数字(单位.生命上限)}</dd><dt>当前攻击</dt><dd>${数字(当前攻击(单位))}</dd><dt>基础攻击</dt><dd>${数字(单位.攻击)}</dd>${夏日字段}</dl><p class="敌人状态标记">${转义(标记)}</p><h3>当前效果</h3><div class="表格区"><table><thead><tr><th>属性</th><th>单层数值</th><th>层数</th><th>剩余回合</th></tr></thead><tbody>${效果 || '<tr><td colspan="4">无</td></tr>'}</tbody></table></div>`);
+    const 爱你字段 = 配置.关卡 === '爱你至死不渝SP' ? `<dt>关卡数据</dt><dd>Stage 60161 · 编组42095 · 技能组422861</dd><dt>阶段AI</dt><dd>${单位.AI状态?.阶段编号 || '待命定之人'}</dd><dt>剩余锁血</dt><dd>${(单位.锁血阈值 || []).map(项 => `${(项.比例 * 100).toFixed(2)}%`).join(' / ') || '无'}</dd>` : '';
+    打开详情(`${单位.位置 + 1} · ${单位.名称} · 敌方状态`, `<p>${转义(单位.全名 || 当前关卡(配置).名称)}</p><dl><dt>当前生命</dt><dd>${数字(单位.生命)} / ${数字(单位.生命上限)}</dd><dt>当前攻击</dt><dd>${数字(当前攻击(单位))}</dd><dt>基础攻击</dt><dd>${数字(单位.攻击)}</dd>${夏日字段}${爱你字段}</dl><p class="敌人状态标记">${转义(标记)}</p><h3>当前效果</h3><div class="表格区"><table><thead><tr><th>属性</th><th>单层数值</th><th>层数</th><th>剩余回合</th></tr></thead><tbody>${效果 || '<tr><td colspan="4">无</td></tr>'}</tbody></table></div>`);
 }
 
 function 角色详情(位置) {
