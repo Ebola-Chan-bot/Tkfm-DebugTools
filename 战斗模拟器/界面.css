@@ -133,6 +133,17 @@ body.归档展开 main{padding-bottom:58dvh}
 .本场养成.紧凑{gap:5px;padding:0 0 6px}
 @media(max-width:650px){.养成行{padding:7px 9px;gap:6px 8px;font-size:11px}.养成行 .弱文字{font-size:10px;flex:1 1 100%}}
 
+/* 归档行动记录分组折叠：父行点击展开后续结算子行 */
+.归档父行.有子{cursor:pointer}
+.归档父行.有子:hover{background:var(--浅主)}
+.归档父行.有子 td:first-child::before{content:'▸';display:inline-block;margin-right:4px;color:var(--次墨);transition:transform .12s}
+.归档父行.有子.展开 td:first-child::before{transform:rotate(90deg)}
+.效果数{margin-left:8px;font-size:10px;color:var(--次墨);background:var(--底);border:1px solid var(--线);border-radius:99px;padding:0 7px;white-space:nowrap}
+.归档父行.展开 .效果数{color:var(--主);border-color:var(--主)}
+.归档子行 td{background:#fafcfb}
+.归档子行 td:nth-child(3){padding-left:26px;color:var(--次墨)}
+#归档日志全展开{font-size:11px;margin-left:auto}
+
 /* 编队可搜索组合框：输入名称、别名或编号即过滤角色池候选，键盘上下选择、回车确认 */
 .编队组合{position:relative;flex:1;min-width:0}
 .编队组合 input{width:100%;min-width:0;background:var(--纸);border:1px solid var(--线);border-radius:4px;padding:8px;font-size:12px;color:var(--墨)}

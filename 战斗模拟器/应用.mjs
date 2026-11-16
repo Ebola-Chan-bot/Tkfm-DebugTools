@@ -251,7 +251,9 @@ function 打开归档面板(id) {
     const 报表 = 回放?.回合报表 ?? [];
     查('#归档报表').innerHTML = 报表.length ? 报表.map(行 => `<tr><td>${行.回合}</td><td>${转义(行动说明(行.技能, 项.记录.配置))}</td>${['伤害', '回复', '理论回复', '护盾生成', '护盾吸收', '承伤'].map(字段 => `<td>${简数(行[字段])}</td>`).join('')}<td>${行.存活}/${回放.队伍.length}</td></tr>`).join('') : '<tr><td colspan="9" class="无记录">尚无已结算回合</td></tr>';
     const 日志 = 回放?.日志 ?? [];
-    查('#归档日志').innerHTML = 日志行(日志.filter(条目 => !['AI', '系统'].includes(条目.类别)).slice(-600).reverse(), 项.记录.配置);
+    // 归档是已完成的静态记录，按发生顺序正序展示；只显示行动本身，后续结算折叠在各行下，点击行展开。主界面的实时日志仍保持最新在上的平铺。
+    查('#归档日志').innerHTML = 归档行动日志(日志.filter(条目 => !['AI', '系统'].includes(条目.类别)), 项.记录.配置);
+    查('#归档日志全展开').textContent = '全部展开';
     查('#归档面板').hidden = false;
     document.body.classList.add('归档展开');
     图标刷新();
@@ -350,6 +352,31 @@ function 行动说明(内容, 配置源 = 配置) {
 function 日志行(列表, 配置源 = 配置) {
     if (!列表.length) return '<tr><td class="无记录" colspan="4">暂无结算记录</td></tr>';
     return 列表.map(项 => `<tr><td>${项.回合}</td><td><span class="事件签 ${转义(项.类别)}">${转义(项.类别)}</span></td><td>${转义(行动说明(项.内容, 配置源))}</td><td>${项.数值 === null ? '—' : 数字(项.数值)}</td></tr>`).join('');
+}
+
+// 归档行动记录按“行动/敌方”分组折叠：父行是行动本身，紧随其后的伤害、治疗、机制等结算行收纳为子行，点击父行才展开；首个行动之前的开场机制行保持直接可见。
+function 归档行动日志(列表, 配置源 = 配置) {
+    if (!列表.length) return '<tr><td class="无记录" colspan="4">暂无结算记录</td></tr>';
+    const 单行 = (项, 类 = '', 属性 = '') => `<tr${类 ? ` class="${类}"` : ''}${属性}><td>${项.回合}</td><td><span class="事件签 ${转义(项.类别)}">${转义(项.类别)}</span></td><td>${转义(行动说明(项.内容, 配置源))}</td><td>${项.数值 === null ? '—' : 数字(项.数值)}</td></tr>`;
+    const 组 = [];
+    for (const 项 of 列表) {
+        if (['行动', '敌方'].includes(项.类别)) 组.push({ 父: 项, 子: [] });
+        else if (组.length) 组[组.length - 1].子.push(项);
+        else 组.push({ 父: null, 子: [项] });
+    }
+    return 组.map((段, 序) => {
+        if (!段.父) return 段.子.map(项 => 单行(项)).join('');
+        const 计数 = 段.子.length ? `<span class="效果数">${段.子.length}项效果</span>` : '';
+        const 父行 = `<tr class="归档父行${段.子.length ? ' 有子' : ''}" data-归档组="${序}"${段.子.length ? ' role="button" tabindex="0" aria-expanded="false" title="点击展开/收起该行动的后续结算"' : ''}><td>${段.父.回合}</td><td><span class="事件签 ${转义(段.父.类别)}">${转义(段.父.类别)}</span></td><td>${转义(行动说明(段.父.内容, 配置源))}${计数}</td><td>${段.父.数值 === null ? '—' : 数字(段.父.数值)}</td></tr>`;
+        return 父行 + 段.子.map(项 => 单行(项, '归档子行', ` data-归档组子="${序}" hidden`)).join('');
+    }).join('');
+}
+
+function 归档组展开(父行, 展开) {
+    const 序 = 父行.dataset.归档组;
+    父行.classList.toggle('展开', 展开);
+    父行.setAttribute('aria-expanded', String(展开));
+    for (const 子 of 全查(`#归档日志 [data-归档组子="${序}"]`)) 子.hidden = !展开;
 }
 
 function 渲染关卡() {
@@ -1227,6 +1254,23 @@ function 角色详情(位置) {
     槽.addEventListener('keydown', 事件 => { if (!['Enter', ' '].includes(事件.key)) return; 事件.preventDefault(); 打开该行(事件); });
 });
 查('#归档面板关闭').addEventListener('click', () => 关闭归档面板());
+查('#归档日志').addEventListener('click', 事件 => {
+    const 父行 = 事件.target.closest('.归档父行.有子');
+    if (父行) 归档组展开(父行, !父行.classList.contains('展开'));
+});
+查('#归档日志').addEventListener('keydown', 事件 => {
+    if (!['Enter', ' '].includes(事件.key)) return;
+    const 父行 = 事件.target.closest('.归档父行.有子');
+    if (!父行) return;
+    事件.preventDefault();
+    归档组展开(父行, !父行.classList.contains('展开'));
+});
+查('#归档日志全展开').addEventListener('click', () => {
+    const 父行们 = [...全查('#归档日志 .归档父行.有子')];
+    const 有收起 = 父行们.some(行 => !行.classList.contains('展开'));
+    for (const 行 of 父行们) 归档组展开(行, 有收起);
+    查('#归档日志全展开').textContent = 有收起 ? '全部收起' : '全部展开';
+});
 查('#归档面板导出').addEventListener('click', 包装(async () => { if (归档面板ID) 导出归档(归档面板ID); }));
 查('#归档面板恢复').addEventListener('click', 包装(async () => { if (归档面板ID) await 恢复归档(归档面板ID); }));
 查('#导出报表').addEventListener('click', () => {
