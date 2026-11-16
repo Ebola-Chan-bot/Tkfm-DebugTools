@@ -349,9 +349,9 @@ function 行动说明(内容, 配置源 = 配置) {
         });
 }
 
+// 战场最近行动与完整记录沿用归档行动记录的折叠结构：父行是行动/敌方行动本身，后续伤害、治疗、机制等结算收纳为默认隐藏的子行，点击父行展开。
 function 日志行(列表, 配置源 = 配置) {
-    if (!列表.length) return '<tr><td class="无记录" colspan="4">暂无结算记录</td></tr>';
-    return 列表.map(项 => `<tr><td>${项.回合}</td><td><span class="事件签 ${转义(项.类别)}">${转义(项.类别)}</span></td><td>${转义(行动说明(项.内容, 配置源))}</td><td>${项.数值 === null ? '—' : 数字(项.数值)}</td></tr>`).join('');
+    return 归档行动日志(列表, 配置源);
 }
 
 // 归档行动记录按“行动/敌方”分组折叠：父行是行动本身，紧随其后的伤害、治疗、机制等结算行收纳为子行，点击父行才展开；首个行动之前的开场机制行保持直接可见。
@@ -376,7 +376,32 @@ function 归档组展开(父行, 展开) {
     const 序 = 父行.dataset.归档组;
     父行.classList.toggle('展开', 展开);
     父行.setAttribute('aria-expanded', String(展开));
-    for (const 子 of 全查(`#归档日志 [data-归档组子="${序}"]`)) 子.hidden = !展开;
+    const 表 = 父行.closest('tbody');
+    for (const 子 of 表.querySelectorAll(`[data-归档组子="${序}"]`)) 子.hidden = !展开;
+}
+
+// 最近/完整记录先按时间序把结算归入行动组，再截取最近若干组并倒序展示，保证每组的效果子行完整、不会被按行截断拦腰切开。
+function 最近行动分组(列表, 上限) {
+    const 组 = [];
+    for (const 项 of 列表) {
+        if (['行动', '敌方'].includes(项.类别) || !组.length) 组.push([项]);
+        else 组[组.length - 1].push(项);
+    }
+    return 组.slice(-上限).reverse().flat();
+}
+
+function 绑定日志折叠(表体) {
+    表体.addEventListener('click', 事件 => {
+        const 父行 = 事件.target.closest('.归档父行.有子');
+        if (父行) 归档组展开(父行, !父行.classList.contains('展开'));
+    });
+    表体.addEventListener('keydown', 事件 => {
+        if (!['Enter', ' '].includes(事件.key)) return;
+        const 父行 = 事件.target.closest('.归档父行.有子');
+        if (!父行) return;
+        事件.preventDefault();
+        归档组展开(父行, !父行.classList.contains('展开'));
+    });
 }
 
 function 渲染关卡() {
@@ -478,7 +503,7 @@ function 渲染战场() {
     const 结束 = 状态.阶段 === '结束';
     查('#结局').hidden = !结束;
     if (结束) 查('#结局').textContent = 状态.敌人.every(单位 => 单位.生命 <= 0) ? `${当前关卡(配置).名称}已通关` : 状态.队伍.every(单位 => 单位.生命 <= 0) ? '队伍全灭' : '已到达设定的回合上限';
-    查('#最近日志').innerHTML = 日志行(状态.日志.filter(项 => !['AI', '系统'].includes(项.类别)).slice(-10).reverse());
+    查('#最近日志').innerHTML = 日志行(最近行动分组(状态.日志.filter(项 => !['AI', '系统'].includes(项.类别)), 10));
     图标刷新();
 }
 
@@ -486,7 +511,7 @@ function 渲染记录() {
     const 类别 = 查('#日志类别').value;
     const 日志 = 状态?.日志 ?? [];
     const 报表 = 状态?.回合报表 ?? [];
-    查('#全部日志').innerHTML = 日志行(日志.filter(项 => !['AI', '系统'].includes(项.类别) && (!类别 || 项.类别 === 类别)).slice(-600).reverse());
+    查('#全部日志').innerHTML = 日志行(最近行动分组(日志.filter(项 => !['AI', '系统'].includes(项.类别) && (!类别 || 项.类别 === 类别)), 60));
     查('#报表').innerHTML = 报表.length ? 报表.map(行 => `<tr><td>${行.回合}</td><td>${转义(行动说明(行.技能))}</td>${['伤害', '回复', '理论回复', '护盾生成', '护盾吸收', '承伤'].map(字段 => `<td>${简数(行[字段])}</td>`).join('')}<td>${行.存活}/${状态 ? 状态.队伍.length : 0}</td></tr>`).join('') : '<tr><td colspan="9" class="无记录">尚无已结算回合</td></tr>';
     渲染本场养成();
 }
@@ -1254,17 +1279,7 @@ function 角色详情(位置) {
     槽.addEventListener('keydown', 事件 => { if (!['Enter', ' '].includes(事件.key)) return; 事件.preventDefault(); 打开该行(事件); });
 });
 查('#归档面板关闭').addEventListener('click', () => 关闭归档面板());
-查('#归档日志').addEventListener('click', 事件 => {
-    const 父行 = 事件.target.closest('.归档父行.有子');
-    if (父行) 归档组展开(父行, !父行.classList.contains('展开'));
-});
-查('#归档日志').addEventListener('keydown', 事件 => {
-    if (!['Enter', ' '].includes(事件.key)) return;
-    const 父行 = 事件.target.closest('.归档父行.有子');
-    if (!父行) return;
-    事件.preventDefault();
-    归档组展开(父行, !父行.classList.contains('展开'));
-});
+for (const 编号 of ['#最近日志', '#全部日志', '#归档日志']) 绑定日志折叠(查(编号));
 查('#归档日志全展开').addEventListener('click', () => {
     const 父行们 = [...全查('#归档日志 .归档父行.有子')];
     const 有收起 = 父行们.some(行 => !行.classList.contains('展开'));
