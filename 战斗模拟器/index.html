@@ -38,6 +38,8 @@
       </div>
       <div id="多敌区域" hidden><div class="段标题"><h2>敌方队伍<span id="当前目标" class="阶段签"></span></h2></div><div id="敌方队伍" class="敌方网格" role="group" aria-label="攻击目标"></div></div>
       <div class="统计带" aria-label="本场统计"><div><span>累计造成伤害</span><strong id="总伤害">0</strong></div><div><span>本回合有效回复</span><strong id="本回合回复">0</strong></div><div><span>本回合承伤</span><strong id="本回合承伤">0</strong></div><div><span>存活角色</span><strong id="存活">5 <small>/ 5</small></strong></div></div>
+      <div class="段标题"><h2>本场养成<small data-潜力统计></small></h2></div>
+      <div class="本场养成" data-本场养成 role="group" aria-label="本场队员养成快照"></div>
       <div class="段标题"><h2>我方行动<span id="阶段" class="阶段签">我方</span></h2><div class="操作组"><button id="撤销" class="图标按钮" title="撤销上一步" aria-label="撤销上一步"><i data-lucide="undo-2"></i></button><button id="重做" class="图标按钮" title="重做上一步" aria-label="重做上一步"><i data-lucide="redo-2"></i></button><span class="分隔"></span><button id="一回合" class="次按钮" title="仅结算敌方，不替玩家选择动作"><i data-lucide="fast-forward"></i>敌方回合</button></div></div>
       <div id="角色队伍" class="角色网格"></div>
       <div id="结局" class="结局" hidden></div>
@@ -69,6 +71,10 @@
       </form>
     </section>
     <section data-view="记录" hidden>
+      <div class="段标题"><h2>历史归档<small id="归档数量"></small></h2><button id="保存归档" class="次按钮" title="把当前战斗另存一份到历史归档"><i data-lucide="archive"></i>保存当前战斗</button></div>
+      <div id="归档列表" class="归档列表"></div>
+      <div class="段标题"><h2>本场养成<small data-潜力统计></small></h2></div>
+      <div class="本场养成" data-本场养成 role="group" aria-label="本场队员养成快照"></div>
       <div class="段标题"><h2>回合报表</h2><button id="导出报表" class="次按钮"><i data-lucide="sheet"></i>导出 CSV</button></div>
       <div class="表格区"><table><thead><tr><th>回合</th><th>敌方技能</th><th>伤害</th><th>有效回复</th><th>理论回复</th><th>护盾生成</th><th>护盾吸收</th><th>承伤</th><th>存活</th></tr></thead><tbody id="报表"></tbody></table></div>
       <div class="段标题"><h2>行动记录</h2><label class="内联标签">类别<select id="日志类别"><option value="">全部</option><option>行动</option><option>伤害</option><option>治疗</option><option>护盾</option><option>触发</option><option>机制</option><option>敌方</option><option>承伤</option><option>倒下</option></select></label></div>
@@ -79,6 +85,17 @@
   <input id="导入文件" type="file" accept=".json,application/json" hidden>
   <input id="编队文件" type="file" accept=".json,application/json" hidden>
   <input id="角色池文件" type="file" accept=".json,application/json" hidden>
+  <aside id="归档面板" class="归档面板" hidden aria-label="归档记录对照面板">
+    <div class="面板标题"><h2 id="归档面板标题">归档记录</h2><div class="面板标题工具"><button id="归档面板恢复" class="次按钮" title="把这份归档恢复为当前战斗，当前战斗会先自动归档"><i data-lucide="rotate-ccw"></i>恢复为当前战斗</button><button id="归档面板导出" class="次按钮" title="导出这份归档记录文件"><i data-lucide="download"></i>导出</button><button id="归档面板关闭" class="图标按钮" title="关闭对照，不影响当前战斗" aria-label="关闭对照"><i data-lucide="x"></i></button></div></div>
+    <div class="归档面板体">
+      <div id="归档面板摘要" class="归档摘要"></div>
+      <div id="归档面板养成" class="本场养成 紧凑" hidden aria-label="归档队员养成快照"></div>
+      <div class="段标题 紧凑"><h3>回合报表</h3></div>
+      <div class="表格区"><table><thead><tr><th>回合</th><th>敌方技能</th><th>伤害</th><th>有效回复</th><th>理论回复</th><th>护盾生成</th><th>护盾吸收</th><th>承伤</th><th>存活</th></tr></thead><tbody id="归档报表"></tbody></table></div>
+      <div class="段标题 紧凑"><h3>行动记录</h3></div>
+      <div class="表格区"><table class="日志表"><thead><tr><th>回合</th><th>事件</th><th>结算</th><th class="数值列">数值</th></tr></thead><tbody id="归档日志"></tbody></table></div>
+    </div>
+  </aside>
   <div id="通知" role="status" aria-live="polite" hidden></div>
   <dialog id="详情弹窗"><div class="弹窗标题"><h2 id="详情标题">角色状态</h2><button class="图标按钮" data-close title="关闭" aria-label="关闭"><i data-lucide="x"></i></button></div><div id="详情正文"></div></dialog>
   <dialog id="角色编辑弹窗" class="角色编辑弹窗"><div class="弹窗标题"><h2 id="角色编辑标题">角色养成</h2><button class="图标按钮" data-close title="取消编辑" aria-label="取消编辑"><i data-lucide="x"></i></button></div><div id="角色编辑表"></div><div class="弹窗操作"><button id="保存池角色" class="主按钮"><i data-lucide="save"></i>保存角色</button></div></dialog>

@@ -125,16 +125,143 @@ function 初始化玩家数据(关卡) {
     try { sessionStorage.removeItem('TKFM-待迁移角色草稿'); } catch {}
 }
 
-function 导入记录(记录) {
+function 导入记录(记录, 自动归档 = false) {
     if (!记录 || typeof 记录 !== 'object' || !Array.isArray(记录.操作列表) || 记录.操作列表.length > 2000) throw new Error('不是有效的战斗记录，或记录过长');
     const 新游标 = 记录.游标 ?? 记录.操作列表.length;
     if (!Number.isInteger(新游标) || 新游标 < 0 || 新游标 > 记录.操作列表.length) throw new Error('记录游标无效');
     if (记录.未开始 && (记录.操作列表.length || 记录.配置?.队伍?.length)) throw new Error('未开始的战斗记录无效');
     const 新状态 = 记录.未开始 ? null : 重放战斗(记录.配置, 记录.操作列表.slice(0, 新游标));
+    // 先完成新记录的全部校验和重放，再归档当前战斗，导入失败时不会产生无意义的归档。
+    const 已归档 = 自动归档 && 归档当前战斗('导入新记录时自动归档');
     配置 = structuredClone(记录.配置);
     操作列表 = structuredClone(记录.操作列表);
     游标 = 新游标;
     状态 = 新状态;
+    return 已归档;
+}
+
+const 归档键 = 'TKFM-战斗归档';
+const 归档上限 = 8;
+const 归档缓存 = new Map();
+let 归档面板ID = null;
+
+function 读取归档列表() {
+    try {
+        const 列表 = JSON.parse(localStorage.getItem(归档键) || '[]');
+        return Array.isArray(列表) ? 列表.filter(项 => 项 && 项.id && 项.记录) : [];
+    } catch { return []; }
+}
+
+function 写入归档列表(列表) {
+    const 备 = 列表.slice(0, 归档上限);
+    // 存储空间不足时从最旧的归档开始丢弃并重试，保证最新一场总能存下。
+    while (备.length) {
+        try { localStorage.setItem(归档键, JSON.stringify(备)); return true; }
+        catch { const 丢 = 备.pop(); 归档缓存.delete(丢.id); }
+    }
+    try { localStorage.removeItem(归档键); } catch {}
+    return false;
+}
+
+function 战斗摘要() {
+    if (!状态) return { 结果: '未开始', 回合: 0, 首领生命: null, 首领生命上限: null, 存活: 0, 队伍人数: 配置.队伍?.length || 0, 操作数: 操作列表.length };
+    const 结果 = 状态.阶段 === '结束' ? (状态.敌人.every(单位 => 单位.生命 <= 0) ? '通关' : 状态.队伍.every(单位 => 单位.生命 <= 0) ? '全灭' : '回合耗尽') : '进行中';
+    return { 结果, 回合: 状态.回合, 首领生命: 状态.首领.生命, 首领生命上限: 状态.首领.生命上限, 存活: 状态.队伍.filter(单位 => 单位.生命 > 0).length, 队伍人数: 状态.队伍.length, 操作数: 游标 };
+}
+
+function 归档当前战斗(原因) {
+    if (!配置?.队伍?.length || !操作列表.length) return false;
+    const 项 = {
+        id: `归档-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        保存时间: Date.now(), 原因,
+        关卡编号: 当前关卡(配置).编号, 关卡名称: 当前关卡(配置).名称,
+        摘要: 战斗摘要(),
+        记录: { 配置: structuredClone(配置), 操作列表: structuredClone(操作列表), 游标, 未开始: !状态 },
+    };
+    const 列表 = 读取归档列表();
+    列表.unshift(项);
+    if (!写入归档列表(列表)) { 通知('存储空间不足，旧战斗未能归档；请在战斗记录页删除部分归档后重试', true); return false; }
+    渲染归档列表();
+    return true;
+}
+
+function 归档回放(项) {
+    if (归档缓存.has(项.id)) return 归档缓存.get(项.id);
+    const 记录 = 项.记录;
+    const 回放 = 记录.未开始 ? null : 重放战斗(记录.配置, 记录.操作列表.slice(0, 记录.游标 ?? 记录.操作列表.length));
+    归档缓存.set(项.id, 回放);
+    return 回放;
+}
+
+function 删除归档(id) {
+    写入归档列表(读取归档列表().filter(项 => 项.id !== id));
+    归档缓存.delete(id);
+    if (归档面板ID === id) 关闭归档面板();
+    渲染归档列表();
+}
+
+function 导出归档(id) {
+    const 项 = 读取归档列表().find(归档 => 归档.id === id);
+    if (!项) return;
+    const 时间 = new Date(项.保存时间).toISOString().slice(0, 16).replaceAll(':', '').replaceAll('-', '');
+    保存下载(`归档-${项.关卡名称}-${时间}.json`, JSON.stringify(项.记录, null, 2));
+}
+
+async function 恢复归档(id) {
+    const 项 = 读取归档列表().find(归档 => 归档.id === id);
+    if (!项) { 通知('归档不存在或已被删除', true); return; }
+    if ((游标 || 状态) && !confirm(`将归档「${项.关卡名称}」恢复为当前战斗？当前战斗会先存入历史归档，不会丢失。`)) return;
+    // 恢复等价于把归档取出重新导入：当前战斗自动归档，原归档条目移除，避免列表出现同场战斗的两份记录。
+    导入记录(structuredClone(项.记录), true);
+    删除归档(id);
+    关闭归档面板();
+    攻击目标 = 0;
+    存档(); 渲染战场(); 渲染记录(); 刷新当前视图();
+    通知('已恢复归档为当前战斗');
+}
+
+function 渲染归档列表() {
+    const 列表 = 读取归档列表();
+    查('#归档数量').textContent = 列表.length ? `${列表.length}/${归档上限}` : '';
+    查('#归档列表').innerHTML = 列表.length ? 列表.map(项 => {
+        const 摘 = 项.摘要 || {};
+        const 时间 = new Date(项.保存时间).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        const 档潜 = 潜力等级列表(项.记录?.配置?.队伍 || []);
+        const 最高潜 = 档潜.length ? Math.max(...档潜) : 0;
+        const 潜力文字 = 档潜.length ? ` · 潜力 ${档潜.join('/')} · 最高 ${最高潜}×${档潜.filter(值 => 值 === 最高潜).length}人` : '';
+        return `<article class="归档卡片"><div class="归档信息"><div class="归档标题行"><strong>${转义(项.关卡名称)}</strong><span class="结果签 ${转义(摘.结果 || '')}">${转义(摘.结果 || '未知')}</span><span class="归档原因">${转义(时间)}${项.原因 ? ` · ${转义(项.原因)}` : ''}</span></div><div class="归档元信息">第 ${摘.回合 ?? 0} 回合 · 首领 ${摘.首领生命 === null || 摘.首领生命 === undefined ? '--' : `${简数(摘.首领生命)} / ${简数(摘.首领生命上限)}`} · 存活 ${摘.存活 ?? 0}/${摘.队伍人数 ?? 0} · 操作 ${摘.操作数 ?? 0}${潜力文字}</div></div><div class="归档操作"><button class="文字按钮" data-归档查看="${项.id}"><i data-lucide="eye"></i>查看</button><button class="文字按钮" data-归档恢复="${项.id}"><i data-lucide="rotate-ccw"></i>恢复</button><button class="文字按钮" data-归档导出="${项.id}"><i data-lucide="download"></i>导出</button><button class="文字按钮 危险" data-归档删除="${项.id}"><i data-lucide="trash-2"></i>删除</button></div></article>`;
+    }).join('') : '<div class="空状态 紧凑"><i data-lucide="archive"></i><p>暂无归档。导入新记录时旧战斗会自动保存在这里；也可点击“保存当前战斗”手动存入，随后即可一边对照旧记录一边继续新战斗。</p></div>';
+    图标刷新();
+}
+
+function 打开归档面板(id) {
+    const 项 = 读取归档列表().find(归档 => 归档.id === id);
+    if (!项) { 通知('归档不存在或已被删除', true); return; }
+    let 回放;
+    try { 回放 = 归档回放(项); }
+    catch (错误) { 通知(`归档无法回放：${用户错误(错误)}`, true); return; }
+    归档面板ID = id;
+    const 摘 = 项.摘要 || {};
+    查('#归档面板标题').textContent = `归档 · ${项.关卡名称}`;
+    查('#归档面板摘要').innerHTML = `<div><span>结果</span><strong>${转义(摘.结果 || '未知')}</strong></div><div><span>回合</span><strong>${摘.回合 ?? 0}</strong></div><div><span>首领生命</span><strong>${摘.首领生命 === null || 摘.首领生命 === undefined ? '--' : 简数(摘.首领生命)}</strong></div><div><span>存活</span><strong>${摘.存活 ?? 0}/${摘.队伍人数 ?? 0}</strong></div>`;
+    const 档队 = 项.记录?.配置?.队伍 || [];
+    const 档统计 = 潜力统计文字(档队);
+    查('#归档面板养成').innerHTML = (档统计 ? `<div class="养成合计">${转义(档统计)}</div>` : '') + 本场养成HTML(档队, false);
+    查('#归档面板养成').hidden = false;
+    const 报表 = 回放?.回合报表 ?? [];
+    查('#归档报表').innerHTML = 报表.length ? 报表.map(行 => `<tr><td>${行.回合}</td><td>${转义(行动说明(行.技能, 项.记录.配置))}</td>${['伤害', '回复', '理论回复', '护盾生成', '护盾吸收', '承伤'].map(字段 => `<td>${简数(行[字段])}</td>`).join('')}<td>${行.存活}/${回放.队伍.length}</td></tr>`).join('') : '<tr><td colspan="9" class="无记录">尚无已结算回合</td></tr>';
+    const 日志 = 回放?.日志 ?? [];
+    查('#归档日志').innerHTML = 日志行(日志.filter(条目 => !['AI', '系统'].includes(条目.类别)).slice(-600).reverse(), 项.记录.配置);
+    查('#归档面板').hidden = false;
+    document.body.classList.add('归档展开');
+    图标刷新();
+}
+
+function 关闭归档面板() {
+    归档面板ID = null;
+    const 面板 = 查('#归档面板');
+    if (面板) 面板.hidden = true;
+    document.body.classList.remove('归档展开');
 }
 
 function 载入本地记录(关卡) {
@@ -205,24 +332,24 @@ function 刷新当前视图() {
     if (名称 === '编队') 渲染编队();
     if (名称 === '角色池') 渲染角色池();
     if (名称 === '模型') 渲染设置();
-    if (名称 === '记录') 渲染记录();
+    if (名称 === '记录') { 渲染记录(); 渲染归档列表(); }
     图标刷新();
 }
 
-function 行动说明(内容) {
+function 行动说明(内容, 配置源 = 配置) {
     return String(内容 ?? '')
         .replace(/\b\d{5,6}:\d+:引用:([^·\r\n]+?)(?::\d+)+(?=\s*(?:$|·))/g, (_, 名称) => 名称)
         .replace(/\b\d{5,6}:\d+:[^·\r\n]+/g, '技能效果')
         .replace(/\bELv:\d+:[\d:]+/g, 'ELV强化')
         .replace(/([:：])(\d{5,6})(?=$|[\s/])/g, (_, 分隔, 编号) => {
-            const 名称 = 敌方技能名称(配置, Number(编号));
+            const 名称 = 敌方技能名称(配置源, Number(编号));
             return 分隔 + (名称 === 编号 ? '特殊行动' : 名称);
         });
 }
 
-function 日志行(列表) {
+function 日志行(列表, 配置源 = 配置) {
     if (!列表.length) return '<tr><td class="无记录" colspan="4">暂无结算记录</td></tr>';
-    return 列表.map(项 => `<tr><td>${项.回合}</td><td><span class="事件签 ${转义(项.类别)}">${转义(项.类别)}</span></td><td>${转义(行动说明(项.内容))}</td><td>${项.数值 === null ? '—' : 数字(项.数值)}</td></tr>`).join('');
+    return 列表.map(项 => `<tr><td>${项.回合}</td><td><span class="事件签 ${转义(项.类别)}">${转义(项.类别)}</span></td><td>${转义(行动说明(项.内容, 配置源))}</td><td>${项.数值 === null ? '—' : 数字(项.数值)}</td></tr>`).join('');
 }
 
 function 渲染关卡() {
@@ -284,6 +411,7 @@ function 渲染未开战() {
 
 function 渲染战场() {
     渲染关卡();
+    渲染本场养成();
     if (!状态) return 渲染未开战();
     const 总生命 = 状态.敌人.reduce((合计, 单位) => 合计 + 单位.生命, 0);
     const 总上限 = 状态.敌人.reduce((合计, 单位) => 合计 + 单位.生命上限, 0);
@@ -333,6 +461,7 @@ function 渲染记录() {
     const 报表 = 状态?.回合报表 ?? [];
     查('#全部日志').innerHTML = 日志行(日志.filter(项 => !['AI', '系统'].includes(项.类别) && (!类别 || 项.类别 === 类别)).slice(-600).reverse());
     查('#报表').innerHTML = 报表.length ? 报表.map(行 => `<tr><td>${行.回合}</td><td>${转义(行动说明(行.技能))}</td>${['伤害', '回复', '理论回复', '护盾生成', '护盾吸收', '承伤'].map(字段 => `<td>${简数(行[字段])}</td>`).join('')}<td>${行.存活}/${状态 ? 状态.队伍.length : 0}</td></tr>`).join('') : '<tr><td colspan="9" class="无记录">尚无已结算回合</td></tr>';
+    渲染本场养成();
 }
 
 function 解放选择(单位, 标签) {
@@ -353,6 +482,54 @@ function ELv选择(单位, 标签) {
 
 function 养成摘要(养成) {
     return `Lv ${养成.普通等级 ?? 普通等级范围.最高} · ELV ${养成.ELV突破等级 ?? 0} · 潜力 ${养成.潜力等级 ?? 12} · ${养成.星级 ?? 3}星 · 羁绊 ${养成.羁绊 ?? 5} · 调教 ${养成.调教 ?? 3}${养成.解放 ? ` · 解放 ${养成.解放}` : ''}${养成.ELv技能?.length ? ` · ELv ${养成.ELv技能.length}项` : ''}`;
+}
+
+// 本场养成速览读的是战斗配置或战斗状态里的队伍快照，因此之后改角色池养成或换新编队都不会影响已打记录显示的潜力。
+function 本场养成队伍() {
+    return 状态?.队伍?.length ? 状态.队伍 : (配置.队伍 || []);
+}
+
+function 潜力等级列表(队伍) {
+    return 队伍.map(单位 => Number(单位.潜力等级) || 0);
+}
+
+function 潜力统计文字(队伍) {
+    const 等级 = 潜力等级列表(队伍);
+    if (!等级.length) return '';
+    const 最高 = Math.max(...等级);
+    if (等级.length < 2) return `潜力 ${最高}`;
+    return `最高潜力 ${最高} × ${等级.filter(值 => 值 === 最高).length}人 · 潜力合计 ${等级.reduce((和, 值) => 和 + 值, 0)}`;
+}
+
+function 养成单位名(单位) {
+    return 单位.全名 || 获取真实角色(单位.编号)?.全名 || 单位.名称 || `编号 ${单位.编号 ?? '?'}`;
+}
+
+// 行内潜力已由潜力徽章单独展示，因此明细文字剔除潜力一项，完整养成仍可在角色详情弹窗查看。
+function 养成明细(单位) {
+    const 项 = [`节点 ${(单位.潜力节点 || []).filter(Boolean).length}/6`, `Lv ${单位.普通等级 ?? 普通等级范围.最高}`, `ELV ${单位.ELV突破等级 ?? 0}`, `${单位.星级 ?? 3}星`, `羁绊 ${单位.羁绊 ?? 5}`, `调教 ${单位.调教 ?? 3}`, 单位.解放 ? `解放 阶段${单位.解放}` : '未解放'];
+    if (单位.ELv技能?.length) 项.push(`ELv ${单位.ELv技能.length}项`);
+    return 项.join(' · ');
+}
+
+function 本场养成HTML(队伍, 可点 = false) {
+    if (!队伍.length) return '<div class="养成行 空">尚无本场养成快照；应用编队或导入记录后显示。</div>';
+    const 等级 = 潜力等级列表(队伍);
+    const 最高 = Math.max(...等级);
+    // 全员潜力相同时高亮无区分意义，金色只标出把全队上限抬高的人，低潜力优化时一眼看出矶颈在哪。
+    const 全同 = 等级.every(值 => 值 === 最高);
+    const 能点 = 可点 && 状态?.队伍?.length > 0;
+    return 队伍.map((单位, 序) => {
+        const 名 = 养成单位名(单位);
+        return `<div class="养成行${能点 ? ' 可点' : ''}"${能点 ? ` data-养成位置="${序}" role="button" tabindex="0" title="查看${转义(名)}本场完整状态与养成快照"` : ''}><span class="序号">${String(序 + 1).padStart(2, '0')}</span><strong>${转义(名)}</strong><span class="潜力签${!全同 && 等级[序] === 最高 && 最高 > 0 ? ' 最高' : ''}">潜力 ${单位.潜力等级 ?? '—'}</span><span class="弱文字">${转义(养成明细(单位))}</span></div>`;
+    }).join('');
+}
+
+function 渲染本场养成() {
+    const 队伍 = 本场养成队伍();
+    const 表 = 本场养成HTML(队伍, true);
+    for (const 槽 of 全查('[data-本场养成]')) 槽.innerHTML = 表;
+    for (const 槽 of 全查('[data-潜力统计]')) 槽.textContent = 潜力统计文字(队伍);
 }
 
 function 面板预览(养成) {
@@ -382,13 +559,10 @@ function 渲染编队() {
     查('#编队表').innerHTML = 玩家编队.length ? 玩家编队.map((编号, 位置) => {
         const 养成 = 玩家角色池.find(项 => 项.编号 === 编号);
         const 面板 = 养成 ? 面板预览(养成) : null;
-        const 选项 = 玩家角色池.map(项 => {
-            const 档案 = 获取真实角色(项.编号);
-            const 占用 = 玩家编队.includes(项.编号) && 项.编号 !== 编号;
-            return `<option value="${项.编号}" ${项.编号 === 编号 ? 'selected' : ''} ${占用 ? 'disabled' : ''}>${转义(档案?.全名 || `编号 ${项.编号}`)}</option>`;
-        }).join('');
+        const 当前档案 = 获取真实角色(编号);
+        const 当前名 = 当前档案?.全名 || `编号 ${编号}`;
         return `<div class="引用行" data-team-row="${位置}"><div class="引用主行">
-            <div class="位置输入"><span class="站位标">${位置 + 1}${位置 === 0 ? ' · 队长' : ''}</span><select data-team-select aria-label="站位${位置 + 1}角色">${选项}</select></div>
+            <div class="位置输入"><span class="站位标">${位置 + 1}${位置 === 0 ? ' · 队长' : ''}</span><div class="编队组合"><input data-team-search="${位置}" type="text" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="编队候选-${位置}" aria-label="站位${位置 + 1}角色" autocomplete="off" spellcheck="false" value="${转义(当前名)}" placeholder="${转义(当前名)}" title="输入名称、别名或编号搜索角色"><div class="编队候选" id="编队候选-${位置}" role="listbox" aria-label="站位${位置 + 1}角色候选" hidden></div></div></div>
             <div class="面板结果" data-label="生命"><output aria-label="站位${位置 + 1}生命">${面板 ? 数字(面板.生命上限) : '--'}</output></div>
             <div class="面板结果" data-label="攻击"><output aria-label="站位${位置 + 1}攻击">${面板 ? 数字(面板.攻击) : '--'}</output></div>
             <div class="养成摘要" data-label="养成"><span>${养成 ? 转义(养成摘要(养成)) : '该角色已不在角色池中'}</span><button class="文字按钮" data-skill-source="${编号}" title="查看技能"><i data-lucide="book-open"></i>技能</button>${养成 ? `<button class="文字按钮" data-edit-reference="${编号}" title="到角色池编辑养成"><i data-lucide="sliders-horizontal"></i>养成</button>` : ''}</div>
@@ -397,6 +571,64 @@ function 渲染编队() {
     }).join('') : '<div class="空状态"><i data-lucide="users-round"></i><h3>编队为空</h3><p>点击上方“加入角色”从角色池编入；若角色池为空，请先到「角色池」页添加角色</p></div>';
     for (const 位置 of 玩家编队.keys()) 查(`[data-team-row="${位置}"]`).prepend(查('#编队表头模板').content.firstElementChild.cloneNode(true));
     图标刷新();
+}
+
+// 编队组合框搜索：匹配编号、全名、简称与全部登记别名（含“拉尤”这类社区叫法），先做子串匹配，再做逐字子序列匹配（如“队长尤”可命中“啦啦队长 尤妮思”）。
+function 编队搜索匹配(养成, 查询) {
+    if (!查询) return true;
+    const 档案 = 获取真实角色(养成.编号);
+    const 名单 = [档案?.全名, 档案?.名称, 养成.名称, ...(档案?.别名 || [])].filter(Boolean).map(名 => String(名).toLowerCase());
+    if (String(养成.编号).includes(查询)) return true;
+    if (名单.some(名 => 名.includes(查询))) return true;
+    return 名单.some(名 => { let 序 = 0; for (const 字 of 名) { if (字 === 查询[序]) 序++; if (序 === 查询.length) return true; } return false; });
+}
+
+function 同步候选活跃(输入框) {
+    const 活跃 = 查(`#编队候选-${Number(输入框.dataset.teamSearch)}`)?.querySelector('.编队候选项.活跃');
+    if (活跃) 输入框.setAttribute('aria-activedescendant', 活跃.id);
+    else 输入框.removeAttribute('aria-activedescendant');
+}
+
+function 渲染编队候选(输入框) {
+    const 位置 = Number(输入框.dataset.teamSearch);
+    const 面板 = 查(`#编队候选-${位置}`);
+    if (!面板) return;
+    const 查询 = 输入框.value.trim().toLowerCase();
+    const 当前 = 玩家编队[位置];
+    const 匹配 = 玩家角色池.filter(养成 => 编队搜索匹配(养成, 查询));
+    let 已设活跃 = false;
+    面板.innerHTML = 匹配.length ? 匹配.map(养成 => {
+        const 档案 = 获取真实角色(养成.编号);
+        const 占用 = 玩家编队.includes(养成.编号) && 养成.编号 !== 当前;
+        const 选中项 = 养成.编号 === 当前;
+        const 活跃 = !占用 && !已设活跃;
+        if (活跃) 已设活跃 = true;
+        const 别名提示 = (档案?.别名 || []).filter(名 => /[\u3400-\u9fff]/.test(名) && 名 !== 档案?.全名 && 名 !== 档案?.名称).slice(0, 3).join(' / ');
+        return `<div class="编队候选项${占用 ? ' 占用' : ''}${活跃 ? ' 活跃' : ''}" role="option" id="编队候选-${位置}-${养成.编号}" data-team-option="${养成.编号}" aria-selected="${选中项}"${占用 ? ' aria-disabled="true"' : ''}><strong>${转义(档案?.全名 || `编号 ${养成.编号}`)}</strong><small>${养成.编号}${选中项 ? ' · 当前' : 占用 ? ' · 已在编队' : ''}${别名提示 ? ` · ${转义(别名提示)}` : ''}</small></div>`;
+    }).join('') : '<div class="编队候选项 空" role="option" aria-disabled="true">角色池中没有匹配的角色</div>';
+    面板.hidden = false;
+    输入框.setAttribute('aria-expanded', 'true');
+    同步候选活跃(输入框);
+}
+
+function 关闭编队候选(输入框) {
+    const 位置 = Number(输入框.dataset.teamSearch);
+    const 面板 = 查(`#编队候选-${位置}`);
+    if (面板) 面板.hidden = true;
+    输入框.setAttribute('aria-expanded', 'false');
+    输入框.removeAttribute('aria-activedescendant');
+    const 档案 = 获取真实角色(玩家编队[位置]);
+    输入框.value = 档案?.全名 || `编号 ${玩家编队[位置] ?? ''}`;
+}
+
+function 编队选定(位置, 编号) {
+    if (!Number.isSafeInteger(编号) || 编号 === 玩家编队[位置]) { 渲染编队(); return; }
+    const 新队 = [...玩家编队];
+    新队[位置] = 编号;
+    try { 玩家编队 = 校验编队引用(新队, 玩家角色池); }
+    catch (错误) { 渲染编队(); throw 错误; }
+    保存玩家数据();
+    渲染编队();
 }
 
 function 填充池筛选() {
@@ -622,7 +854,11 @@ function 角色详情(位置) {
     const 单位 = 状态.队伍[位置];
     const 汇总 = ['伤害', '回复', '理论回复', '护盾生成', '护盾吸收', '承伤'].map(名称 => `<dt>${名称}</dt><dd>${数字(单位.统计[名称])}</dd>`).join('');
     const 效果 = 单位.效果.map(效果 => `<tr><td>${转义(效果.属性)}</td><td>${效果数值(效果)}</td><td>${效果.层数}</td><td>${效果.剩余 >= 999 ? '常驻' : 效果.剩余}</td></tr>`).join('');
-    打开详情(`${单位.位置 + 1} · ${单位.名称}`, `<p>${转义(单位.全名)}</p><dl><dt>生命上限</dt><dd>${数字(单位.生命上限)}</dd><dt>当前攻击</dt><dd>${数字(当前攻击(单位))}</dd>${汇总}</dl><h3>当前效果</h3><div class="表格区"><table><thead><tr><th>属性</th><th>单层数值</th><th>层数</th><th>剩余回合</th></tr></thead><tbody>${效果 || '<tr><td colspan="4">无</td></tr>'}</tbody></table></div>`);
+    const 可用ELv = 获取适用ELv技能(单位.编号) || [];
+    // ELv 目录里的名称只是前缀（如“攻击者：伤害+”），补上说明才能看出具体数值。
+    const ELv名 = (单位.ELv技能 || []).map(编号 => { const 项 = 可用ELv.find(条目 => 条目.编号 === 编号); return 项 ? `${项.名称}（${项.校核说明 || 项.说明 || ''}）` : `#${编号}`; }).join('；') || '未选择';
+    const 养成 = `<dt>潜力等级</dt><dd>${单位.潜力等级 ?? '—'}（节点 ${(单位.潜力节点 || []).filter(Boolean).length}/6）</dd><dt>星级 / 调教</dt><dd>${单位.星级 ?? '—'} 星 / 调教 ${单位.调教 ?? '—'}</dd><dt>等级 / ELV突破</dt><dd>Lv ${单位.普通等级 ?? '—'} / ELV ${单位.ELV突破等级 ?? 0}</dd><dt>羁绊 / 解放</dt><dd>${单位.羁绊 ?? '—'} / ${单位.解放 ? `阶段${单位.解放}` : '未解放'}</dd><dt>ELv技能</dt><dd>${转义(ELv名)}</dd><dt>养成摘要</dt><dd>${转义(养成摘要(单位))}</dd>`;
+    打开详情(`${单位.位置 + 1} · ${单位.名称}`, `<p>${转义(单位.全名)}</p><dl><dt>生命上限</dt><dd>${数字(单位.生命上限)}</dd><dt>当前攻击</dt><dd>${数字(当前攻击(单位))}</dd>${汇总}</dl><h3>本场养成快照</h3><dl>${养成}</dl><h3>当前效果</h3><div class="表格区"><table><thead><tr><th>属性</th><th>单层数值</th><th>层数</th><th>剩余回合</th></tr></thead><tbody>${效果 || '<tr><td colspan="4">无</td></tr>'}</tbody></table></div>`);
 }
 
 全查('[data-tab]').forEach(按钮 => 按钮.addEventListener('click', () => 切换视图(按钮.dataset.tab)));
@@ -713,8 +949,10 @@ function 角色详情(位置) {
 查('#日志类别').addEventListener('change', 渲染记录);
 查('#应用编队').addEventListener('click', 包装(() => {
     if (!玩家编队.length) throw new Error('请先从角色池编入至少1位角色');
+    // 应用编队会重建战斗，先把有进度的当前战斗自动归档，避免改养成重开时丢失旧记录；无操作则不归档。
+    const 已归档 = 归档当前战斗('应用新编队时自动归档');
     应用新配置({ ...配置, 队伍: 解析角色引用(玩家编队, 玩家角色池) });
-    通知('编队已应用');
+    通知(已归档 ? '编队已应用，原战斗已存入历史归档' : '编队已应用');
 }));
 查('#添加角色').addEventListener('click', 包装(() => {
     if (玩家编队.length >= 5) throw new Error('最多可编入5位角色');
@@ -724,7 +962,7 @@ function 角色详情(位置) {
     玩家编队 = 校验编队引用([...玩家编队, 候选.编号], 玩家角色池);
     保存玩家数据();
     渲染编队();
-    查(`[data-team-row="${玩家编队.length - 1}"] [data-team-select]`)?.focus();
+    查(`[data-team-row="${玩家编队.length - 1}"] [data-team-search]`)?.focus();
 }));
 查('#导出编队').addEventListener('click', 包装(() => {
     保存下载('编队.json', JSON.stringify(生成引用编队文件(玩家编队, 玩家角色池), null, 2));
@@ -743,18 +981,65 @@ function 角色详情(位置) {
         通知(`已载入${引用.length}人编队，应用后生效`);
     } finally { 输入.value = ''; }
 }));
-查('#编队表').addEventListener('change', 包装(事件 => {
-    const 选择 = 事件.target.closest('[data-team-select]');
-    if (!选择) return;
-    const 位置 = Number(选择.closest('[data-team-row]').dataset.teamRow);
-    const 编号 = Number(选择.value);
-    if (!Number.isSafeInteger(编号) || 编号 === 玩家编队[位置]) { 渲染编队(); return; }
-    const 新队 = [...玩家编队];
-    新队[位置] = 编号;
-    try { 玩家编队 = 校验编队引用(新队, 玩家角色池); }
-    catch (错误) { 渲染编队(); throw 错误; }
-    保存玩家数据();
-    渲染编队();
+// 编队组合框交互：聚焦清空文字并以占位符显示当前角色，下拉列出全部池角色；输入即过滤；上下键移动、回车选定、Esc 还原；点击候选项直接换人。
+查('#编队表').addEventListener('input', 事件 => {
+    const 输入框 = 事件.target.closest('[data-team-search]');
+    if (输入框) 渲染编队候选(输入框);
+});
+查('#编队表').addEventListener('focusin', 事件 => {
+    const 输入框 = 事件.target.closest('[data-team-search]');
+    if (!输入框) return;
+    const 档案 = 获取真实角色(玩家编队[Number(输入框.dataset.teamSearch)]);
+    输入框.placeholder = 档案?.全名 || '';
+    输入框.value = '';
+    渲染编队候选(输入框);
+});
+查('#编队表').addEventListener('focusout', 事件 => {
+    const 输入框 = 事件.target.closest('[data-team-search]');
+    if (!输入框) return;
+    if (事件.relatedTarget && 输入框.closest('.编队组合')?.contains(事件.relatedTarget)) return;
+    关闭编队候选(输入框);
+});
+查('#编队表').addEventListener('keydown', 包装(事件 => {
+    const 输入框 = 事件.target.closest('[data-team-search]');
+    if (!输入框) return;
+    const 位置 = Number(输入框.dataset.teamSearch);
+    const 面板 = 查(`#编队候选-${位置}`);
+    if (事件.key === 'Escape') { 事件.preventDefault(); 关闭编队候选(输入框); return; }
+    if (事件.key === 'Tab') { 关闭编队候选(输入框); return; }
+    if (!面板 || 面板.hidden) {
+        if (['ArrowDown', 'ArrowUp', 'Enter'].includes(事件.key)) { 事件.preventDefault(); 渲染编队候选(输入框); }
+        return;
+    }
+    const 项们 = [...面板.querySelectorAll('.编队候选项:not(.占用):not(.空)')];
+    const 活跃 = 面板.querySelector('.编队候选项.活跃');
+    if (事件.key === 'ArrowDown' || 事件.key === 'ArrowUp') {
+        事件.preventDefault();
+        if (!项们.length) return;
+        const 原序 = 项们.indexOf(活跃);
+        const 新序 = 事件.key === 'ArrowDown' ? (原序 + 1) % 项们.length : (原序 - 1 + 项们.length) % 项们.length;
+        活跃?.classList.remove('活跃');
+        项们[新序].classList.add('活跃');
+        项们[新序].scrollIntoView({ block: 'nearest' });
+        同步候选活跃(输入框);
+        return;
+    }
+    if (事件.key === 'Enter') {
+        事件.preventDefault();
+        const 目标项 = 活跃 && !活跃.classList.contains('占用') && !活跃.classList.contains('空') ? 活跃 : 项们[0];
+        if (!目标项) { 通知('没有匹配的角色', true); return; }
+        编队选定(位置, Number(目标项.dataset.teamOption));
+    }
+}));
+// 按下候选项时阻止输入框先失焦，否则下拉会在 click 送达前被关闭还原。
+查('#编队表').addEventListener('pointerdown', 事件 => {
+    if (事件.target.closest('.编队候选')) 事件.preventDefault();
+});
+查('#编队表').addEventListener('click', 包装(事件 => {
+    const 项 = 事件.target.closest('[data-team-option]');
+    if (!项 || 项.classList.contains('占用')) return;
+    const 行 = 项.closest('[data-team-row]');
+    if (行) 编队选定(Number(行.dataset.teamRow), Number(项.dataset.teamOption));
 }));
 查('#导出旧记录').addEventListener('click', () => { if (旧记录备份) 保存下载(`${当前关卡(配置).名称}-原记录.json`, 旧记录备份); });
 查('#编队表').addEventListener('click', 包装(事件 => {
@@ -912,11 +1197,38 @@ function 角色详情(位置) {
     const 文件 = 事件.target.files[0];
     if (!文件) return;
     if (文件.size > 2000000) throw new Error('记录文件不能超过 2 MB');
-    导入记录(JSON.parse(await 文件.text()));
+    const 已归档 = 导入记录(JSON.parse(await 文件.text()), true);
     存档(); 渲染战场(); 渲染记录(); 刷新当前视图();
     查('#导入文件').value = '';
-    通知('战斗记录已恢复');
+    通知(已归档 ? '战斗记录已恢复，原战斗已存入历史归档' : '战斗记录已恢复');
 }));
+查('#保存归档').addEventListener('click', 包装(async () => {
+    if (!操作列表.length) throw new Error('当前战斗还没有任何操作，无需保存');
+    if (归档当前战斗('手动保存')) 通知('当前战斗已存入历史归档');
+}));
+查('#归档列表').addEventListener('click', 包装(async 事件 => {
+    const 查看 = 事件.target.closest('[data-归档查看]');
+    if (查看) { 打开归档面板(查看.dataset.归档查看); return; }
+    const 导出 = 事件.target.closest('[data-归档导出]');
+    if (导出) { 导出归档(导出.dataset.归档导出); return; }
+    const 删除 = 事件.target.closest('[data-归档删除]');
+    if (删除) {
+        if (!confirm('删除这条归档记录？此操作不可撤销')) return;
+        删除归档(删除.dataset.归档删除);
+        通知('归档已删除');
+        return;
+    }
+    const 恢复 = 事件.target.closest('[data-归档恢复]');
+    if (恢复) await 恢复归档(恢复.dataset.归档恢复);
+}));
+全查('[data-本场养成]').forEach(槽 => {
+    const 打开该行 = 事件 => { const 行 = 事件.target.closest('[data-养成位置]'); if (行 && 状态) 角色详情(Number(行.dataset.养成位置)); };
+    槽.addEventListener('click', 包装(打开该行));
+    槽.addEventListener('keydown', 事件 => { if (!['Enter', ' '].includes(事件.key)) return; 事件.preventDefault(); 打开该行(事件); });
+});
+查('#归档面板关闭').addEventListener('click', () => 关闭归档面板());
+查('#归档面板导出').addEventListener('click', 包装(async () => { if (归档面板ID) 导出归档(归档面板ID); }));
+查('#归档面板恢复').addEventListener('click', 包装(async () => { if (归档面板ID) await 恢复归档(归档面板ID); }));
 查('#导出报表').addEventListener('click', () => {
     const 字段 = ['回合', '技能', '伤害', '回复', '理论回复', '溢出回复', '护盾生成', '护盾吸收', '承伤', '首领回血', '首领生命', '存活'];
     const 报表 = 状态?.回合报表 ?? [];

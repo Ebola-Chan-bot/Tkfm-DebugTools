@@ -79,3 +79,66 @@ img.职业像{object-fit:cover;object-position:center top;background:transparent
 .角色编辑弹窗 .ELv详情{margin:12px 0 0}
 .编辑警告{margin:14px 0 0;padding:10px 12px;border:1px solid var(--红);background:var(--浅红);color:var(--红);border-radius:4px;font-size:12px;line-height:1.55}
 @media(max-width:650px){.编辑网格{grid-template-columns:repeat(2,minmax(0,1fr))}.编辑网格 .角色选择{grid-column:1/-1}.编辑网格 .面板结果{grid-column:span 1}}
+/* 历史归档与对照面板：导入新记录时旧战斗自动归档；面板独立滚动，主战场可继续操作 */
+.归档列表{display:flex;flex-direction:column;gap:10px;padding:4px 0 18px}
+.归档卡片{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;border:1px solid var(--线);background:var(--纸);border-radius:6px;padding:10px 14px}
+.归档信息{min-width:0;flex:1 1 260px}
+.归档标题行{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.归档标题行 strong{font-size:13px}
+.结果签{font-size:11px;padding:1px 8px;border-radius:99px;background:var(--浅主);color:var(--主);white-space:nowrap}
+.结果签.全灭,.结果签.回合耗尽{background:var(--浅红);color:var(--红)}
+.结果签.进行中,.结果签.未开始{background:#fdf3df;color:var(--金)}
+.归档原因{font-size:11px;color:var(--次墨)}
+.归档元信息{font-size:12px;color:var(--次墨);margin-top:2px}
+.归档操作{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto}
+.归档操作 .文字按钮{margin-left:0;font-size:11px;gap:4px;display:inline-flex;align-items:center;padding:5px 7px;white-space:nowrap}
+.归档操作 .文字按钮 svg{width:14px;height:14px}
+.归档操作 .文字按钮.危险{color:var(--红)}
+.空状态.紧凑{padding:20px 16px}
+.空状态.紧凑 p{margin:8px 0 0;font-size:12px}
+.归档面板{position:fixed;top:76px;right:0;bottom:0;width:min(430px,100vw);z-index:18;display:flex;flex-direction:column;background:var(--底);border-left:1px solid var(--线);box-shadow:-14px 0 44px #1128221c}
+.面板标题{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;background:var(--纸);border-bottom:1px solid var(--线)}
+.面板标题 h2{font-size:14px;margin:0;flex:1 1 140px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.面板标题工具{display:flex;align-items:center;gap:6px}
+.面板标题工具 .次按钮{min-height:30px;padding:4px 9px;font-size:11px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.面板标题工具 .次按钮 svg{width:13px;height:13px}
+.归档面板体{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 12px 22px}
+.归档摘要{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:14px 0 2px}
+.归档摘要>div{border-left:1px solid var(--线);padding-left:10px;min-width:0}
+.归档摘要>div:first-child{border-left:0;padding-left:0}
+.归档摘要 span{display:block;font-size:10px;color:var(--次墨)}
+.归档摘要 strong{font-size:14px}
+.段标题.紧凑{min-height:46px}
+.段标题.紧凑 h3{font-size:14px;margin:0}
+@media(min-width:1020px){body.归档展开 main{margin-right:calc(min(430px,34vw) + 24px)}}
+@media(max-width:1019px){
+.归档面板{top:auto;height:56dvh;width:100vw;border-left:0;border-top:1px solid var(--线);box-shadow:0 -14px 44px #1128221c;border-radius:10px 10px 0 0}
+body.归档展开 main{padding-bottom:58dvh}
+.归档操作{width:100%;margin-left:0}
+}
+@media(max-width:650px){.面板标题工具{width:100%;justify-content:flex-end}}
+
+/* 本场养成速览：战场与记录页共用同一渲染，一眼看清这场战斗每名队员的潜力等养成快照 */
+.本场养成{display:flex;flex-direction:column;gap:6px;padding:2px 0 18px}
+.养成行{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;border:1px solid var(--线);background:var(--纸);border-radius:6px;padding:8px 12px;font-size:12px}
+.养成行 .序号{flex:0 0 auto;color:var(--次墨);font-size:10px;font-variant-numeric:tabular-nums;min-width:14px}
+.养成行 strong{font-size:12px}
+.养成行 .弱文字{color:var(--次墨);font-size:11px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.养成行.可点{cursor:pointer}
+.养成行.可点:hover,.养成行.可点:focus-visible{border-color:var(--主);background:var(--浅主)}
+.养成行.空{color:var(--次墨);border-style:dashed;background:transparent}
+.潜力签{font-size:11px;padding:1px 8px;border-radius:99px;background:var(--浅主);color:var(--主);white-space:nowrap;font-variant-numeric:tabular-nums}
+.潜力签.最高{background:#fdf3df;color:var(--金)}
+.养成合计{font-size:11px;color:var(--次墨);padding:12px 0 0;font-variant-numeric:tabular-nums}
+.本场养成.紧凑{gap:5px;padding:0 0 6px}
+@media(max-width:650px){.养成行{padding:7px 9px;gap:6px 8px;font-size:11px}.养成行 .弱文字{font-size:10px;flex:1 1 100%}}
+
+/* 编队可搜索组合框：输入名称、别名或编号即过滤角色池候选，键盘上下选择、回车确认 */
+.编队组合{position:relative;flex:1;min-width:0}
+.编队组合 input{width:100%;min-width:0;background:var(--纸);border:1px solid var(--线);border-radius:4px;padding:8px;font-size:12px;color:var(--墨)}
+.编队候选{position:absolute;top:calc(100% + 4px);left:0;right:0;max-height:264px;overflow-y:auto;background:var(--纸);border:1px solid var(--线);border-radius:6px;box-shadow:0 10px 30px #11282226;z-index:30}
+.编队候选项{display:flex;flex-direction:column;gap:1px;padding:7px 10px;cursor:pointer;font-size:12px}
+.编队候选项 small{color:var(--次墨);font-size:10px}
+.编队候选项.活跃,.编队候选项:hover:not(.占用):not(.空){background:var(--浅主)}
+.编队候选项.占用{opacity:.5;cursor:not-allowed}
+.编队候选项.空{color:var(--次墨);cursor:default}
