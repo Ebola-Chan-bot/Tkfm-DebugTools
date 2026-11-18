@@ -8,3 +8,9 @@ dist/
 
 # 机制表构建产物（flat.json/mechanisms.bin/record指纹.json 由 flatten_core.js + flatc 工具链可重现，SOP 见 机制表/README.md）
 优化器/机制表/build/
+
+# 搜索产物大文件（策略树含全状态快照可达数十MB，由搜索工作目录可再生；git只留小编队与可读攻略）
+战斗模拟器/测试/必胜策略树_*.json
+*策略.json
+*.adaptive检查点.json
+*.策略.验证.json
