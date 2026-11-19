@@ -67,7 +67,7 @@
           <label>回合上限<input name="回合上限" type="number" min="1" max="100" required></label>
         </div>
         <div id="夏日面板区域" hidden><div class="段标题"><h2>敌方属性</h2></div><div id="敌方面板" class="敌方面板"></div></div>
-        <div class="段标题"><h2>敌方技能</h2></div><div id="技能目录" class="技能目录"></div>
+        <div class="段标题"><h2>敌方技能</h2><label class="内联标签"><input id="手动随机" type="checkbox">手动选择随机分支</label></div><div id="技能目录" class="技能目录"></div>
       </form>
     </section>
     <section data-view="记录" hidden>
@@ -97,6 +97,7 @@
     </div>
   </aside>
   <div id="通知" role="status" aria-live="polite" hidden></div>
+  <dialog id="随机分支弹窗"><div class="弹窗标题"><h2>选择随机分支</h2></div><p id="随机分支说明"></p><div id="随机分支选项" class="随机分支选项"></div></dialog>
   <dialog id="详情弹窗"><div class="弹窗标题"><h2 id="详情标题">角色状态</h2><button class="图标按钮" data-close title="关闭" aria-label="关闭"><i data-lucide="x"></i></button></div><div id="详情正文"></div></dialog>
   <dialog id="角色编辑弹窗" class="角色编辑弹窗"><div class="弹窗标题"><h2 id="角色编辑标题">角色养成</h2><button class="图标按钮" data-close title="取消编辑" aria-label="取消编辑"><i data-lucide="x"></i></button></div><div id="角色编辑表"></div><div class="弹窗操作"><button id="保存池角色" class="主按钮"><i data-lucide="save"></i>保存角色</button></div></dialog>
   <datalist id="角色候选"></datalist>
