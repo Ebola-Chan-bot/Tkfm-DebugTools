@@ -7,7 +7,7 @@ import 图像 from 'sharp';
 const 根目录 = 路径.dirname(文件地址转路径(import.meta.url));
 const 输出 = 路径.join(根目录, 'dist');
 await 文件系统.mkdir(输出, { recursive: true });
-const 文件列表 = ['index.html', '界面.css', '应用.mjs', '战斗引擎.mjs', '战斗数值.mjs', '角色被动.mjs', '关卡机制.mjs', '角色数据.mjs', '玩家角色池.mjs', '编译技能文本.mjs', '原包数据.mjs', '原包运行时.mjs', '真实角色目录.json', '真实角色技能.json', '真实ELv技能.json', '真实养成数据.json', '真实敌方资料.json', '原包关卡机制.json', '原包数据/Skill_C.bytes', '原包数据/SkillGroup.bytes', '原包数据/技能说明.json', '关卡数据.mjs', '敌方行动规则.mjs', 'manifest.webmanifest'];
+const 文件列表 = ['index.html', '界面.css', '应用.mjs', '战斗引擎.mjs', '战斗数值.mjs', '角色被动.mjs', '角色被动表.json', '关卡机制.mjs', '角色数据.mjs', '玩家角色池.mjs', '编译技能文本.mjs', '原包数据.mjs', '原包运行时.mjs', '真实角色目录.json', '真实角色技能.json', '真实ELv技能.json', '真实养成数据.json', '真实敌方资料.json', '原包关卡机制.json', '原包数据/Skill_C.bytes', '原包数据/SkillGroup.bytes', '原包数据/技能说明.json', '关卡数据.mjs', '敌方行动规则.mjs', 'manifest.webmanifest'];
 for (const 文件 of 文件列表) {
     // 子目录条目（如 原包数据/*.bytes）需先建目录再复制。
     const 目标路径 = 路径.join(输出, 文件);
