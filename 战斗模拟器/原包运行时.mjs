@@ -28,4 +28,12 @@ const [技能字节, 技能组字节, 文本表] = await Promise.all([
     读取原包文件('SkillGroup.bytes'),
     读取原包文件('技能说明.json', true),
 ]);
-export const 原包机制 = 解析原包机制({ 技能字节, 技能组字节, 文本表 });
+// 惰性解析：解析原包机制 依赖关卡数据（夏日行动等），而关卡数据又依赖角色数据→本模块形成循环 import；模块体立即解析会在关卡数据初始化前触发 TDZ 错误。推迟到首次属性访问（运行时，全部模块已就绪）再解析，Proxy 保持 原包机制.技能 等访问形式不变。
+let 解析缓存 = null;
+function 取解析() { return 解析缓存 ??= 解析原包机制({ 技能字节, 技能组字节, 文本表 }); }
+export const 原包机制 = new Proxy({}, {
+    get: (目标, 键) => 取解析()[键],
+    has: (目标, 键) => 键 in 取解析(),
+    ownKeys: () => Reflect.ownKeys(取解析()),
+    getOwnPropertyDescriptor: () => ({ configurable: true, enumerable: true }),
+});
