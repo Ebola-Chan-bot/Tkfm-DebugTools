@@ -8,24 +8,24 @@
 
 不依赖 Temp 目录中任何预生成文件。
 """
-import sys, os, struct, hashlib, zipfile, pathlib, csv, io
+import sys, os, struct, hashlib, zipfile, pathlib, csv, io, bisect
 
 # ─── 常量 ───────────────────────────────────────────────────────
-STATIC_KEY = bytes.fromhex("b5c8c2cb9aa6f6e68dccd179e17b91a8")
-META_MAGIC = bytes.fromhex("af1bb1fa")
+# IL2CPP 元数据格式魔术码（Unity IL2CPP 运行时 GlobalMetadataFileInternals.h 规范定义的格式标识，类似 ZIP 的 "PK"，非从 APK 提取）
+元数据魔数 = bytes.fromhex("af1bb1fa")
 
-# 战斗引擎相关类型名匹配规则
-BATTLE_TYPE_PATTERNS = [
+# 战斗引擎相关类型名匹配规则（语义推断：从 IL2CPP 元数据扫描出的 13976 个类型中，经人工分析战斗引擎汇编代码后归纳出的类型名模式，非机械提取）
+战斗类型模式 = [
     'BattleCalculator', 'TCharBattleData', 'TBattleChar',
     'TBattleEffect', 'TTriggerSkill', 'TSkillData', 'TSkillObj',
     'TSelectSkillObj', 'TCharSkillObj', 'TSkillOneObj',
-    'TBattleEffect', 'TSkillStateData', 'TSkillEffectData',
+    'TSkillStateData', 'TSkillEffectData',
     'TPasstiveTriggerSkillData', 'TSpecialTriggerSkillData',
     'TBeforeRoundTriggerSkillData', 'TAfterRoundSkill',
 ]
 
-# 关键方法名（用于高亮）
-KEY_METHODS = [
+# 关键方法名（语义推断：从战斗引擎汇编中人工识别出的核心逻辑入口，用于高亮标记。方法名本身取自元数据，但“哪些算关键”由逆向分析确定）
+关键方法名 = [
     'GetTauntCharacterIdxList', 'SetSkillTarget', 'GetRandomTarget',
     'DoTriggerSkill', 'SetTriggerSkillBaseData', 'SelectCharToSkill',
     'DoAttack', 'UseSkill', 'SelectCharToAttack', 'SetAITarget',
@@ -49,264 +49,327 @@ KEY_METHODS = [
 
 
 # ─── 元数据解密 ────────────────────────────────────────────────
-def decrypt_metadata(raw: bytes) -> bytes:
+def 解密元数据(加密数据: bytes, 静态密钥: bytes) -> bytes:
     """AES-ECB + LZ4 解密 NP 加密的 global-metadata.dat"""
     from Crypto.Cipher import AES
-    if raw[:3] != b"AEI":
-        raise ValueError(f"非 AEI 头: {raw[:8].hex()}")
-    out_len = struct.unpack_from("<I", raw, 3)[0]
-    read_len = struct.unpack_from("<I", raw, 7)[0]
-    compressed_len = struct.unpack_from("<I", raw, 11)[0]
-    enc_data_key = raw[15:31]
-    data_key = AES.new(STATIC_KEY, AES.MODE_ECB).decrypt(enc_data_key)
-    ciphertext = raw[31 : 31 + read_len]
-    plaintext = AES.new(data_key, AES.MODE_ECB).decrypt(ciphertext)
+    if 加密数据[:3] != b"AEI":
+        raise ValueError(f"非 AEI 头: {加密数据[:8].hex()}")
+    输出长度 = struct.unpack_from("<I", 加密数据, 3)[0]
+    读取长度 = struct.unpack_from("<I", 加密数据, 7)[0]
+    压缩长度 = struct.unpack_from("<I", 加密数据, 11)[0]
+    加密数据密钥 = 加密数据[15:31]
+    数据密钥 = AES.new(静态密钥, AES.MODE_ECB).decrypt(加密数据密钥)
+    密文 = 加密数据[31 : 31 + 读取长度]
+    明文 = AES.new(数据密钥, AES.MODE_ECB).decrypt(密文)
     try:
         import lz4.block
-        result = lz4.block.decompress(plaintext[:compressed_len], uncompressed_size=out_len)
+        解压结果 = lz4.block.decompress(明文[:压缩长度], uncompressed_size=输出长度)
     except ImportError:
         import lz4.frame
-        result = lz4.frame.decompress(plaintext[:compressed_len])
-    if len(result) < out_len:
-        result = result.ljust(out_len, b"\x00")
-    return result[:out_len]
+        解压结果 = lz4.frame.decompress(明文[:压缩长度])
+    if len(解压结果) < 输出长度:
+        解压结果 = 解压结果.ljust(输出长度, b"\x00")
+    return 解压结果[:输出长度]
+
+
+def _快速LZ4校验(明文块: bytes, 预期魔数: bytes) -> bool:
+    """快速检查 AES 解密后的首块数据是否为包含指定魔术码的 LZ4 压缩数据，用于过滤候选密钥"""
+    if len(明文块) < 6:
+        return False
+    令牌 = 明文块[0]
+    字面量长度 = 令牌 >> 4
+    if 字面量长度 == 15:
+        位置 = 1
+        while 位置 < len(明文块) and 明文块[位置] == 255:
+            位置 += 1
+        if 位置 >= len(明文块):
+            return False
+        字面量起始 = 位置 + 1
+    elif 字面量长度 >= 4:
+        字面量起始 = 1
+    else:
+        return False
+    return 明文块[字面量起始 : 字面量起始 + 4] == 预期魔数
+
+
+def 提取静态密钥(NP主体库数据: bytes, 加密数据: bytes) -> tuple:
+    """从 libcompatible.so 中提取 AEI 解密静态密钥并返回已解密的元数据，避免重复解密"""
+    from Crypto.Cipher import AES
+    try:
+        import lz4.block as _lz4
+        _解压 = lambda d, s: _lz4.decompress(d, uncompressed_size=s)
+    except ImportError:
+        import lz4.frame as _lz4
+        _解压 = lambda d, s: _lz4.decompress(d)
+    加密数据密钥 = 加密数据[15:31]
+    读取长度 = struct.unpack_from("<I", 加密数据, 7)[0]
+    压缩长度 = struct.unpack_from("<I", 加密数据, 11)[0]
+    输出长度 = struct.unpack_from("<I", 加密数据, 3)[0]
+    密文 = 加密数据[31 : 31 + 读取长度]
+    for 偏移 in range(0, len(NP主体库数据) - 16):
+        候选密钥 = NP主体库数据[偏移 : 偏移 + 16]
+        try:
+            数据密钥 = AES.new(候选密钥, AES.MODE_ECB).decrypt(加密数据密钥)
+            首块 = AES.new(数据密钥, AES.MODE_ECB).decrypt(密文[:16])
+        except Exception:
+            continue
+        if not _快速LZ4校验(首块, 元数据魔数):
+            continue
+        try:
+            明文 = AES.new(数据密钥, AES.MODE_ECB).decrypt(密文)
+            解压结果 = _解压(明文[:压缩长度], 输出长度)
+            if 解压结果[:4] == 元数据魔数:
+                return 候选密钥, 解压结果[:输出长度]
+        except Exception:
+            continue
+    raise ValueError("未能从 libcompatible.so 中提取 AEI 解密静态密钥")
 
 
 # ─── 元数据表解析（v31）────────────────────────────────────────
-def parse_metadata(meta: bytes):
-    magic = meta[:4]
-    version = struct.unpack_from("<I", meta, 4)[0]
-    print(f"  元数据: magic={magic.hex()} version={version} size={len(meta)}")
+def 解析元数据(元数据: bytes):
+    magic = 元数据[:4]
+    version = struct.unpack_from("<I", 元数据, 4)[0]
+    print(f"  元数据: magic={magic.hex()} version={version} size={len(元数据)}")
 
-    pairs = [struct.unpack_from("<II", meta, 8 + i * 8) for i in range(31)]
-    str_off, str_size = pairs[2]
-    met_off, met_size = pairs[5]   # method definitions
-    typ_off, typ_size = pairs[19]  # type definitions
-    img_off, img_size = pairs[20]  # image definitions
-    fld_off, fld_size = pairs[11]  # field definitions
+    表字段对 = [struct.unpack_from("<II", 元数据, 8 + i * 8) for i in range(31)]
+    字符串偏移, 字符串大小 = 表字段对[2]
+    方法表偏移, 方法表大小 = 表字段对[5]   # method definitions
+    类型表偏移, 类型表大小 = 表字段对[19]  # type definitions
+    图像表偏移, 图像表大小 = 表字段对[20]  # image definitions
+    fld_off, fld_size = 表字段对[11]  # field definitions
 
-    def read_str(idx):
-        if not (0 <= idx < str_size):
+    def 读字符串(idx):
+        if not (0 <= idx < 字符串大小):
             return ""
         end = idx
-        limit = str_off + str_size
-        while str_off + end < limit and meta[str_off + end] != 0:
+        limit = 字符串偏移 + 字符串大小
+        while 字符串偏移 + end < limit and 元数据[字符串偏移 + end] != 0:
             end += 1
-        return meta[str_off + idx : str_off + end].decode("utf-8", errors="replace")
+        return 元数据[字符串偏移 + idx : 字符串偏移 + end].decode("utf-8", errors="replace")
 
     # 方法表（36 字节/条）
-    method_count = met_size // 36
-    methods = []
-    for i in range(method_count):
-        b = met_off + i * 36
-        name_idx = struct.unpack_from("<I", meta, b)[0]
-        decl_type = struct.unpack_from("<I", meta, b + 4)[0]
-        ret_type = struct.unpack_from("<I", meta, b + 8)[0]
-        param_start = struct.unpack_from("<I", meta, b + 16)[0]
-        token = struct.unpack_from("<I", meta, b + 24)[0]
-        flags = struct.unpack_from("<H", meta, b + 28)[0]
-        iflags = struct.unpack_from("<H", meta, b + 30)[0]
-        slot = struct.unpack_from("<H", meta, b + 32)[0]
-        param_count = struct.unpack_from("<H", meta, b + 34)[0]
-        methods.append({
-            "index": i, "name": read_str(name_idx), "decl_type": decl_type,
-            "return_type": ret_type, "param_start": param_start,
-            "token": token, "flags": flags, "iflags": iflags,
-            "slot": slot, "param_count": param_count,
+    方法数量 = 方法表大小 // 36
+    方法列表 = []
+    for i in range(方法数量):
+        b = 方法表偏移 + i * 36
+        name_idx = struct.unpack_from("<I", 元数据, b)[0]
+        decl_type = struct.unpack_from("<I", 元数据, b + 4)[0]
+        ret_type = struct.unpack_from("<I", 元数据, b + 8)[0]
+        param_start = struct.unpack_from("<I", 元数据, b + 16)[0]
+        token = struct.unpack_from("<I", 元数据, b + 24)[0]
+        flags = struct.unpack_from("<H", 元数据, b + 28)[0]
+        iflags = struct.unpack_from("<H", 元数据, b + 30)[0]
+        slot = struct.unpack_from("<H", 元数据, b + 32)[0]
+        param_count = struct.unpack_from("<H", 元数据, b + 34)[0]
+        方法列表.append({
+            "索引": i, "名称": 读字符串(name_idx), "声明类型": decl_type,
+            "返回类型": ret_type, "参数起始": param_start,
+            "令牌": token, "标志": flags, "内部标志": iflags,
+            "槽位": slot, "参数数量": param_count,
         })
 
     # 类型表（88 字节/条）
-    type_count = typ_size // 88
-    types = {}
-    for i in range(type_count):
-        b = typ_off + i * 88
-        name_idx = struct.unpack_from("<I", meta, b)[0]
-        ns_idx = struct.unpack_from("<I", meta, b + 4)[0]
-        method_start = struct.unpack_from("<I", meta, b + 36)[0]
-        field_start = struct.unpack_from("<I", meta, b + 32)[0]
-        flags = struct.unpack_from("<I", meta, b + 28)[0]
+    类型数量 = 类型表大小 // 88
+    类型表 = {}
+    for i in range(类型数量):
+        b = 类型表偏移 + i * 88
+        name_idx = struct.unpack_from("<I", 元数据, b)[0]
+        ns_idx = struct.unpack_from("<I", 元数据, b + 4)[0]
+        method_start = struct.unpack_from("<I", 元数据, b + 36)[0]
+        field_start = struct.unpack_from("<I", 元数据, b + 32)[0]
+        flags = struct.unpack_from("<I", 元数据, b + 28)[0]
         # counts at offset 64: 8 × uint16
-        method_count_field = struct.unpack_from("<H", meta, b + 64)[0]
-        types[i] = {
-            "index": i, "name": read_str(name_idx), "namespace": read_str(ns_idx),
-            "method_start": method_start, "field_start": field_start,
-            "method_count": method_count_field, "flags": flags,
+        method_count_field = struct.unpack_from("<H", 元数据, b + 64)[0]
+        类型表[i] = {
+            "索引": i, "名称": 读字符串(name_idx), "命名空间": 读字符串(ns_idx),
+            "方法起始": method_start, "字段起始": field_start,
+            "方法数量": method_count_field, "标志": flags,
         }
 
     # 图像表（40 字节/条）
-    img_count = img_size // 40
-    images = []
-    for i in range(img_count):
-        b = img_off + i * 40
-        name_idx = struct.unpack_from("<I", meta, b)[0]
-        type_start = struct.unpack_from("<I", meta, b + 8)[0]
-        type_count_field = struct.unpack_from("<I", meta, b + 12)[0]
-        images.append({
-            "index": i, "name": read_str(name_idx),
-            "type_start": type_start, "type_count": type_count_field,
+    图像数量 = 图像表大小 // 40
+    图像列表 = []
+    for i in range(图像数量):
+        b = 图像表偏移 + i * 40
+        name_idx = struct.unpack_from("<I", 元数据, b)[0]
+        type_start = struct.unpack_from("<I", 元数据, b + 8)[0]
+        type_count_field = struct.unpack_from("<I", 元数据, b + 12)[0]
+        图像列表.append({
+            "索引": i, "名称": 读字符串(name_idx),
+            "类型起始": type_start, "类型数量": type_count_field,
         })
 
     return {
-        "magic": magic, "version": version,
-        "methods": methods, "types": types, "images": images,
-        "method_count": method_count, "type_count": type_count,
+        "魔数": magic, "版本": version,
+        "方法列表": 方法列表, "类型表": 类型表, "图像列表": 图像列表,
+        "方法数量": 方法数量, "类型数量": 类型数量,
     }
 
 
 # ─── 战斗引擎方法识别 ─────────────────────────────────────────
-def find_battle_types(types: dict):
+def 查找战斗类型(类型表: dict):
     """返回所有战斗引擎相关的类型索引"""
-    battle = {}
-    for idx, t in types.items():
-        full = f"{t['namespace']}.{t['name']}" if t["namespace"] else t["name"]
-        for pat in BATTLE_TYPE_PATTERNS:
-            if pat in t["name"]:
-                battle[idx] = {**t, "full_name": full}
+    战斗类型表 = {}
+    for idx, t in 类型表.items():
+        完整名 = f"{t['命名空间']}.{t['名称']}" if t["命名空间"] else t["名称"]
+        for 匹配模式 in 战斗类型模式:
+            if 匹配模式 in t["名称"]:
+                战斗类型表[idx] = {**t, "完整名": 完整名}
                 break
-    return battle
+    return 战斗类型表
 
 
-def collect_battle_methods(parsed: dict):
+def 收集战斗方法(解析结果: dict):
     """收集所有战斗类型的方法，以及关键名称方法"""
-    battle_types = find_battle_types(parsed["types"])
-    battle_methods = []
+    战斗类型表 = 查找战斗类型(解析结果["类型表"])
+    战斗方法列表 = []
 
     # 按类型收集
-    for ti, tinfo in battle_types.items():
-        ms = tinfo.get("method_start", 0)
-        mc = tinfo.get("method_count", 0)
-        for j in range(ms, min(ms + mc, len(parsed["methods"]))):
-            m = parsed["methods"][j]
-            if m["decl_type"] == ti:
-                m["_type"] = tinfo["full_name"]
-                m["_is_key"] = m["name"] in KEY_METHODS
-                battle_methods.append(m)
+    for ti, 类型信息 in 战斗类型表.items():
+        方法起始 = 类型信息.get("方法起始", 0)
+        方法数量 = 类型信息.get("方法数量", 0)
+        for j in range(方法起始, min(方法起始 + 方法数量, len(解析结果["方法列表"]))):
+            m = 解析结果["方法列表"][j]
+            if m["声明类型"] == ti:
+                m["_类型"] = 类型信息["完整名"]
+                m["_是否关键"] = m["名称"] in 关键方法名
+                战斗方法列表.append(m)
 
     # 也收集不在战斗类型中但名字匹配的方法
-    existing_ids = {m["index"] for m in battle_methods}
-    for m in parsed["methods"]:
-        if m["index"] not in existing_ids and m["name"] in KEY_METHODS:
-            tinfo = parsed["types"].get(m["decl_type"])
-            m["_type"] = tinfo["name"] if tinfo else f"type{m['decl_type']}"
-            m["_is_key"] = True
-            battle_methods.append(m)
+    已收集索引 = {m["索引"] for m in 战斗方法列表}
+    for m in 解析结果["方法列表"]:
+        if m["索引"] not in 已收集索引 and m["名称"] in 关键方法名:
+            类型信息 = 解析结果["类型表"].get(m["声明类型"])
+            m["_类型"] = 类型信息["名称"] if 类型信息 else f"type{m['声明类型']}"
+            m["_是否关键"] = True
+            战斗方法列表.append(m)
 
-    return battle_types, battle_methods
+    return 战斗类型表, 战斗方法列表
 
 
 # ─── IL2CPP 代码恢复 ──────────────────────────────────────────
-def recover_code_from_snapshot(snapshot_path: str, out_dir: pathlib.Path,
-                               battle_methods: list):
+def 构建函数边界表(目标数据, 方法数量, 方法指针表, 基址):
+    """收集并按地址排序全部方法入口，作为函数边界；IL2CPP 方法指针表按定义序排列，idx+1 未必是下一函数"""
+    入口集合 = set()
+    for i in range(方法数量):
+        入口 = struct.unpack_from("<Q", 目标数据, 方法指针表 - 基址 + i * 8)[0]
+        if 基址 <= 入口 < 基址 + len(目标数据):
+            入口集合.add(入口)
+    return sorted(入口集合)
+
+
+def 从快照恢复代码(快照路径: str, 输出目录: pathlib.Path, 战斗方法列表: list):
     """从内存快照提取战斗方法的 ARM64 机器码并反汇编"""
     import pickle
     from capstone import Cs, CS_ARCH_ARM64, CS_MODE_ARM
 
-    snap = pathlib.Path(snapshot_path)
-    if not snap.exists():
-        print(f"  [!] 快照不存在: {snapshot_path}")
+    快照文件 = pathlib.Path(快照路径)
+    if not 快照文件.exists():
+        print(f"  [!] 快照不存在: {快照路径}")
         return False
 
-    regions = pickle.loads(snap.read_bytes())
-    BASE = 0x8000000000
-    target = None
-    for s, n, data in regions:
-        if s == BASE:
-            target = data
+    区域列表 = pickle.loads(快照文件.read_bytes())
+    基址 = 0x8000000000
+    目标数据 = None
+    for s, n, data in 区域列表:
+        if s == 基址:
+            目标数据 = data
             break
-    if target is None:
+    if 目标数据 is None:
         print("  [!] 快照中未找到 IL2CPP 基址 0x8000000000")
         return False
 
     # Assembly-CSharp CodeGenModule
-    cgmod_off = 0x4E0EA00
-    name_ptr, method_count, method_ptrs = struct.unpack_from("<QQQ", target, cgmod_off)
-    print(f"  Assembly-CSharp CodeGenModule: methods={method_count} ptrs=0x{method_ptrs-BASE:x}")
-    if method_ptrs == 0:
+    代码生成模块偏移 = 0x4E0EA00
+    名称指针, 方法数量, 方法指针表 = struct.unpack_from("<QQQ", 目标数据, 代码生成模块偏移)
+    print(f"  Assembly-CSharp CodeGenModule: methods={方法数量} ptrs=0x{方法指针表-基址:x}")
+    if 方法指针表 == 0:
         print("  [!] method_ptrs 为 0，IL2CPP 尚未完成解密，需要更多轮次的快照")
         return False
 
-    md = Cs(CS_ARCH_ARM64, CS_MODE_ARM)
-    md.skipdata = True
+    反汇编器 = Cs(CS_ARCH_ARM64, CS_MODE_ARM)
+    反汇编器.skipdata = True
 
-    asm_dir = out_dir / "battle_asm"
-    asm_dir.mkdir(exist_ok=True)
-    extracted = 0
+    函数边界表 = 构建函数边界表(目标数据, 方法数量, 方法指针表, 基址)
+    print(f"  函数边界表: {len(函数边界表)} 个唯一方法入口（按地址排序）")
 
-    for m in battle_methods:
-        idx = m["index"]
-        if idx >= method_count:
+    汇编目录 = 输出目录 / "battle_asm"
+    汇编目录.mkdir(exist_ok=True)
+    for 旧文件 in 汇编目录.glob("*.asm"):
+        旧文件.unlink()
+    已提取数 = 0
+
+    for m in 战斗方法列表:
+        idx = m["索引"]
+        if idx >= 方法数量:
             continue
-        va = struct.unpack_from("<Q", target, method_ptrs - BASE + idx * 8)[0]
-        off = va - BASE
-        if off < 0 or off + 16 > len(target):
+        虚拟地址 = struct.unpack_from("<Q", 目标数据, 方法指针表 - 基址 + idx * 8)[0]
+        off = 虚拟地址 - 基址
+        if off < 0 or off + 16 > len(目标数据):
             continue
 
-        # 确定函数大小（扫描到下一个方法或 ret）
-        next_va = 0
-        if idx + 1 < method_count:
-            next_va = struct.unpack_from("<Q", target, method_ptrs - BASE + (idx + 1) * 8)[0]
-        max_size = min(0x10000, (next_va - va) if next_va > va else 0x2000)
-        if max_size < 16:
-            max_size = 0x2000
+        # 函数边界取自全部方法入口的地址排序：IL2CPP 方法指针表按定义序排列，idx+1 不一定是下一函数；且 ARM64 函数可有多个 ret 与尾部跳转，首个 ret 之后仍是真实代码，故整段导出不截断
+        边界位置 = bisect.bisect_right(函数边界表, 虚拟地址)
+        下一边界 = 函数边界表[边界位置] if 边界位置 < len(函数边界表) else 基址 + len(目标数据)
+        函数长度 = max(4, min(下一边界 - 虚拟地址, 0x80000))
 
-        code = target[off : off + max_size]
-        safe_name = m["name"].replace("/", "_").replace("<", "_").replace(">", "_")[:80]
-        fname = f"{idx:06d}_{safe_name}.asm"
-        out_file = asm_dir / fname
+        机器码 = 目标数据[off : off + 函数长度]
+        安全名称 = m["名称"].replace("/", "_").replace("<", "_").replace(">", "_")[:80]
+        文件名 = f"{idx:06d}_{安全名称}.asm"
+        输出文件 = 汇编目录 / 文件名
 
-        lines = list(md.disasm(code, off))
-        with out_file.open("w") as f:
-            f.write(f"; {m.get('_type', '?')}.{m['name']}\n")
-            f.write(f"; method_index={idx} token=0x{m['token']:08x}\n")
-            f.write(f"; VA=0x{va:x}  file_offset=0x{off:x}  param_count={m['param_count']}\n\n")
+        lines = list(反汇编器.disasm(机器码, off))
+        with 输出文件.open("w") as f:
+            f.write(f"; {m.get('_类型', '?')}.{m['名称']}\n")
+            f.write(f"; method_index={idx} token=0x{m['令牌']:08x}\n")
+            f.write(f"; VA=0x{虚拟地址:x}  file_offset=0x{off:x}  param_count={m['参数数量']}\n")
+            f.write(f"; region=0x{虚拟地址:x}-0x{虚拟地址 + 函数长度:x}  instructions={len(lines)}\n\n")
             for ins in lines:
                 f.write(f"0x{ins.address:x}: {ins.mnemonic:8s} {ins.op_str}\n")
-                if ins.mnemonic == "ret" and ins.address > off + 32:
-                    break
-        extracted += 1
+        已提取数 += 1
 
-    print(f"  反汇编完成: {extracted} 个方法 → {asm_dir}")
+    print(f"  反汇编完成: {已提取数} 个方法 → {汇编目录}")
     return True
 
 
 # ─── 主流程 ──────────────────────────────────────────────────
-def main():
+def 主函数():
     import argparse
-    parser = argparse.ArgumentParser(description="从 APK 提取完整战斗引擎")
-    parser.add_argument("apk", help="原始 APK 路径")
-    parser.add_argument("-o", "--out", help="输出目录", default=None)
-    parser.add_argument("--snapshot", help="内存快照 .pkl 路径（可选，用于代码恢复）", default=None)
-    args = parser.parse_args()
+    命令行解析器 = argparse.ArgumentParser(description="从 APK 提取完整战斗引擎")
+    命令行解析器.add_argument("apk", help="原始 APK 路径")
+    命令行解析器.add_argument("-o", "--out", help="输出目录", default=None)
+    命令行解析器.add_argument("--snapshot", help="内存快照 .pkl 路径（可选，用于代码恢复）", default=None)
+    命令行参数 = 命令行解析器.parse_args()
 
-    apk_path = pathlib.Path(args.apk)
-    if not apk_path.exists():
-        print(f"[X] APK 不存在: {apk_path}")
+    APK文件路径 = pathlib.Path(命令行参数.apk)
+    if not APK文件路径.exists():
+        print(f"[X] APK 不存在: {APK文件路径}")
         sys.exit(1)
 
-    out_dir = pathlib.Path(args.out) if args.out else apk_path.parent / (apk_path.stem + "_提取")
-    out_dir.mkdir(parents=True, exist_ok=True)
+    输出目录 = pathlib.Path(命令行参数.out) if 命令行参数.out else APK文件路径.parent / (APK文件路径.stem + "_提取")
+    输出目录.mkdir(parents=True, exist_ok=True)
     print(f"\n{'='*60}")
     print(f"  天下布魔 战斗引擎完整提取")
-    print(f"  APK: {apk_path.name}")
-    print(f"  输出: {out_dir}")
+    print(f"  APK: {APK文件路径.name}")
+    print(f"  输出: {输出目录}")
     print(f"{'='*60}\n")
 
     # ── 1. 从 APK 提取关键文件 ──
     print("[1/5] 从 APK 提取文件")
-    apk_content = out_dir / "apk_content"
-    apk_content.mkdir(parents=True, exist_ok=True)
-    need_files = {
+    APK内容目录 = 输出目录 / "apk_content"
+    APK内容目录.mkdir(parents=True, exist_ok=True)
+    所需文件映射 = {
         "lib/arm64-v8a/libil2cpp.so": "libil2cpp.so",
         "lib/arm64-v8a/libstub.so": "libstub.so",
         "lib/arm64-v8a/libcompatible.so": "libcompatible.so",
         "lib/arm64-v8a/libengine.so": "libengine.so",
         "assets/bin/Data/Managed/Metadata/global-metadata.dat": "global-metadata-encrypted.dat",
     }
-    with zipfile.ZipFile(apk_path) as zf:
-        for entry_name, out_name in need_files.items():
+    with zipfile.ZipFile(APK文件路径) as zf:
+        for entry_name, out_name in 所需文件映射.items():
             try:
                 data = zf.read(entry_name)
-                dest = apk_content / out_name
+                dest = APK内容目录 / out_name
                 dest.write_bytes(data)
                 print(f"  [OK] {out_name} ({len(data)/1024/1024:.1f} MB)")
             except KeyError:
@@ -314,120 +377,137 @@ def main():
 
     # ── 2. 解密元数据 ──
     print("\n[2/5] 解密 global-metadata.dat")
-    meta_enc_path = apk_content / "global-metadata-encrypted.dat"
-    meta_out_path = out_dir / "global-metadata_decrypted.dat"
+    元数据加密路径 = APK内容目录 / "global-metadata-encrypted.dat"
+    元数据输出路径 = 输出目录 / "global-metadata_decrypted.dat"
 
-    if meta_enc_path.exists():
-        raw = meta_enc_path.read_bytes()
+    if 元数据加密路径.exists():
+        raw = 元数据加密路径.read_bytes()
         print(f"  加密文件: {len(raw)} bytes, 头={raw[:8].hex()}")
-        plain = decrypt_metadata(raw)
-        meta_out_path.write_bytes(plain)
-        sha = hashlib.sha256(plain).hexdigest()[:16]
-        ver = struct.unpack_from("<I", plain, 4)[0]
-        print(f"  [OK] 解密完成: {len(plain)} bytes, version={ver}, sha256={sha}...")
+        # 解密结果缓存：同一加密文件重跑直接复用，避免重复扫描 libcompatible.so 提取密钥
+        缓存指纹 = hashlib.sha256(raw).hexdigest()[:16]
+        指纹文件 = 元数据输出路径.with_suffix(".sha256")
+        if 元数据输出路径.exists() and 指纹文件.exists() and 指纹文件.read_text(encoding="utf-8").strip() == 缓存指纹:
+            明文数据 = 元数据输出路径.read_bytes()
+            ver = struct.unpack_from("<I", 明文数据, 4)[0]
+            print(f"  [OK] 复用已解密元数据: {len(明文数据)} bytes, version={ver}, 指纹={缓存指纹}")
+        else:
+            # 从 libcompatible.so 中提取 AEI 解密静态密钥（密钥内嵌于 NP 主体二进制，非硬编码）
+            兼容库路径 = APK内容目录 / "libcompatible.so"
+            if not 兼容库路径.exists():
+                print(f"  [X] 未找到 libcompatible.so，无法提取解密密钥")
+                sys.exit(1)
+            兼容库数据 = 兼容库路径.read_bytes()
+            print(f"  从 libcompatible.so ({len(兼容库数据)/1024/1024:.1f} MB) 扫描解密密钥...")
+            静态密钥, 明文数据 = 提取静态密钥(兼容库数据, raw)
+            print(f"  [OK] 静态密钥: {静态密钥.hex()}")
+            元数据输出路径.write_bytes(明文数据)
+            指纹文件.write_text(缓存指纹, encoding="utf-8")
+            sha = hashlib.sha256(明文数据).hexdigest()[:16]
+            ver = struct.unpack_from("<I", 明文数据, 4)[0]
+            print(f"  [OK] 解密完成: {len(明文数据)} bytes, version={ver}, sha256={sha}...")
     else:
         print("  [X] 未找到加密元数据")
         sys.exit(1)
 
     # ── 3. 解析元数据 ──
     print("\n[3/5] 解析元数据方法表")
-    parsed = parse_metadata(meta_out_path.read_bytes())
-    print(f"  方法: {parsed['method_count']}")
-    print(f"  类型: {parsed['type_count']}")
-    print(f"  程序集: {len(parsed['images'])}")
+    解析结果 = 解析元数据(元数据输出路径.read_bytes())
+    print(f"  方法: {解析结果['方法数量']}")
+    print(f"  类型: {解析结果['类型数量']}")
+    print(f"  程序集: {len(解析结果['图像列表'])}")
 
     # ── 4. 识别战斗引擎方法 ──
     print("\n[4/5] 识别战斗引擎方法")
-    battle_types, battle_methods = collect_battle_methods(parsed)
-    print(f"  战斗类型: {len(battle_types)}")
-    print(f"  战斗方法: {len(battle_methods)}")
+    战斗类型表, 战斗方法列表 = 收集战斗方法(解析结果)
+    print(f"  战斗类型: {len(战斗类型表)}")
+    print(f"  战斗方法: {len(战斗方法列表)}")
 
     # 分类统计
-    by_type = {}
-    for m in battle_methods:
-        by_type.setdefault(m["_type"], []).append(m)
-    for tname in sorted(by_type.keys()):
-        cnt = len(by_type[tname])
-        key_cnt = sum(1 for m in by_type[tname] if m.get("_is_key"))
+    按类型分组 = {}
+    for m in 战斗方法列表:
+        按类型分组.setdefault(m["_类型"], []).append(m)
+    for tname in sorted(按类型分组.keys()):
+        cnt = len(按类型分组[tname])
+        key_cnt = sum(1 for m in 按类型分组[tname] if m.get("_是否关键"))
         marker = " ★" if key_cnt else ""
         print(f"    {tname}: {cnt} methods{marker}")
 
     # 导出 CSV
-    csv_path = out_dir / "battle_methods.csv"
-    with csv_path.open("w", newline="") as f:
+    战斗方法表路径 = 输出目录 / "battle_methods.csv"
+    with 战斗方法表路径.open("w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["index", "name", "type", "token", "param_count", "is_key"])
-        for m in sorted(battle_methods, key=lambda x: (x["_type"], x["index"])):
-            w.writerow([m["index"], m["name"], m["_type"],
-                        f"0x{m['token']:08x}", m["param_count"],
-                        "★" if m.get("_is_key") else ""])
+        for m in sorted(战斗方法列表, key=lambda x: (x["_类型"], x["索引"])):
+            w.writerow([m["索引"], m["名称"], m["_类型"],
+                        f"0x{m['令牌']:08x}", m["参数数量"],
+                        "★" if m.get("_是否关键") else ""])
 
     # 导出完整方法表
-    all_csv = out_dir / "all_methods.csv"
+    all_csv = 输出目录 / "all_methods.csv"
     with all_csv.open("w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["index", "name", "decl_type", "token", "param_count", "slot"])
-        for m in parsed["methods"]:
-            tinfo = parsed["types"].get(m["decl_type"])
-            tname = tinfo["name"] if tinfo else str(m["decl_type"])
-            w.writerow([m["index"], m["name"], tname,
-                        f"0x{m['token']:08x}", m["param_count"], m["slot"]])
-    print(f"  [OK] 导出: {csv_path.name}, {all_csv.name}")
+        for m in 解析结果["方法列表"]:
+            类型信息 = 解析结果["类型表"].get(m["声明类型"])
+            tname = 类型信息["名称"] if 类型信息 else str(m["声明类型"])
+            w.writerow([m["索引"], m["名称"], tname,
+                        f"0x{m['令牌']:08x}", m["参数数量"], m["槽位"]])
+    print(f"  [OK] 导出: {战斗方法表路径.name}, {all_csv.name}")
 
     # ── 5. IL2CPP 代码恢复 ──
     print("\n[5/5] IL2CPP 代码恢复")
-    snapshot_path = args.snapshot
-    if not snapshot_path:
+    快照路径 = 命令行参数.snapshot
+    if not 快照路径:
         # 自动从 APK 提取的文件生成快照
         print("  未提供快照，自动生成（Unicorn 模拟 NP 解包）...")
-        gen_script = pathlib.Path(__file__).parent / "generate_snapshot.py"
-        if gen_script.exists():
+        生成脚本 = pathlib.Path(__file__).parent / "生成快照.py"
+        if 生成脚本.exists():
             import subprocess as sp
-            result = sp.run(
-                [sys.executable, str(gen_script), str(apk_content), "-o", str(out_dir)],
+            运行结果 = sp.run(
+                [sys.executable, str(生成脚本), str(APK内容目录), "-o", str(输出目录)],
                 capture_output=True, text=True, timeout=900,
             )
-            print(result.stdout[-1000:] if result.stdout else "")
-            if result.returncode != 0 and result.stderr:
-                print(f"  [!] 快照生成 stderr: {result.stderr[-500:]}")
+            print(运行结果.stdout[-1000:] if 运行结果.stdout else "")
+            if 运行结果.returncode != 0 and 运行结果.stderr:
+                print(f"  [!] 快照生成 stderr: {运行结果.stderr[-500:]}")
             # 查找生成的快照（搜索所有子目录，取最新的 post_fastpath）
             for pattern in ["il2cpp_snapshot.pkl", "post_fastpath_*_mem.pkl", "mu_mem.pkl"]:
-                matches = sorted(out_dir.rglob(pattern))
+                matches = sorted(输出目录.rglob(pattern))
                 if matches:
-                    snapshot_path = str(matches[-1])
+                    快照路径 = str(matches[-1])
                     break
         else:
-            print("  [!] 未找到 generate_snapshot.py")
-    if snapshot_path:
-        print(f"  使用快照: {snapshot_path}")
-        recover_code_from_snapshot(snapshot_path, out_dir, battle_methods)
+            print("  [!] 未找到 生成快照.py")
+    if 快照路径:
+        print(f"  使用快照: {快照路径}")
+        从快照恢复代码(快照路径, 输出目录, 战斗方法列表)
     else:
         print("  [!] 快照生成失败，元数据和方法表已完整提取")
 
     # ── 汇总 ──
-    summary_path = out_dir / "summary.txt"
-    with summary_path.open("w") as f:
+    摘要路径 = 输出目录 / "summary.txt"
+    with 摘要路径.open("w") as f:
         f.write(f"天下布魔 战斗引擎提取摘要\n")
         f.write(f"{'='*50}\n")
-        f.write(f"APK: {apk_path.name}\n")
-        f.write(f"元数据版本: {parsed['version']}\n")
-        f.write(f"方法总数: {parsed['method_count']}\n")
-        f.write(f"类型总数: {parsed['type_count']}\n")
-        f.write(f"战斗类型: {len(battle_types)}\n")
-        f.write(f"战斗方法: {len(battle_methods)}\n\n")
+        f.write(f"APK: {APK文件路径.name}\n")
+        f.write(f"元数据版本: {解析结果['版本']}\n")
+        f.write(f"方法总数: {解析结果['方法数量']}\n")
+        f.write(f"类型总数: {解析结果['类型数量']}\n")
+        f.write(f"战斗类型: {len(战斗类型表)}\n")
+        f.write(f"战斗方法: {len(战斗方法列表)}\n\n")
         f.write(f"战斗类型列表:\n")
-        for ti, t in sorted(battle_types.items()):
-            f.write(f"  [{ti}] {t['full_name']} ({t['method_count']} methods)\n")
+        for ti, t in sorted(战斗类型表.items()):
+            f.write(f"  [{ti}] {t['完整名']} ({t['方法数量']} methods)\n")
         f.write(f"\n关键方法:\n")
-        for m in sorted(battle_methods, key=lambda x: x["index"]):
-            if m.get("_is_key"):
-                f.write(f"  [{m['index']}] {m['_type']}.{m['name']} token=0x{m['token']:08x}\n")
+        for m in sorted(战斗方法列表, key=lambda x: x["索引"]):
+            if m.get("_是否关键"):
+                f.write(f"  [{m['索引']}] {m['_类型']}.{m['名称']} token=0x{m['令牌']:08x}\n")
 
-    print(f"\n  [OK] 摘要: {summary_path}")
+    print(f"\n  [OK] 摘要: {摘要路径}")
     print(f"\n{'='*60}")
-    print(f"  提取完成。输出目录: {out_dir}")
+    print(f"  提取完成。输出目录: {输出目录}")
     print(f"{'='*60}")
 
 
 if __name__ == "__main__":
-    main()
+    主函数()

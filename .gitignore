@@ -14,3 +14,5 @@ dist/
 *策略.json
 *.adaptive检查点.json
 *.策略.验证.json
+
+*.pyc

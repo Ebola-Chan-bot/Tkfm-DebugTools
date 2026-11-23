@@ -3,39 +3,21 @@
 import sys, struct, hashlib
 from pathlib import Path
 
-def decrypt_metadata(raw: bytes) -> bytes:
-    STATIC_KEY = bytes.fromhex("b5c8c2cb9aa6f6e68dccd179e17b91a8")
-    if raw[:3] != b"AEI":
-        raise ValueError(f"非 AEI 头: {raw[:8].hex()}")
-    out_len = struct.unpack_from("<I", raw, 3)[0]
-    read_len = struct.unpack_from("<I", raw, 7)[0]
-    compressed_len = struct.unpack_from("<I", raw, 11)[0]
-    enc_data_key = raw[15:31]
-    from Crypto.Cipher import AES
-    data_key = AES.new(STATIC_KEY, AES.MODE_ECB).decrypt(enc_data_key)
-    ciphertext = raw[31 : 31 + read_len]
-    plaintext = AES.new(data_key, AES.MODE_ECB).decrypt(ciphertext)
-    try:
-        import lz4.block
-        result = lz4.block.decompress(plaintext[:compressed_len], uncompressed_size=out_len)
-    except ImportError:
-        import lz4.frame  # fallback
-        result = lz4.frame.decompress(plaintext[:compressed_len])
-    if len(result) < out_len:
-        result = result.ljust(out_len, b"\x00")
-    return result[:out_len]
-
-def main():
-    src, dst = sys.argv[1], sys.argv[2]
-    raw = Path(src).read_bytes()
-    plain = decrypt_metadata(raw)
-    magic = plain[:4]
-    if magic != bytes.fromhex("af1bb1fa"):
-        print(f"WARN magic={magic.hex()} 期望 af1bb1fa")
-    version = struct.unpack_from("<I", plain, 4)[0]
-    sha = hashlib.sha256(plain).hexdigest()[:16]
-    Path(dst).write_bytes(plain)
-    print(f"OK size={len(plain)} version={version} sha256={sha}")
+def 主函数():
+    加密元数据路径, NP主体库路径, 输出路径 = sys.argv[1], sys.argv[2], sys.argv[3]
+    # 复用提取战斗引擎中的解密逻辑，密钥从 libcompatible.so 自动提取，明文直接复用不重复解密
+    from 提取战斗引擎 import 提取静态密钥
+    加密数据 = Path(加密元数据路径).read_bytes()
+    NP主体库数据 = Path(NP主体库路径).read_bytes()
+    静态密钥, 明文 = 提取静态密钥(NP主体库数据, 加密数据)
+    print(f"静态密钥: {静态密钥.hex()}")
+    魔数 = 明文[:4]
+    if 魔数 != bytes.fromhex("af1bb1fa"):
+        print(f"WARN magic={魔数.hex()} 期望 af1bb1fa")
+    版本 = struct.unpack_from("<I", 明文, 4)[0]
+    哈希 = hashlib.sha256(明文).hexdigest()[:16]
+    Path(输出路径).write_bytes(明文)
+    print(f"OK size={len(明文)} version={版本} sha256={哈希}")
 
 if __name__ == "__main__":
-    main()
+    主函数()
