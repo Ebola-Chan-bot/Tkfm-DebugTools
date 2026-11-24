@@ -1,5 +1,5 @@
 import { 新建战斗, 结算操作, 重放战斗, 当前攻击, 当前护盾, 加成, 可选敌人, 预览敌方行动 } from './战斗引擎.mjs';
-import { 真实角色目录, 获取真实角色, 获取真实技能, 创建角色, 职业列表, 属性列表, 调教加成, 普通等级范围, ELV突破档位, ELV技能解锁等级, 获取潜力养成, 计算调教面板, 技能模型规则, 获取适用ELv技能, 提取角色养成 } from './角色数据.mjs';
+import { 真实角色目录, 获取真实角色, 获取真实技能, 创建角色, 职业列表, 属性列表, 调教加成, 普通等级最高, ELV突破档位, ELV技能解锁等级, 获取潜力养成, 计算调教面板, 技能模型规则, 获取适用ELv技能, 提取角色养成 } from './角色数据.mjs';
 import { 更新池角色, 删除池角色, 校验编队引用, 解析角色引用, 生成角色池文件, 解析角色池文件, 合并角色池, 生成引用编队文件, 解析引用编队文件, 新建池角色, 解析Have角色代码, 合并Have角色 } from './玩家角色池.mjs';
 import { 关卡列表, 当前关卡, 创建关卡配置, 敌方技能目录, 敌方技能名称, 是旧夏日默认面板, 修正夏日默认面板, 是旧爱你默认面板, 修正爱你默认面板, 是旧颠倒镜默认面板, 修正颠倒镜默认面板 } from './关卡数据.mjs';
 
@@ -558,7 +558,7 @@ function ELv选择(单位, 标签) {
 }
 
 function 养成摘要(养成) {
-    return `Lv ${养成.普通等级 ?? 普通等级范围.最高} · ELV ${养成.ELV突破等级 ?? 0} · 潜力 ${养成.潜力等级 ?? 12} · ${养成.星级 ?? 3}星 · 羁绊 ${养成.羁绊 ?? 5} · 调教 ${养成.调教 ?? 3}${养成.解放 ? ` · 解放 ${养成.解放}` : ''}${养成.ELv技能?.length ? ` · ELv ${养成.ELv技能.length}项` : ''}`;
+    return `Lv ${养成.普通等级 ?? 普通等级最高} · ELV ${养成.ELV突破等级 ?? 0} · 潜力 ${养成.潜力等级 ?? 12} · ${养成.星级 ?? 3}星 · 羁绊 ${养成.羁绊 ?? 5} · 调教 ${养成.调教 ?? 3}${养成.解放 ? ` · 解放 ${养成.解放}` : ''}${养成.ELv技能?.length ? ` · ELv ${养成.ELv技能.length}项` : ''}`;
 }
 
 // 本场养成速览读的是战斗配置或战斗状态里的队伍快照，因此之后改角色池养成或换新编队都不会影响已打记录显示的潜力。
@@ -584,7 +584,7 @@ function 养成单位名(单位) {
 
 // 行内潜力已由潜力徽章单独展示，因此明细文字剔除潜力一项，完整养成仍可在角色详情弹窗查看。
 function 养成明细(单位) {
-    const 项 = [`节点 ${(单位.潜力节点 || []).filter(Boolean).length}/6`, `Lv ${单位.普通等级 ?? 普通等级范围.最高}`, `ELV ${单位.ELV突破等级 ?? 0}`, `${单位.星级 ?? 3}星`, `羁绊 ${单位.羁绊 ?? 5}`, `调教 ${单位.调教 ?? 3}`, 单位.解放 ? `解放 阶段${单位.解放}` : '未解放'];
+    const 项 = [`节点 ${(单位.潜力节点 || []).filter(Boolean).length}/6`, `Lv ${单位.普通等级 ?? 普通等级最高}`, `ELV ${单位.ELV突破等级 ?? 0}`, `${单位.星级 ?? 3}星`, `羁绊 ${单位.羁绊 ?? 5}`, `调教 ${单位.调教 ?? 3}`, 单位.解放 ? `解放 阶段${单位.解放}` : '未解放'];
     if (单位.ELv技能?.length) 项.push(`ELv ${单位.ELv技能.length}项`);
     return 项.join(' · ');
 }
@@ -770,7 +770,7 @@ function 渲染角色编辑表单() {
     查('#角色编辑表').innerHTML = `
     <div class="编辑网格">
         <label class="角色选择" data-label="角色"><input data-field="角色输入" data-text type="text" list="角色候选" maxlength="100" value="${转义(单位.角色输入)}" aria-label="角色" placeholder="搜索 SSR 名称或编号" autocomplete="off" ${新增角色中 ? '' : 'disabled'}></label>
-        <label data-label="普通等级"><input data-field="普通等级" type="number" min="${普通等级范围.最低}" max="${普通等级范围.最高}" step="1" value="${单位.普通等级 ?? 普通等级范围.最高}" aria-label="普通等级"></label>
+        <label data-label="普通等级"><input data-field="普通等级" type="number" min="${普通等级最低}" max="${普通等级最高}" step="1" value="${单位.普通等级 ?? 普通等级最高}" aria-label="普通等级"></label>
         <label data-label="ELV突破"><input data-field="ELV突破等级" type="number" min="0" max="${ELV突破档位.at(-1).等级}" step="1" value="${单位.ELV突破等级 ?? 0}" aria-label="ELV突破等级" title="突破要求60级及潜力5满或6以上"></label>
         <label data-label="羁绊"><select data-field="羁绊" aria-label="羁绊">${[1, 2, 3, 4, 5].map(档 => `<option ${档 === 单位.羁绊 ? 'selected' : ''}>${档}</option>`).join('')}</select></label>
         <label data-label="星级"><select data-field="星级" aria-label="星级">${[3, 4, 5].map(星 => `<option ${星 === 单位.星级 ? 'selected' : ''}>${星}</option>`).join('')}</select></label>
@@ -805,7 +805,7 @@ function 刷新角色编辑说明() {
             const 技能 = 突破技能.find(项 => 项.编号 === Number(输入.value));
             if (!技能) { 输入.disabled = true; continue; }
             const 门槛 = ELV技能解锁等级[技能.分类];
-            输入.disabled = (单位.普通等级 ?? 普通等级范围.最高) !== 普通等级范围.最高 || !潜力.可突破 || 突破等级 < 门槛;
+            输入.disabled = (单位.普通等级 ?? 普通等级最高) !== 普通等级最高 || !潜力.可突破 || 突破等级 < 门槛;
             输入.closest('label').title = `ELV${门槛}解锁`;
         }
         for (const 输入 of 表单.querySelectorAll('[data-elv-none]')) 输入.checked = !突破技能.some(项 => 项.分类 === 输入.dataset.elvNone && (单位.ELv技能 || []).includes(项.编号));
@@ -814,7 +814,7 @@ function 刷新角色编辑说明() {
         const 面板 = 计算调教面板(单位);
         const ELV输入 = 表单.querySelector('[data-field="ELV突破等级"]');
         ELV输入.value = 面板.ELV突破等级;
-        ELV输入.disabled = 面板.普通等级 !== 普通等级范围.最高 || !潜力.可突破;
+        ELV输入.disabled = 面板.普通等级 !== 普通等级最高 || !潜力.可突破;
         for (const 输出 of 表单.querySelectorAll('[data-panel-stat]')) 输出.value = 数字(面板[输出.dataset.panelStat]);
         提取角色养成(单位);
         警告.hidden = true;
@@ -843,10 +843,10 @@ function 读取角色编辑输入() {
     }
     单位.潜力节点 = [...表单.querySelectorAll('[data-potential]')].map(输入 => 输入.checked);
     if (单位.潜力等级 !== 原单位.潜力等级) 单位.潜力节点 = Array(6).fill(false);
-    if (单位.普通等级 < 普通等级范围.最高 || !获取潜力养成(单位).可突破) 单位.ELV突破等级 = 0;
+    if (单位.普通等级 < 普通等级最高 || !获取潜力养成(单位).可突破) 单位.ELV突破等级 = 0;
     单位.ELv技能 = [...表单.querySelectorAll('input[data-elv]:checked')].map(输入 => Number(输入.value));
     if (单位.普通等级 !== 原单位.普通等级 || 单位.ELV突破等级 !== 原单位.ELV突破等级) {
-        const 解锁 = 获取适用ELv技能(单位.编号).filter(项 => 单位.普通等级 === 普通等级范围.最高 && 单位.ELV突破等级 >= ELV技能解锁等级[项.分类]).map(项 => 项.编号);
+        const 解锁 = 获取适用ELv技能(单位.编号).filter(项 => 单位.普通等级 === 普通等级最高 && 单位.ELV突破等级 >= ELV技能解锁等级[项.分类]).map(项 => 项.编号);
         单位.ELv技能 = 单位.ELv技能.filter(编号 => 解锁.includes(编号));
     }
     return 单位;

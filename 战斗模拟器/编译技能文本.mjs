@@ -1,5 +1,4 @@
 import 角色显示 from './角色显示.mjs';
-import 养成数据 from './养成常量.mjs';
 import { 原包机制, 原包文本, 原包角色表, 原包角色文本 } from './原包运行时.mjs';
 // ELv技能（40501-40537）分类/职业/属性=LimitBreak.bytes 块结构推导实证（85 个 TLimitBreakLvData 块，每块 lv5=职业prof1对/lv10=common/lv15=属性element对/lv20=职业prof2组；块(职业,属性)二元组 85/85 可推，37 技能归属与本映射 37/37 全对）；名称/说明从原包机制.技能（SkillStr 语言包）取，效果链经 编译技能文本 逐条编译。
 const ELV分类块 = [[40501, 40502, 'profession1', '攻击者', null], [40503, 40504, 'profession1', '守护者', null], [40505, 40506, 'profession1', '治疗者', null], [40507, 40508, 'profession1', '辅助者', null], [40509, 40510, 'profession1', '妨碍者', null], [40511, 40512, 'common', null, null], [40513, 40514, 'element', null, '火'], [40515, 40516, 'element', null, '水'], [40517, 40518, 'element', null, '风'], [40519, 40520, 'element', null, '光'], [40521, 40522, 'element', null, '暗'], [40523, 40525, 'profession2', '攻击者', null], [40526, 40528, 'profession2', '守护者', null], [40529, 40531, 'profession2', '治疗者', null], [40532, 40534, 'profession2', '辅助者', null], [40535, 40537, 'profession2', '妨碍者', null]];

@@ -1,5 +1,4 @@
 import 角色显示 from './角色显示.mjs';
-import 养成数据 from './养成常量.mjs';
 import { 编译ELv技能, 获取适用ELv技能, 盘点ELv技能 } from './编译技能文本.mjs';
 import { 原包机制, 原包角色表, 原包文本, 原包ELV, 原包角色文本, 原包潜力 } from './原包运行时.mjs';
 export { 获取适用ELv技能 };
@@ -21,7 +20,10 @@ function 构建原包模型(单位) {
 export const 职业列表 = ['攻击者', '治疗者', '守护者', '辅助者', '妨碍者'];
 export const 属性列表 = ['火', '水', '风', '光', '暗'];
 export const 调教加成 = [0, 5, 15, 30];
-export const 普通等级范围 = 养成数据.普通等级;
+// 普通等级上下限=UI 校验与默认值；每级倍率=成长公式系数，已由 Character_C 面板反推实证（基础×(1+0.2×星3)×1.1^(级-1)=资料站面板，10001/10006/10137 三例逐位一致）。
+export const 普通等级最低 = 1;
+export const 普通等级最高 = 60;
+export const 每级倍率 = 1.1;
 export const ELV突破档位 = 原包ELV.突破档位;
 export const ELV技能解锁等级 = 原包ELV.技能解锁;
 export const 技能模型规则 = '原包SkillGroup槽模型/必杀羁绊档/解放变体组/原包效果链触发条件/ELv显式选择/普通等级与ELV突破/角色基础属性自动面板/ELv分类单选';
@@ -45,13 +47,13 @@ export function 获取潜力养成(单位) {
 export function 计算调教面板(单位) {
     const 调教 = 单位.调教 ?? 3;
     const 星级 = 单位.星级 ?? 3;
-    const 普通等级 = 单位.普通等级 ?? 普通等级范围.最高;
+    const 普通等级 = 单位.普通等级 ?? 普通等级最高;
     const ELV突破等级 = 单位.ELV突破等级 ?? 0;
     if (!Number.isInteger(调教) || 调教 < 0 || 调教 > 3) throw new Error('调教档位须为 0 至 3');
     if (!Number.isInteger(星级) || 星级 < 3 || 星级 > 5) throw new Error('SSR 星级须为 3 至 5');
-    if (!Number.isInteger(普通等级) || 普通等级 < 普通等级范围.最低 || 普通等级 > 普通等级范围.最高) throw new Error('普通等级须为 1 至 60 的整数');
+    if (!Number.isInteger(普通等级) || 普通等级 < 普通等级最低 || 普通等级 > 普通等级最高) throw new Error('普通等级须为 1 至 60 的整数');
     if (!Number.isInteger(ELV突破等级) || !ELV突破档位[ELV突破等级]) throw new Error('ELV突破等级须为 0 至 20 的整数');
-    if (ELV突破等级 > 0 && 普通等级 !== 养成数据.突破要求.普通等级) throw new Error('ELV突破要求普通等级为60级');
+    if (ELV突破等级 > 0 && 普通等级 !== 60) throw new Error('ELV突破要求普通等级为60级');
     const 潜力 = 获取潜力养成(单位);
     if (ELV突破等级 > 0 && !潜力.可突破) throw new Error('ELV突破要求潜力5满或6以上');
     const 解放 = 单位.解放 ?? 0;
@@ -59,7 +61,7 @@ export function 计算调教面板(单位) {
     if (!档案 || ![档案.初始生命, 档案.初始攻击].every(值 => Number.isFinite(值) && 值 > 0)) throw new Error('缺少角色真实初始属性');
     if (!Number.isInteger(解放) || 解放 < 0 || 解放 && !档案?.解放阶段.includes(解放)) throw new Error('角色没有该解放阶段');
     const 解放倍率 = 1 + (档案?.解放面板加成?.[解放] || 0);
-    const 等级倍率 = 普通等级范围.每级倍率 ** (普通等级 - 1);
+    const 等级倍率 = 每级倍率 ** (普通等级 - 1);
     const 星级倍率 = (1 + 星级 * .2) / (1 + 档案.初始星等 * .2);
     // 初始属性→星级→调教→解放→潜力→ELV 的前缀逐项按 C# float 舍入；等级倍率来自 Math.Pow 的 double 结果，与 float 前缀相乘时保留 double，最后才向下取整，不能把等级系数及最终乘积再 fround。兔姬3星调1潜4节点TFFTTT、ELV0的前缀为5967.0234375，乘1.1^59得1651680.9813018884，实测1651680
     const 面板值 = (数值, 属性, 潜力加成) => {
@@ -137,7 +139,7 @@ export function 获取真实技能(编号, 羁绊 = 5, 指定版本 = null, 解�
 
 export function 准备角色技能(单位) {
     const 潜力 = 获取潜力养成(单位);
-    const 未解锁 = 获取适用ELv技能(单位.编号).filter(项 => (单位.ELv技能 || []).includes(项.编号) && ((单位.普通等级 ?? 普通等级范围.最高) !== 普通等级范围.最高 || (单位.ELV突破等级 ?? 0) < ELV技能解锁等级[项.分类]));
+    const 未解锁 = 获取适用ELv技能(单位.编号).filter(项 => (单位.ELv技能 || []).includes(项.编号) && ((单位.普通等级 ?? 普通等级最高) !== 普通等级最高 || (单位.ELV突破等级 ?? 0) < ELV技能解锁等级[项.分类]));
     if (未解锁.length) return { ...单位, 技能已建模: false, 未支持技能: 未解锁.map(项 => `${项.名称}要求ELV${ELV技能解锁等级[项.分类]}`), 覆盖说明: '所选突破技能尚未达到解锁等级，请确认ELV突破等级。' };
     // 技能列一律以原包数据模型为准：SkillGroup 槽位技能经 执行原包技能 通道结算，剥掉单位对象上可能残留的旧事件字段防漏入执行。必杀冷却暂仍取技能文本编译值（CD 的原包字段待取证，LvUp.bytes 嫌疑）。
     const 原包模型 = 构建原包模型(单位);
@@ -174,7 +176,7 @@ export function 创建角色(输入) {
     if (匹配?.[2] && !匹配名称(档案).includes(规范名称(匹配[2]))) throw new Error('角色编号与名称不一致，请从真实角色候选中重新选择');
     const 基础 = { ...structuredClone(档案), 名称: 档案.全名, 覆盖说明: '已匹配真实角色和资料，技能按 SkillGroup/Skill_C 原包数据建模。' };
     return 统一面板基准(准备角色技能({ ...structuredClone(基础), 编号: 档案.编号, 全名: 档案.全名, 职业: 档案.职业, 属性: 档案.属性,
-        羁绊: 5, 星级: 3, 调教: 3, 普通等级: 普通等级范围.最高, ELV突破等级: 0, 潜力等级: 12, 潜力节点: Array(6).fill(true), 解放: 档案.编号 === 10006 ? Math.max(0, ...档案.解放阶段) : 0, ELv技能: [], 角色输入: `${档案.编号} ${档案.全名}`,
+        羁绊: 5, 星级: 3, 调教: 3, 普通等级: 普通等级最高, ELV突破等级: 0, 潜力等级: 12, 潜力节点: Array(6).fill(true), 解放: 档案.编号 === 10006 ? Math.max(0, ...档案.解放阶段) : 0, ELv技能: [], 角色输入: `${档案.编号} ${档案.全名}`,
     }));
 }
 
