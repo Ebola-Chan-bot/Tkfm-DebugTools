@@ -1,4 +1,4 @@
-// 敌方行动规则.mjs —— 敌方 AI 行动规则（EnemyAI.bytes 原包直读，TAI/TActDetermine 表）。表结构（metadata TYPE 399/400 与 GData.LoadAIData 反汇编定案）：[u32 组数][组×(3B 组头 + 20×35B 行槽)]，4+1225×703=861179B 精确闭合；组头=[u16 AI编号][u8 actTimes=每回合行动次数]；行槽不足补 0（真行=到首个全 0 行）。行=TActDetermine 14 字段 35B：actPattern u16@0=动作码、patternPara u32@2=技能编号、patternPara2 u16@6=附加编号、patternPara3 u16@8=行为标志（1=执行后终止本组后续行）、patternPara4 u16@10=触发模式、actCondition u8@12+conditionPara i32@14+conditionPara2 i32@18=条件一、bonus_ActCondition u8@22+bonus_ConditionPara i32@24+bonus_ConditionPara2 i32@28=条件二、bonus_Judgment u8@32=条件连接、target u8@33=目标码（AI 层选目标策略：56-60 锁定我方位次、81/82/83=生命上限排名前二/第三/第四五名，其余不覆盖）、priority i8@34=选敌码（优先级）。旧内联常量（43248/42281-42286/52541-52545 共 12 组+命定标记生成循环）已删：逐字段对照一致，三处旧转录错位按字节归位——①42286 行0/1 与 52541-545 行0-4/11 的"附加编号"旧值 100041+ 实为 patternPara2|patternPara3<<16 拼接口径（真值 34505+，行为标志 1）；②52541-545 的 56+位置旧放"目标码"列实为 target 位（选AI目标 消费位，归位后行为不变）；③42281 行16-19 的 82/81/83 旧放"选敌码"列，字节真身在 target 位=选目标策略，归位后"最大生命第三高者"等选敌生效（选AI目标 81/82/83=按生命上限前二/第三/第四五名，与技能说明吻合）。
+// 敌方行动规则.mjs —— 敌方 AI 行动规则（EnemyAI.bytes 原包直读，TAI/TActDetermine 表）。表结构（metadata TYPE 399/400 与 GData.LoadAIData 反汇编定案）：[u32 组数][组×(3B 组头 + 20×35B 行槽)]，4+1225×703=861179B 精确闭合；组头=[u16 AI编号][u8 行动间隔（metadata 字段名 actTimes，实测语义=行动间隔回合数）]；行槽不足补 0（真行=到首个全 0 行）。行=TActDetermine 14 字段 35B：actPattern u16@0=动作码、patternPara u32@2=技能编号、patternPara2 u16@6=附加编号、patternPara3 u16@8=行为标志（1=执行后终止本组后续行）、patternPara4 u16@10=触发模式、actCondition u8@12+conditionPara i32@14+conditionPara2 i32@18=条件一、bonus_ActCondition u8@22+bonus_ConditionPara i32@24+bonus_ConditionPara2 i32@28=条件二、bonus_Judgment u8@32=条件连接、target u8@33=目标码（AI 层选目标策略：56-60 锁定我方位次、81/82/83=生命上限排名前二/第三/第四五名，其余不覆盖）、priority i8@34=选敌码（优先级）。旧内联常量（43248/42281-42286/52541-52545 共 12 组+命定标记生成循环）已删：逐字段对照一致，三处旧转录错位按字节归位——①42286 行0/1 与 52541-545 行0-4/11 的"附加编号"旧值 100041+ 实为 patternPara2|patternPara3<<16 拼接口径（真值 34505+，行为标志 1）；②52541-545 的 56+位置旧放"目标码"列实为 target 位（选AI目标 消费位，归位后行为不变）；③42281 行16-19 的 82/81/83 旧放"选敌码"列，字节真身在 target 位=选目标策略，归位后"最大生命第三高者"等选敌生效（选AI目标 81/82/83=按生命上限前二/第三/第四五名，与技能说明吻合）。
 import { 读取原包文件 } from './原包运行时.mjs';
 import { 枚举, 枚举名, 易伤键, 来源易伤键, 登记语义名, 语义名, 标记命定之人, 标记过从甚密, 计数夏日的终结, 模型版本, 水光易伤 } from './枚举.mjs';
 
@@ -11,6 +11,7 @@ const 读i8 = 偏 => (AI字节[偏] << 24) >> 24;
 const 组数 = 读u32(0);
 
 const 原始规则 = {};
+const 行动间隔表 = {};
 for (let 组序 = 0; 组序 < 组数; 组序++) {
     const 组头 = 4 + 组序 * 703;
     const 编号 = 读u16(组头);
@@ -26,7 +27,7 @@ for (let 组序 = 0; 组序 < 组数; 组序++) {
         if (!行.动作码 && !行.技能编号 && !行.目标码 && !行.选敌码) break;
         行列.push({ 槽位, ...行 });
     }
-    if (行列.length) 原始规则[编号] = 行列;
+    if (行列.length) { 原始规则[编号] = 行列; 行动间隔表[编号] = AI字节[组头 + 2]; }
 }
 // 校核门禁：12 组行数与关键字段锚（数据异常时加载即失败）。
 if (原始规则[43248]?.length !== 11 || 原始规则[42281]?.length !== 20 || 原始规则[42286]?.length !== 7 || 原始规则[52541]?.length !== 12) throw new Error('EnemyAI 规则行数锚校验失败');
@@ -34,8 +35,9 @@ if (原始规则[52541][1].目标码 !== 56 || 原始规则[42281][16].目标码
 
 export const 敌方规则 = 原始规则;
 
-// 敌方基础冷却=AI 判定的冷却初始值（模拟器校准常量）。数值除 42286 外与 EnemyAI 组头 actTimes 一致（actTimes 语义=每回合行动次数，概念不同）；42286=5 为实测校准值（组头 actTimes=1）。
-export const 敌方基础冷却 = { 43248: 3, 42281: 5, 42282: 3, 42283: 3, 42284: 3, 42285: 3, 42286: 5 };
+// 敌方基础冷却=AI 行动间隔（单位.冷却/AI状态.最大冷却初值，决定敌人每隔几回合行动一次）：默认=EnemyAI 组头第 3 字节原包直读（metadata 字段名 actTimes；七名已建模敌人中六名与实测冷却逐敌吻合，实测语义=行动间隔回合数而非"每回合行动次数"）；42286 为唯一校准覆盖——组头为 1，实测行动节奏校准为 5（爱你至死不渝首领行为实测定案），不再整表硬编码。
+const 行动间隔校准 = { 42286: 5 };
+export const 敌方基础冷却 = Object.fromEntries(Object.entries(行动间隔表).map(([编号, 间隔]) => [编号, 行动间隔校准[编号] ?? 间隔]));
 
 export const 默认CD条件 = {
     13: { 字段: 枚举.最大冷却, 比较: 枚举.至多 },
@@ -46,7 +48,7 @@ export const 默认CD条件 = {
     78: { 字段: 枚举.当前冷却, 比较: 枚举.至多 },
 };
 
-export const 比较方式 = [枚举.等值, '!=', 枚举.大于, '>=', 枚举.小于, '<='];
+export const 比较方式 = [枚举.等值, 枚举.不等, 枚举.大于, 枚举.至少, 枚举.小于, 枚举.至多];
 
 export function 校验AI配置(配置) {
     for (const [编号, 条件] of Object.entries(配置.AICD条件 || {})) {
@@ -58,12 +60,16 @@ export function 校验AI配置(配置) {
 
 function 比较冷却(条件, 单位, 参数) {
     const 数值 = (条件.字段 === 枚举.最大冷却 ? 单位.AI状态?.最大冷却 : 单位.AI状态?.当前冷却) ?? 0;
-    if (条件.比较 === 枚举.等值) return 数值 === 参数;
-    if (条件.比较 === 枚举.不等) return 数值 !== 参数;
-    if (条件.比较 === 枚举.大于) return 数值 > 参数;
-    if (条件.比较 === 枚举.至少) return 数值 >= 参数;
-    if (条件.比较 === 枚举.小于) return 数值 < 参数;
-    return 数值 <= 参数;
+    // 比较码是单值整数枚举，switch 即"一码一支"的直译；未知码显式报错，不像旧 if 链把漏网值静默当成至多。
+    switch (条件.比较) {
+        case 枚举.等值: return 数值 === 参数;
+        case 枚举.不等: return 数值 !== 参数;
+        case 枚举.大于: return 数值 > 参数;
+        case 枚举.至少: return 数值 >= 参数;
+        case 枚举.小于: return 数值 < 参数;
+        case 枚举.至多: return 数值 <= 参数;
+        default: throw new Error(`未知的冷却比较方式：${条件.比较}`);
+    }
 }
 
 export const 条件解释 = {
