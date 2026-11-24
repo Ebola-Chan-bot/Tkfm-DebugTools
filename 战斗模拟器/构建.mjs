@@ -9,7 +9,7 @@ const 输出 = 路径.join(根目录, 'dist');
 // 构建前清空 dist 整目录重建：防清单移除后旧文件残留（曾致 15MB 原包关卡机制.json 滞留 dist）。
 await 文件系统.rm(输出, { recursive: true, force: true });
 await 文件系统.mkdir(输出, { recursive: true });
-const 文件列表 = ['index.html', '界面.css', '应用.mjs', '战斗引擎.mjs', '战斗数值.mjs', '关卡机制.mjs', '角色数据.mjs', '玩家角色池.mjs', '编译技能文本.mjs', '原包数据.mjs', '原包运行时.mjs', '真实角色目录.json', '真实ELv技能.json', '真实养成数据.json', '真实敌方资料.json', '原包数据/Skill_C.bytes', '原包数据/SkillGroup.bytes', '原包数据/技能说明.json', '关卡数据.mjs', '敌方行动规则.mjs', 'manifest.webmanifest'];
+const 文件列表 = ['index.html', '界面.css', '应用.mjs', '战斗引擎.mjs', '战斗数值.mjs', '关卡机制.mjs', '角色数据.mjs', '玩家角色池.mjs', '编译技能文本.mjs', '原包数据.mjs', '原包运行时.mjs', '角色显示.mjs', '养成常量.mjs', '关卡行动.mjs', '原包数据/Skill_C.bytes', '原包数据/Character_C.bytes', '原包数据/SkillGroup.bytes', '原包数据/技能说明.json', '关卡数据.mjs', '敌方行动规则.mjs', 'manifest.webmanifest'];
 for (const 文件 of 文件列表) {
     // 子目录条目（如 原包数据/*.bytes）需先建目录再复制。
     const 目标路径 = 路径.join(输出, 文件);
@@ -21,7 +21,7 @@ await 文件系统.copyFile(路径.join(根目录, 'node_modules/lucide/LICENSE'
 await 文件系统.mkdir(路径.join(输出, '职业图标'), { recursive: true });
 for (const 名称 of ['attacker', 'healer', 'protector', 'supporter', 'obstructer']) await 文件系统.copyFile(路径.join(根目录, '职业图标', `${名称}.png`), 路径.join(输出, '职业图标', `${名称}.png`));
 await 文件系统.mkdir(路径.join(输出, '角色头像'), { recursive: true });
-const 角色目录 = JSON.parse(await 文件系统.readFile(路径.join(根目录, '真实角色目录.json'), 'utf8'));
+const 角色目录 = (await import('./角色显示.mjs')).default;
 const 头像源目录 = 路径.resolve(根目录, '../../tenkaassist/images/characters');
 for (const 单位 of 角色目录) {
     const 文件名 = `cs${单位.编号}_0_0.webp`;

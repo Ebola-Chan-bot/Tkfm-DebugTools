@@ -1,6 +1,19 @@
-import 真实角色档案 from './真实角色目录.json' with { type: 'json' };
-import 真实ELv技能 from './真实ELv技能.json' with { type: 'json' };
-import 养成数据 from './真实养成数据.json' with { type: 'json' };
+import 角色显示 from './角色显示.mjs';
+import 养成数据 from './养成常量.mjs';
+import { 原包机制, 原包文本, 原包角色表 } from './原包运行时.mjs';
+// ELv技能（40501-40537）分类/职业/属性=编号块映射（TKFM-Data-Room limitBreak.ts group 字段转录；块边界已与37条逐条核对）；名称/说明从原包机制.技能（SkillStr 语言包）取，效果链经 编译技能文本 逐条编译。
+const ELV分类块 = [[40501, 40502, 'profession1', '攻击者', null], [40503, 40504, 'profession1', '守护者', null], [40505, 40506, 'profession1', '治疗者', null], [40507, 40508, 'profession1', '辅助者', null], [40509, 40510, 'profession1', '妨碍者', null], [40511, 40512, 'common', null, null], [40513, 40514, 'element', null, '火'], [40515, 40516, 'element', null, '水'], [40517, 40518, 'element', null, '风'], [40519, 40520, 'element', null, '光'], [40521, 40522, 'element', null, '暗'], [40523, 40525, 'profession2', '攻击者', null], [40526, 40528, 'profession2', '守护者', null], [40529, 40531, 'profession2', '治疗者', null], [40532, 40534, 'profession2', '辅助者', null], [40535, 40537, 'profession2', '妨碍者', null]];
+let ELV技能缓存 = null;
+function 取ELv技能() {
+    if (ELV技能缓存) return ELV技能缓存;
+    ELV技能缓存 = [];
+    for (const [起, 止, 分类, 职业, 属性] of ELV分类块) for (let 编号 = 起; 编号 <= 止; 编号++) {
+        const 说 = 原包文本.get(编号);
+        if (!说) throw new Error('原包语言包缺少ELv技能文本：' + 编号);
+        ELV技能缓存.push({ 编号, 分类, 职业, 属性, 名称: 说[0], 说明: 说[1], 资料指纹: '原包SkillStr#' + 编号 });
+    }
+    return ELV技能缓存;
+}
 
 function 规范已核实别名(文本) {
     return 文本.replaceAll('《奈奈美忙不过来了》', '《奈奈美忙不过来》').replaceAll('《全力哑铃捧花投掷》', '《全力捧花哑铃投掷》').replace(/\(([\d.]+(?:\/[\d.]+)+)\)%/g, (整段, 数列) => {
@@ -135,8 +148,8 @@ function 分句(文本) {
 
 function 匹配角色编号(名称) {
     const 键 = 名称.replace(/[\s「」【】]/g, '').replace(/^圣诞驯鹿希依$/, '圣诞驯鹿希伊');
-    const 全名 = 真实角色档案.filter(项 => 项.全名.replace(/\s/g, '') === 键);
-    const 匹配 = 全名.length ? 全名 : 真实角色档案.filter(项 => [项.名称, ...(项.别名 || [])].some(名 => 名.replace(/\s/g, '') === 键));
+    const 全名 = 角色显示.filter(项 => 项.全名.replace(/\s/g, '') === 键);
+    const 匹配 = 全名.length ? 全名 : 角色显示.filter(项 => [项.名称, ...(项.别名 || [])].some(名 => 名.replace(/\s/g, '') === 键));
     return 匹配.length === 1 ? 匹配[0].编号 : null;
 }
 
@@ -201,7 +214,7 @@ function 队伍人数判定(原文) {
 function 编译单句(原文, 上下文) {
     const 文字 = 原文.trim().replace(/^技能(?=「)/, '').replace(/技能(?=「)/g, '').replace(/(?:对目标)进行反击/g, '对目标造成伤害').replace(/^以自身(攻击力|当前护盾值)([\d.]+)(?=对|给予)/, '以自身$1$2%').replace(/^自身(?=每经过|第\d+回合|每Wave)/, '').replace(/(普攻|必杀|攻击|防御)时[与丶、](普攻|必杀|攻击|防御)时/g, '$1丶$2时').replace(/^以自身最大HP([\d.]+)%使(.+?)护盾/, '以自身最大HP$1%给予$2护盾').replace(/「(《[^》]+》)」(?=的?层数)/g, '$1').replace(/开启(《[^》]+》)(?:技能)?/g, '开启「$1」').replace(/%(最多\d+层\))/g, '%($1').replace(/^([火水风光暗])属性角色有/, '我方队伍$1属性角色有');
     const 目标 = (表达, 默认 = 上下文.目标 || '自身') => {
-        const 本体 = 真实角色档案.find(项 => 项.编号 === 上下文.角色编号);
+        const 本体 = 角色显示.find(项 => 项.编号 === 上下文.角色编号);
         const 去使 = 表达?.replace(/^使/, '') || '';
         if (本体 && [本体.名称, 本体.全名.replace(/\s/g, '')].some(名 => 去使 === `${名}自身`)) return '自身';
         return 解析目标(表达, 默认);
@@ -300,7 +313,7 @@ function 编译单句(原文, 上下文) {
     const 简称编号 = 名称 => {
         const 唯一 = 匹配角色编号(名称);
         if (唯一) return 唯一;
-        const 本体 = 真实角色档案.find(项 => 项.编号 === 上下文.角色编号);
+        const 本体 = 角色显示.find(项 => 项.编号 === 上下文.角色编号);
         return 本体 && 名称.replace(/\s/g, '') === 本体.名称.replace(/\s/g, '') ? 本体.编号 : null;
     };
     const 战斗监听 = 文字.match(/^(成功解除防御时|敌方必杀时|被普攻时)[,，]?(?:触发|追加)「(.+)」(.*)$/s);
@@ -706,9 +719,9 @@ export function 选取角色技能(资料, { 技能版本 = null, 解放 = 0 } =
 }
 
 export function 获取适用ELv技能(角色编号) {
-    const 角色 = 真实角色档案.find(项 => 项.编号 === 角色编号);
+    const 角色 = 原包角色表.get(角色编号);
     if (!角色) return [];
-    return 真实ELv技能.filter(项 => (!项.职业 || 项.职业 === 角色.职业) && (!项.属性 || 项.属性 === 角色.属性));
+    return 取ELv技能().filter(项 => (!项.职业 || 项.职业 === 角色.职业) && (!项.属性 || 项.属性 === 角色.属性));
 }
 
 export function 编译ELv技能(角色编号, 选择 = []) {
@@ -733,110 +746,10 @@ export function 编译ELv技能(角色编号, 选择 = []) {
 }
 
 export function 盘点ELv技能() {
-    return 真实ELv技能.map(技能 => {
-        const 适用角色 = 真实角色档案.filter(角色 => (!技能.职业 || 角色.职业 === 技能.职业) && (!技能.属性 || 角色.属性 === 技能.属性)).map(角色 => 角色.编号);
+    return 取ELv技能().map(技能 => {
+        const 适用角色 = 角色显示.map(显示 => 原包角色表.get(显示.编号)).filter(角色 => 角色 && (!技能.职业 || 角色.职业 === 技能.职业) && (!技能.属性 || 角色.属性 === 技能.属性)).map(角色 => 角色.编号);
         const 结果 = 适用角色.length ? 编译ELv技能(适用角色[0], [技能.编号]) : { 完整: false, 未支持: ['没有适用的真实SSR'] };
         return { ...技能, 适用角色, 完整: 结果.完整, 未支持: 结果.未支持 };
     });
 }
-
-export function 编译角色技能(资料, { 羁绊 = 5, 星级 = 5, 解放 = 0, 技能版本 = null, ELv技能 = [], 潜力被动 = [1, 2] } = {}) {
-    const 选定 = 选取角色技能(资料, { 技能版本, 解放 });
-    if (!选定) return { 完整: false, 未支持: ['该技能修订或解放阶段没有真实资料'], 版本: null, 模型: {} };
-    function 收集引用(备用 = false) {
-        const 条目 = Object.entries(选定.技能);
-        const 说明 = 项 => 项.校核说明 || (备用 ? 项.备用说明 || 项.说明 : 项.说明);
-        const 自身技能 = Object.fromEntries(条目.filter(([类]) => !类.startsWith('SKILL_')).map(([, 项]) => [统一引用名称(`《${规范技能文本(备用 ? 项.备用名称 || 项.名称 : 项.名称)}》`).slice(1, -1), 提取子技能(说明(项)).正文]));
-        return Object.assign(自身技能, ...条目.map(([, 项]) => 提取子技能(说明(项)).引用));
-    }
-    const 引用 = 收集引用();
-    const 备用引用 = 收集引用(true);
-    const 条目 = {};
-    const 未支持 = [];
-    const 具体缺口 = [];
-    const 文本依据 = [];
-    // 原包技能组与技能定义没有被动二的四星解锁字段，不得用星级过滤已实测生效的技能。
-    const 必要 = ['ATTACK', `SKILL_${羁绊}`, 'LEADER', 'PASSIVE_1', 'PASSIVE_2', ...(星级 >= 5 ? ['PASSIVE_3'] : []), ...[1, 2].filter(阶 => 潜力被动.includes(阶)).map(阶 => `GENERAL_${阶}`)];
-    function 标记(效果列, 前缀, 来源技能) {
-        return 效果列.map((效果, 序) => ({ ...效果, 来源技能: 效果.来源技能 || 来源技能, 名称: 效果.名称 || (效果.引用标识 ? `${资料.编号}:${选定.版本}:引用:${效果.引用标识}` : `${前缀}:${序}`), ...(效果.效果 ? { 效果: 标记(效果.效果, `${前缀}:${序}`, 效果.来源技能 || 来源技能) } : {}) }));
-    }
-    function 核查(效果列, 名称) {
-        for (const 效果 of 效果列) {
-            if (效果.类型 === '叠层满' && !Object.hasOwn(引用, 效果.技能)) 未支持.push(`${名称}：找不到真实状态定义${效果.技能}`);
-            if (效果.概率 !== undefined && (!Number.isFinite(效果.概率) || 效果.概率 < 0 || 效果.类型 !== '异常状态' && 效果.概率 > 1)) 未支持.push(`${名称}：无效概率`);
-            if (效果.判定?.some(项 => ['层数', '生命比例'].includes(项.类型) || 项.类型 === '角色存在' && 项.存活) && !['注册触发', '最大冷却变化'].includes(效果.类型) && !(效果.类型 === '增益' && !效果.基准 && 效果.属性 !== '生命比例' && (效果.持续 ?? 9999) > 0)) 未支持.push(`${名称}：动态条件效果尚未实现`);
-            if (效果.效果) 核查(效果.效果, 名称);
-        }
-    }
-    for (const 类型 of 必要) {
-        const 技能 = 选定.技能[类型];
-        if (!技能) { if (['ATTACK', `SKILL_${羁绊}`, 'LEADER'].includes(类型)) 未支持.push(`缺少${类型}`); continue; }
-        const 本地 = 提取子技能(技能.校核说明 || 技能.说明);
-        const 环境 = { 羁绊, 羁绊数列: 类型.startsWith('SKILL_'), 角色编号: 资料.编号, 目标: '自身' };
-        let 编译 = 编译技能文本(本地.正文, { ...环境, 引用: { ...引用, ...本地.引用 } });
-        if (编译.未解析.length && !技能.校核说明 && 技能.备用说明) {
-            const 对照 = 提取子技能(技能.备用说明);
-            const 校核 = 编译技能文本(对照.正文, { ...环境, 引用: { ...备用引用, ...对照.引用 } });
-            if (!校核.未解析.length && (!['ATTACK', `SKILL_${羁绊}`].includes(类型) || 校核.效果.length)) {
-                编译 = 校核;
-                文本依据.push({ 技能: 类型, 名称: 技能.名称, 来源: 技能.备用来源 });
-            }
-        }
-        if (技能.校核说明 && !编译.未解析.length) 文本依据.push({ 技能: 类型, 名称: 技能.名称, 来源: 技能.校核依据 });
-        条目[类型] = 标记(编译.效果, `${资料.编号}:${选定.版本}:${类型}`, 统一引用名称(`《${规范技能文本(技能.名称)}》`).slice(1, -1));
-        if (['ATTACK', `SKILL_${羁绊}`].includes(类型) && !编译.效果.length) 未支持.push(`${技能.名称}：没有可执行效果，不能用空技能结算`);
-        未支持.push(...编译.未解析.map(语句 => `${技能.名称}：${语句}`));
-        具体缺口.push(...(编译.详细未解析 || 编译.未解析).map(语句 => `${技能.名称}：${语句}`));
-        核查(编译.效果, 技能.名称);
-    }
-    const 必杀 = 选定.技能[`SKILL_${羁绊}`] || 选定.技能.SKILL_S;
-    const 强化 = 编译ELv技能(资料.编号, ELv技能);
-    未支持.push(...强化.未支持);
-    具体缺口.push(...强化.未支持);
-    文本依据.push(...强化.文本依据);
-    核查(强化.效果, 'ELv技能');
-    return {
-        完整: 未支持.length === 0, 未支持, 具体缺口, 文本依据, 资料指纹: 资料.资料指纹 || null, 版本: 选定.版本, 解放: 选定.解放, 面板加成: 选定.面板加成,
-        模型: { 普攻: 条目.ATTACK || [], 必杀: 条目[`SKILL_${羁绊}`] || [], 队长: 条目.LEADER || [], 初始: [...必要.filter(项 => /^(PASSIVE|GENERAL)_/.test(项)).flatMap(项 => 条目[项] || []), ...强化.效果], 冷却: 编译技能文本(必杀?.说明 || '', { 羁绊, 引用 }).冷却 || null },
-    };
-}
-
-export function 盘点角色技能(资料, { 全档位 = false, 包含历史 = false, 进度 = null } = {}) {
-    return 资料.map(角色 => {
-    进度?.(角色.编号);
-        const 默认 = { 编号: 角色.编号, ...编译角色技能(角色) };
-        if (!全档位) return 默认;
-        const 解放 = 选取技能版本({ 版本: 角色.解放 || [] });
-        const 修订 = 包含历史 ? 角色.版本.map(项 => 项.版本) : [选取技能版本(角色).版本];
-        const 档位 = 修订.flatMap(技能版本 => [0, ...(解放?.阶段.map(项 => 项.阶段) || [])].flatMap(解放阶段 => [3, 4, 5].flatMap(星级 => [1, 2, 3, 4, 5].map(羁绊 => {
-            const 结果 = 编译角色技能(角色, { 技能版本, 解放: 解放阶段, 星级, 羁绊 });
-            return { 技能版本, 解放: 解放阶段, 星级, 羁绊, 完整: 结果.完整, 未支持: 结果.未支持, 具体缺口: 结果.具体缺口 || [] };
-        }))));
-        return { ...默认, 全档位完整: 档位.every(项 => 项.完整), 档位 };
-    });
-}
-
-if (typeof process !== 'undefined' && process.versions?.node && process.argv[1]) {
-    const { pathToFileURL: 文件路径转地址 } = await import('node:url');
-    if (import.meta.url === 文件路径转地址(process.argv[1]).href) {
-        const 文件系统 = await import('node:fs/promises');
-        const 资料 = JSON.parse(await 文件系统.readFile(new URL('./真实角色技能.json', import.meta.url), 'utf8'));
-        const 全档位 = process.argv.includes('--全档位');
-        const 包含历史 = process.argv.includes('--包含历史');
-        const { createHash: 创建摘要 } = await import('node:crypto');
-        const 源码指纹 = {};
-        for (const 文件 of ['编译技能文本.mjs', '战斗引擎.mjs', '角色数据.mjs', '真实角色目录.json', '真实角色技能.json', '真实ELv技能.json', '真实养成数据.json', '关卡数据.mjs', '真实敌方资料.json']) 源码指纹[文件] = 创建摘要('sha256').update(await 文件系统.readFile(new URL(文件, import.meta.url))).digest('hex');
-        const 结果 = 盘点角色技能(资料, { 全档位, 包含历史, 进度: process.argv.includes('--显示进度') ? 编号 => process.stderr.write(`盘点角色 ${编号}\n`) : null });
-        const 频次 = new Map();
-        for (const 角色 of 结果) {
-            const 角色缺口 = new Set((角色.档位 || [角色]).flatMap(项 => 项.具体缺口?.length ? 项.具体缺口 : 项.未支持).map(语句 => 语句.slice(语句.indexOf('：') + 1).replace(/\d+(?:\.\d+)?/g, '#')));
-            for (const 归一 of 角色缺口) 频次.set(归一, (频次.get(归一) || 0) + 1);
-        }
-        const ELv技能 = 盘点ELv技能();
-        const 报告 = { 验证范围: '真实资料编译完整性；档位数不穷举普通等级、潜力节点与ELV组合，不代替执行检查、官方实测或账号解锁确认', 源码指纹, 养成范围: { 普通等级: 养成数据.普通等级, 潜力等级: [1, 12], 潜力节点数: 6, ELV突破等级: [0, 养成数据.ELV突破.at(-1).等级], ELV技能解锁: 养成数据.ELV技能解锁 }, 角色数: 结果.length, 完整数: 结果.filter(项 => 项.完整).length, 全档位, 包含历史, 档位数: 全档位 ? 结果.reduce((和, 项) => 和 + 项.档位.length, 0) : 结果.length, 全档位完整数: 全档位 ? 结果.filter(项 => 项.全档位完整).length : null, ELv技能数: ELv技能.length, ELv完整数: ELv技能.filter(项 => 项.完整).length, ELv技能, 高频缺口: [...频次].sort((甲, 乙) => 乙[1] - 甲[1]), 角色: 结果 };
-        const 输出路径 = process.argv.slice(2).find(参数 => !参数.startsWith('--')) || './技能覆盖进度.json';
-        const 输出 = new URL(输出路径, import.meta.url);
-        await 文件系统.writeFile(输出, JSON.stringify(报告, null, 2) + '\n', 'utf8');
-        console.log(JSON.stringify({ 角色数: 报告.角色数, 完整数: 报告.完整数, 全档位完整数: 报告.全档位完整数, 档位数: 报告.档位数, 缺口总数: 结果.reduce((和, 项) => 和 + 项.未支持.length, 0), 输出: 输出.pathname }));
-    }
-}
+
