@@ -9,7 +9,7 @@ const 输出 = 路径.join(根目录, 'dist');
 // 构建前清空 dist 整目录重建：防清单移除后旧文件残留（曾致 15MB 原包关卡机制.json 滞留 dist）。
 await 文件系统.rm(输出, { recursive: true, force: true });
 await 文件系统.mkdir(输出, { recursive: true });
-const 文件列表 = ['index.html', '界面.css', '应用.mjs', '战斗引擎.mjs', '战斗数值.mjs', '关卡机制.mjs', '角色数据.mjs', '玩家角色池.mjs', '编译技能文本.mjs', '原包数据.mjs', '原包运行时.mjs', '角色显示.mjs', '养成常量.mjs', '关卡行动.mjs', '原包数据/Skill_C.bytes', '原包数据/Character_C.bytes', '原包数据/SkillGroup.bytes', '原包数据/技能说明.json', '关卡数据.mjs', '敌方行动规则.mjs', 'manifest.webmanifest'];
+const 文件列表 = ['index.html', '界面.css', '应用.mjs', '战斗引擎.mjs', '战斗数值.mjs', '关卡机制.mjs', '角色数据.mjs', '玩家角色池.mjs', '编译技能文本.mjs', '原包数据.mjs', '原包运行时.mjs', '角色显示.mjs', '养成常量.mjs', '关卡行动.mjs', '原包数据/Skill_C.bytes', '原包数据/Character_C.bytes', '原包数据/LimitBreak.bytes', '原包数据/CharacterStr_sc.bytes', '原包数据/PotentialUp.bytes', '原包数据/EnemyAI.bytes', '原包数据/SkillGroup.bytes', '原包数据/SkillStr_sc.bytes', '关卡数据.mjs', '敌方行动规则.mjs', 'manifest.webmanifest'];
 for (const 文件 of 文件列表) {
     // 子目录条目（如 原包数据/*.bytes）需先建目录再复制。
     const 目标路径 = 路径.join(输出, 文件);

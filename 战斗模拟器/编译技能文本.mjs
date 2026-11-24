@@ -1,7 +1,7 @@
 import 角色显示 from './角色显示.mjs';
 import 养成数据 from './养成常量.mjs';
-import { 原包机制, 原包文本, 原包角色表 } from './原包运行时.mjs';
-// ELv技能（40501-40537）分类/职业/属性=编号块映射（TKFM-Data-Room limitBreak.ts group 字段转录；块边界已与37条逐条核对）；名称/说明从原包机制.技能（SkillStr 语言包）取，效果链经 编译技能文本 逐条编译。
+import { 原包机制, 原包文本, 原包角色表, 原包角色文本 } from './原包运行时.mjs';
+// ELv技能（40501-40537）分类/职业/属性=LimitBreak.bytes 块结构推导实证（85 个 TLimitBreakLvData 块，每块 lv5=职业prof1对/lv10=common/lv15=属性element对/lv20=职业prof2组；块(职业,属性)二元组 85/85 可推，37 技能归属与本映射 37/37 全对）；名称/说明从原包机制.技能（SkillStr 语言包）取，效果链经 编译技能文本 逐条编译。
 const ELV分类块 = [[40501, 40502, 'profession1', '攻击者', null], [40503, 40504, 'profession1', '守护者', null], [40505, 40506, 'profession1', '治疗者', null], [40507, 40508, 'profession1', '辅助者', null], [40509, 40510, 'profession1', '妨碍者', null], [40511, 40512, 'common', null, null], [40513, 40514, 'element', null, '火'], [40515, 40516, 'element', null, '水'], [40517, 40518, 'element', null, '风'], [40519, 40520, 'element', null, '光'], [40521, 40522, 'element', null, '暗'], [40523, 40525, 'profession2', '攻击者', null], [40526, 40528, 'profession2', '守护者', null], [40529, 40531, 'profession2', '治疗者', null], [40532, 40534, 'profession2', '辅助者', null], [40535, 40537, 'profession2', '妨碍者', null]];
 let ELV技能缓存 = null;
 function 取ELv技能() {
@@ -148,8 +148,8 @@ function 分句(文本) {
 
 function 匹配角色编号(名称) {
     const 键 = 名称.replace(/[\s「」【】]/g, '').replace(/^圣诞驯鹿希依$/, '圣诞驯鹿希伊');
-    const 全名 = 角色显示.filter(项 => 项.全名.replace(/\s/g, '') === 键);
-    const 匹配 = 全名.length ? 全名 : 角色显示.filter(项 => [项.名称, ...(项.别名 || [])].some(名 => 名.replace(/\s/g, '') === 键));
+    const 全名 = 角色显示.filter(项 => (原包角色文本.get(项.编号)?.全名 ?? '').replace(/\s/g, '') === 键);
+    const 匹配 = 全名.length ? 全名 : 角色显示.filter(项 => [原包角色文本.get(项.编号)?.名称, ...(项.别名 || [])].some(名 => (名 ?? '').replace(/\s/g, '') === 键));
     return 匹配.length === 1 ? 匹配[0].编号 : null;
 }
 
@@ -216,7 +216,7 @@ function 编译单句(原文, 上下文) {
     const 目标 = (表达, 默认 = 上下文.目标 || '自身') => {
         const 本体 = 角色显示.find(项 => 项.编号 === 上下文.角色编号);
         const 去使 = 表达?.replace(/^使/, '') || '';
-        if (本体 && [本体.名称, 本体.全名.replace(/\s/g, '')].some(名 => 去使 === `${名}自身`)) return '自身';
+        if (本体 && [本体.名称, (本体.全名 ?? '').replace(/\s/g, '')].some(名 => 去使 === `${名}自身`)) return '自身';
         return 解析目标(表达, 默认);
     };
     const 清内容监听 = 文字.match(/^清除(.+?)获得「(普攻|必杀|攻击|防御)时[,，](?:触发|追加)「使目标获得《([^》]+)》」」$/);

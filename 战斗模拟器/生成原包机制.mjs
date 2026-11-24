@@ -20,5 +20,5 @@ const 结果 = {
     说明: '数值、目标、职业、触发与子技能来自Skill_C原始字段；文本仅用于名称和人工核对，不用作文本倍率来源。未支持效果保留原始字段并显式列出。',
     ...解析,
 };
-文件系统.writeFileSync(路径.join(目录, '原包关卡机制.json'), JSON.stringify(结果, null, 2) + '\n', 'utf8');
+文件系统.writeFileSync('D:/天下布魔/原包分析/原包关卡机制快照.json', JSON.stringify(结果, null, 2) + '\n', 'utf8');
 console.log(`原包机制翻译完成：${Object.keys(解析.技能).length}条技能；颠倒镜${解析.校核.颠倒镜记录数}条全部有字段映射；SP61五个伤害/增益/控制锚点通过；全量未映射效果${解析.校核.未支持.length}条已显式保留。`);
