@@ -119,9 +119,11 @@ const 取ELV = () => 解放缓存 ??= (() => {
         const 模 = [...(按lv.get(lv) || [""])][0].split(",").filter(Boolean);
         for (const c of 模) {
             const [k, v] = c.split("-").map(Number);
-            if (k === 3) { const 类 = v <= 40510 ? "profession1" : v <= 40512 ? "common" : v <= 40522 ? "element" : "profession2"; (解锁计数[类] = 解锁计数[类] || {})[lv] = (解锁计数[类][lv] || 0) + 1; }
-            else if (k === 2) 生 += v / 100;
-            else if (k === 1) 攻 += v / 100;
+            switch (k) {
+                case 3: { const 类 = v <= 40510 ? "profession1" : v <= 40512 ? "common" : v <= 40522 ? "element" : "profession2"; (解锁计数[类] = 解锁计数[类] || {})[lv] = (解锁计数[类][lv] || 0) + 1; break; }
+                case 2: 生 += v / 100; break;
+                case 1: 攻 += v / 100; break;
+            }
         }
         突破档位.push({ 等级: lv, 生命百分比: Math.round(生 * 100) / 100, 攻击百分比: Math.round(攻 * 100) / 100 });
     }
