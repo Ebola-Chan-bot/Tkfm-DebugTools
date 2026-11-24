@@ -28,7 +28,8 @@ function 取编组表() { return 编组表缓存 ??= (() => {
 })(); }
 export const 原包编组表 = new Proxy({}, { get: (目标, 键) => { const 表 = 取编组表(); const 值 = 表[键]; return typeof 值 === 'function' ? 值.bind(表) : 值; }, has: (目标, 键) => 键 in 取编组表(), ownKeys: () => Reflect.ownKeys(取编组表()), getOwnPropertyDescriptor: () => ({ configurable: true, enumerable: true }) });
 // 原包运行时.mjs —— 浏览器端加载原包二进制表并解析为原包机制结构；Node 环境自动回退 node:fs 读取，供优化器等工具在无浏览器时复用同一份数据链路。
-import { 解析原包机制 } from './原包数据.mjs';
+import { 解析原包机制, 敌方组推导, 关卡编号组 } from './原包数据.mjs';
+export { 关卡编号组 };
 
 export async function 读取原包文件(文件名, 转文本 = false) {
     try {
@@ -52,7 +53,7 @@ export async function 读取原包文件(文件名, 转文本 = false) {
     }
 }
 
-const [技能字节, 技能组字节, 技能文本字节, 角色字节, 解放字节, 文本名字节, 潜力字节, 关卡字节, 编组字节] = await Promise.all([
+const [技能字节, 技能组字节, 技能文本字节, 角色字节, 解放字节, 文本名字节, 潜力字节, 关卡字节, 编组字节, 关卡名字节] = await Promise.all([
     读取原包文件('Skill_C.bytes'),
     读取原包文件('SkillGroup.bytes'),
     读取原包文件('SkillStr_sc.bytes'),
@@ -62,6 +63,7 @@ const [技能字节, 技能组字节, 技能文本字节, 角色字节, 解放�
     读取原包文件('PotentialUp.bytes'),
     读取原包文件('Stage_C.bytes'),
     读取原包文件('MonsterGroup.bytes'),
+    读取原包文件('StageStr_sc.bytes'),
 ]);
 // 原包文本：语言包技能说明（SkillStr 文本池）编号→[名称,说明]。ELv技能（405xx）等未入技能字典的孤岛记录从这里取显示文本。
 // 技能文本表=SkillStr_sc.bytes 解析（[u32条数][键u32][u16长+文本]×2，33093 条整文件解完；40501 等逐条与旧JSON 33093 条对照一致）。同构 [{分表:0,编号,文本:[名称,说明]}] 供下游原样消费，替代旧 技能说明.json（7MB JSON→3.3MB 原包 bytes）。
@@ -137,7 +139,7 @@ function 取角色表() { return 角色表缓存 ??= (() => {
     for (let o = 4; o + 55 <= 角色字节.length; o += 55) {
         const 编号 = 角色字节[o] | (角色字节[o + 1] << 8);
         const 读32 = 偏 => 角色字节[o + 偏] | (角色字节[o + 偏 + 1] << 8) | (角色字节[o + 偏 + 2] << 16) | (角色字节[o + 偏 + 3] << 24);
-        表.set(编号, { 编号, 稀有度: 角色字节[o + 7], 属性: 角色字节[o + 8], 职业: 角色字节[o + 9], 基础生命: 读32(10) >>> 0, 基础攻击: (读32(18) >>> 0) || (读32(22) >>> 0), 技能组编号: 编号 * 10 + 1, 潜力类型码: 角色字节[o + 49], 记录偏移: o });
+        表.set(编号, { 编号, 稀有度: 角色字节[o + 7], 属性: 角色字节[o + 8], 职业: 角色字节[o + 9], 基础生命: 读32(10) >>> 0, 基础攻击: (读32(18) >>> 0) || (读32(22) >>> 0), 技能组编号: 编号 * 10 + 1, 潜力类型码: 角色字节[o + 49], 登场角色: 角色字节[o + 2] | (角色字节[o + 3] << 8), 记录偏移: o });
     }
     return 表;
 })(); }
@@ -148,9 +150,9 @@ export const 原包角色表 = new Proxy({}, {
     getOwnPropertyDescriptor: () => ({ configurable: true, enumerable: true }),
 });
 export const 原包ELV = new Proxy({}, { get: (目标, 键) => { const 表 = 取ELV(); const 值 = 表[键]; return typeof 值 === 'function' ? 值.bind(表) : 值; }, has: (目标, 键) => 键 in 取ELV(), ownKeys: () => Reflect.ownKeys(取ELV()), getOwnPropertyDescriptor: () => ({ configurable: true, enumerable: true }) });
-// 惰性解析：解析原包机制 依赖关卡数据（夏日行动等），而关卡数据又依赖角色数据→本模块形成循环 import；模块体立即解析会在关卡数据初始化前触发 TDZ 错误。推迟到首次属性访问（运行时，全部模块已就绪）再解析，Proxy 保持 原包机制.技能 等访问形式不变。
+// 惰性解析：解析原包机制 依赖敌方行动规则（敌方规则），而敌方行动规则依赖本模块读取原包文件→循环 import；模块体立即解析会触发 TDZ 错误。推迟到首次属性访问（运行时，全部模块已就绪）再解析，Proxy 保持 原包机制.技能 等访问形式不变。
 let 解析缓存 = null;
-function 取解析() { return 解析缓存 ??= 解析原包机制({ 技能字节, 技能组字节, 文本表 }); }
+function 取解析() { return 解析缓存 ??= 解析原包机制({ 技能字节, 技能组字节, 文本表, 敌方组: 敌方组推导(关卡字节, 编组字节) }); }
 export const 原包机制 = new Proxy({}, {
     get: (目标, 键) => 取解析()[键],
     has: (目标, 键) => 键 in 取解析(),
@@ -209,3 +211,23 @@ function 取潜力() { return 潜力缓存 ??= (() => {
     return { 1: (组[1] || []).map(g => g.节点), 2: (组[2] || []).map(g => g.节点), 3: (组[3] || []).map(g => g.节点) };
 })(); }
 export const 原包潜力 = new Proxy({}, { get: (目标, 键) => { const 表 = 取潜力(); const 值 = 表[键]; return typeof 值 === 'function' ? 值.bind(表) : 值; }, has: (目标, 键) => 键 in 取潜力(), ownKeys: () => Reflect.ownKeys(取潜力()), getOwnPropertyDescriptor: () => ({ configurable: true, enumerable: true }) });
+
+// 原包关卡文本：StageStr_sc.bytes（[u32条数][键u16][u16长+文本]×2，4850 条整文件解完）。键=关卡编号；文本[0]=简称/分类（'无'/'活动'/'时-SP'/'塔-55'…）、文本[1]=关卡名称（'凯萨考验之刻'/'夏日尾声'…）。魔狱塔 vs 时之裂缝 由简称前缀（'塔'/'时'）区分。
+let 关卡文本缓存 = null;
+function 取关卡文本() { return 关卡文本缓存 ??= (() => {
+    const 表 = new Map();
+    let 位 = 4;
+    const 条数 = 关卡名字节[0] | (关卡名字节[1] << 8) | (关卡名字节[2] << 16) | (关卡名字节[3] << 24);
+    for (let i = 0; i < 条数 && 位 < 关卡名字节.length; i++) {
+        const 键 = 关卡名字节[位] | (关卡名字节[位 + 1] << 8); 位 += 2;
+        const 文本 = [];
+        for (let j = 0; j < 2; j++) {
+            const 长 = 关卡名字节[位] | (关卡名字节[位 + 1] << 8); 位 += 2;
+            文本.push(new TextDecoder('utf-8').decode(关卡名字节.subarray(位, 位 + 长)));
+            位 += 长;
+        }
+        表.set(键, { 简称: 文本[0], 名称: 文本[1] });
+    }
+    return 表;
+})(); }
+export const 原包关卡文本 = new Proxy({}, { get: (目标, 键) => { const 表 = 取关卡文本(); const 值 = 表[键]; return typeof 值 === 'function' ? 值.bind(表) : 值; }, has: (目标, 键) => 键 in 取关卡文本(), ownKeys: () => Reflect.ownKeys(取关卡文本()), getOwnPropertyDescriptor: () => ({ configurable: true, enumerable: true }) });

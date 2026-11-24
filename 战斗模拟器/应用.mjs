@@ -2,7 +2,7 @@ import { 新建战斗, 结算操作, 重放战斗, 当前攻击, 当前护盾, �
 import { 枚举, 枚举名, 易伤基, 来源易伤基, 易伤键, 来源易伤键, 登记语义名, 语义名, 标记命定之人, 标记过从甚密, 计数夏日的终结, 模型版本, 水光易伤 } from './枚举.mjs';
 import { 真实角色目录, 获取真实角色, 获取真实技能, 创建角色, 职业列表, 属性列表, 调教加成, 普通等级最高, ELV突破档位, ELV技能解锁等级, 获取潜力养成, 计算调教面板, 获取适用ELv技能, 提取角色养成 } from './角色数据.mjs';
 import { 更新池角色, 删除池角色, 校验编队引用, 解析角色引用, 生成角色池文件, 解析角色池文件, 合并角色池, 生成引用编队文件, 解析引用编队文件, 新建池角色, 解析Have角色代码, 合并Have角色 } from './玩家角色池.mjs';
-import { 关卡列表, 当前关卡, 创建关卡配置, 敌方技能目录, 敌方技能名称 } from './关卡数据.mjs';
+import { 关卡列表, 当前关卡, 创建关卡配置, 敌方技能目录, 敌方技能名称, 敌方名称 } from './关卡数据.mjs';
 
 const 查 = 选择器 => document.querySelector(选择器);
 const 全查 = 选择器 => [...document.querySelectorAll(选择器)];
@@ -318,7 +318,7 @@ function 行动说明(内容, 配置源 = 配置) {
         .replace(/\b\d{5,6}:\d+:[^·\r\n]+/g, '技能效果')
         .replace(/\bELv:\d+:[\d:]+/g, 'ELV强化')
         .replace(/([:：])(\d{5,6})(?=$|[\s/])/g, (_, 分隔, 编号) => {
-            const 名称 = 敌方技能名称(配置源, Number(编号));
+            const 名称 = 敌方技能名称(Number(编号));
             return 分隔 + (名称 === 编号 ? '特殊行动' : 名称);
         });
 }
@@ -469,7 +469,7 @@ function 渲染战场() {
     查('#撤销').disabled = 游标 === 0 || 运行中;
     查('#重做').disabled = 游标 >= 操作列表.length || 运行中;
     查('#旧记录栏').hidden = Boolean(配置.自动敌方);
-    查('#AI预览').innerHTML = 预览敌方行动(状态).map(项 => `<div><strong>${转义(项.名称)}</strong><span>${转义(项.技能?.map(编号 => 编号 === 枚举.普攻 ? 编号 : 敌方技能名称(配置, 编号)).join(' + ') || 项.行动)}</span><span>${项.冷却 === null ? '' : `CD ${项.冷却}`}</span></div>`).join('');
+    查('#AI预览').innerHTML = 预览敌方行动(状态).map(项 => `<div><strong>${转义(项.名称)}</strong><span>${转义(项.技能?.map(编号 => 编号 === 枚举.普攻 ? 编号 : 敌方技能名称(编号)).join(' + ') || 项.行动)}</span><span>${项.冷却 === null ? '' : `CD ${项.冷却}`}</span></div>`).join('');
     查('#角色队伍').innerHTML = 状态.队伍.map(单位 => {
         const 可行动 = 状态.阶段 === 枚举.我方 && 单位.生命 > 0 && !单位.已行动 && !运行中 && 配置.自动敌方;
         const 百分比 = Math.max(0, 单位.生命 / 单位.生命上限 * 100);
@@ -821,8 +821,8 @@ function 渲染设置() {
         if (输入.type === 'checkbox') 输入.checked = Boolean(配置[名称]);
         else 输入.value = 配置[名称] === undefined || 配置[名称] === null ? '' : (百分比.includes(名称) ? 配置[名称] * 100 : 配置[名称]);
     }
-    查('#敌方面板').innerHTML = 夏日 ? 配置.敌人.map((单位, 位置) => `<div class="敌方面板行" data-enemy-stats="${位置}"><strong>${转义(单位.名称)}</strong><label>生命上限<input data-enemy-field="生命上限" type="number" min="1" value="${单位.生命上限}" required></label><label>攻击力<input data-enemy-field="攻击" type="number" min="1" value="${单位.攻击}" required></label></div>`).join('') : '';
-    const 目录 = 夏日 ? 配置.敌人.flatMap((单位, 位置) => 敌方技能目录(配置, 位置).filter(项 => 项[1]).map(([名称, 编号, 描述]) => [`${单位.名称} · ${名称}`, 编号, 描述])) : 敌方技能目录(配置).filter(项 => 项[1]);
+    查('#敌方面板').innerHTML = 夏日 ? 配置.敌人.map((单位, 位置) => `<div class="敌方面板行" data-enemy-stats="${位置}"><strong>${转义(敌方名称(单位.编号))}</strong><label>生命上限<input data-enemy-field="生命上限" type="number" min="1" value="${单位.生命上限}" required></label><label>攻击力<input data-enemy-field="攻击" type="number" min="1" value="${单位.攻击}" required></label></div>`).join('') : '';
+    const 目录 = 夏日 ? 配置.敌人.flatMap((单位, 位置) => 敌方技能目录(单位.编号).filter(项 => 项[1]).map(([名称, 编号, 描述]) => [`${敌方名称(单位.编号)} · ${名称}`, 编号, 描述])) : 敌方技能目录(配置.首领编号).filter(项 => 项[1]);
     查('#技能目录').innerHTML = 目录.filter(([, , 描述]) => !/目标未解|校准|推定/.test(描述)).map(([名称, 编号, 描述]) => `<div><strong>${转义(名称)}</strong><span>${转义(描述)}</span></div>`).join('');
 }
 
