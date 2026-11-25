@@ -1,6 +1,6 @@
 // 敌方行动规则.mjs —— 敌方 AI 行动规则（EnemyAI.bytes 原包直读，TAI/TActDetermine 表）。表结构（metadata TYPE 399/400 与 GData.LoadAIData 反汇编定案）：[u32 组数][组×(3B 组头 + 20×35B 行槽)]，4+1225×703=861179B 精确闭合；组头=[u16 AI编号][u8 行动间隔（metadata 字段名 actTimes，实测语义=行动间隔回合数）]；行槽不足补 0（真行=到首个全 0 行）。行=TActDetermine 14 字段 35B：actPattern u16@0=动作码、patternPara u32@2=技能编号、patternPara2 u16@6=附加编号、patternPara3 u16@8=行为标志（1=执行后终止本组后续行）、patternPara4 u16@10=触发模式、actCondition u8@12+conditionPara i32@14+conditionPara2 i32@18=条件一、bonus_ActCondition u8@22+bonus_ConditionPara i32@24+bonus_ConditionPara2 i32@28=条件二、bonus_Judgment u8@32=条件连接、target u8@33=目标码（AI 层选目标策略：56-60 锁定我方位次、81/82/83=生命上限排名前二/第三/第四五名，其余不覆盖）、priority i8@34=选敌码（优先级）。旧内联常量（43248/42281-42286/52541-52545 共 12 组+命定标记生成循环）已删：逐字段对照一致，三处旧转录错位按字节归位——①42286 行0/1 与 52541-545 行0-4/11 的"附加编号"旧值 100041+ 实为 patternPara2|patternPara3<<16 拼接口径（真值 34505+，行为标志 1）；②52541-545 的 56+位置旧放"目标码"列实为 target 位（选AI目标 消费位，归位后行为不变）；③42281 行16-19 的 82/81/83 旧放"选敌码"列，字节真身在 target 位=选目标策略，归位后"最大生命第三高者"等选敌生效（选AI目标 81/82/83=按生命上限前二/第三/第四五名，与技能说明吻合）。
 import { 读取原包文件 } from './原包运行时.mjs';
-import { 枚举, 枚举名, 易伤键, 来源易伤键, 登记语义名, 语义名, 标记命定之人, 标记过从甚密, 计数夏日的终结, 模型版本, 水光易伤 } from './枚举.mjs';
+import { 枚举, 枚举名, 易伤键, 来源易伤键, 登记语义名, 语义名, 模型版本, 水光易伤 } from './枚举.mjs';
 
 const AI字节 = await 读取原包文件('EnemyAI.bytes');
 // 字节读取用 Uint8Array 兼容写法（浏览器 fetch 与 Node fs 双通道均为 Uint8Array/Buffer，Buffer 专属 API 不可用）。
