@@ -279,8 +279,28 @@ def 从快照恢复代码(快照路径: str, 输出目录: pathlib.Path, 战斗�
         print("  [!] 快照中未找到 IL2CPP 基址 0x8000000000")
         return False
 
-    # Assembly-CSharp CodeGenModule
-    代码生成模块偏移 = 0x4E0EA00
+    # Assembly-CSharp CodeGenModule：按内容锚识别——扫描全镜像中 namePtr 指向 "Assembly-CSharp.dll" 字符串的指针三元组；模块偏移随构建漂移（0923=0x4E0EA00，2.3.0=0x4E0D510），不可硬编码
+    名称地址集 = set()
+    搜索起 = 0
+    while True:
+        命中 = 目标数据.find(b"Assembly-CSharp.dll\x00", 搜索起)
+        if 命中 < 0:
+            break
+        名称地址集.add(基址 + 命中)
+        搜索起 = 命中 + 1
+    模块候选 = []
+    for 槽序, (值,) in enumerate(struct.iter_unpack("<Q", 目标数据[: len(目标数据) // 8 * 8])):
+        if 值 in 名称地址集:
+            偏移 = 槽序 * 8
+            if 偏移 + 24 <= len(目标数据):
+                _, 数量候选, 表候选 = struct.unpack_from("<QQQ", 目标数据, 偏移)
+                if 0 < 数量候选 < 200000:
+                    模块候选.append((偏移, 表候选))
+    if not 模块候选:
+        print("  [X] 未找到 CodeGenModule：快照中不存在 Assembly-CSharp.dll 名称引用三元组，IL2CPP 可能尚未解密完成")
+        return False
+    有效候选 = [候选 for 候选 in 模块候选 if 基址 <= 候选[1] < 基址 + len(目标数据)]
+    代码生成模块偏移 = (有效候选 or 模块候选)[0][0]
     名称指针, 方法数量, 方法指针表 = struct.unpack_from("<QQQ", 目标数据, 代码生成模块偏移)
     # 直接打绝对地址：旧写法减基址在指针为0时会输出负号十六进制（如 0x-8000000000），极易误读
     print(f"  Assembly-CSharp CodeGenModule: methods={方法数量} ptrs={方法指针表:#x}")
@@ -295,9 +315,9 @@ def 从快照恢复代码(快照路径: str, 输出目录: pathlib.Path, 战斗�
     函数边界表 = 构建函数边界表(目标数据, 方法数量, 方法指针表, 基址)
     print(f"  函数边界表: {len(函数边界表)} 个唯一方法入口（按地址排序）")
 
-    汇编目录 = 输出目录 / "battle_asm"
+    汇编目录 = 输出目录 / "战斗汇编"
     汇编目录.mkdir(exist_ok=True)
-    for 旧文件 in 汇编目录.glob("*.asm"):
+    for 旧文件 in 汇编目录.glob("*.汇编.txt"):
         旧文件.unlink()
     已提取数 = 0
 
@@ -317,7 +337,7 @@ def 从快照恢复代码(快照路径: str, 输出目录: pathlib.Path, 战斗�
 
         机器码 = 目标数据[off : off + 函数长度]
         安全名称 = m["名称"].replace("/", "_").replace("<", "_").replace(">", "_")[:80]
-        文件名 = f"{idx:06d}_{安全名称}.asm"
+        文件名 = f"{idx:06d}_{安全名称}.汇编.txt"
         输出文件 = 汇编目录 / 文件名
 
         lines = list(反汇编器.disasm(机器码, off))
@@ -358,14 +378,14 @@ def 主函数():
 
     # ── 1. 从 APK 提取关键文件 ──
     print("[1/5] 从 APK 提取文件")
-    APK内容目录 = 输出目录 / "apk_content"
+    APK内容目录 = 输出目录 / "APK解压"
     APK内容目录.mkdir(parents=True, exist_ok=True)
     所需文件映射 = {
         "lib/arm64-v8a/libil2cpp.so": "libil2cpp.so",
         "lib/arm64-v8a/libstub.so": "libstub.so",
         "lib/arm64-v8a/libcompatible.so": "libcompatible.so",
         "lib/arm64-v8a/libengine.so": "libengine.so",
-        "assets/bin/Data/Managed/Metadata/global-metadata.dat": "global-metadata-encrypted.dat",
+        "assets/bin/Data/Managed/Metadata/global-metadata.dat": "元数据密文.dat",
     }
     with zipfile.ZipFile(APK文件路径) as zf:
         for entry_name, out_name in 所需文件映射.items():
@@ -379,15 +399,15 @@ def 主函数():
 
     # ── 2. 解密元数据 ──
     print("\n[2/5] 解密 global-metadata.dat")
-    元数据加密路径 = APK内容目录 / "global-metadata-encrypted.dat"
-    元数据输出路径 = 输出目录 / "global-metadata_decrypted.dat"
+    元数据加密路径 = APK内容目录 / "元数据密文.dat"
+    元数据输出路径 = 输出目录 / "元数据明文.dat"
 
     if 元数据加密路径.exists():
         raw = 元数据加密路径.read_bytes()
         print(f"  加密文件: {len(raw)} bytes, 头={raw[:8].hex()}")
         # 解密结果缓存：同一加密文件重跑直接复用，避免重复扫描 libcompatible.so 提取密钥
         缓存指纹 = hashlib.sha256(raw).hexdigest()[:16]
-        指纹文件 = 元数据输出路径.with_suffix(".sha256")
+        指纹文件 = 元数据输出路径.with_name(元数据输出路径.name + ".指纹.txt")
         if 元数据输出路径.exists() and 指纹文件.exists() and 指纹文件.read_text(encoding="utf-8").strip() == 缓存指纹:
             明文数据 = 元数据输出路径.read_bytes()
             ver = struct.unpack_from("<I", 明文数据, 4)[0]
@@ -435,7 +455,7 @@ def 主函数():
         print(f"    {tname}: {cnt} methods{marker}")
 
     # 导出 CSV
-    战斗方法表路径 = 输出目录 / "battle_methods.csv"
+    战斗方法表路径 = 输出目录 / "战斗方法表.csv"
     with 战斗方法表路径.open("w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["index", "name", "type", "token", "param_count", "is_key"])
@@ -445,7 +465,7 @@ def 主函数():
                         "★" if m.get("_是否关键") else ""])
 
     # 导出完整方法表
-    all_csv = 输出目录 / "all_methods.csv"
+    all_csv = 输出目录 / "全方法表.csv"
     with all_csv.open("w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["index", "name", "decl_type", "token", "param_count", "slot"])
@@ -475,7 +495,7 @@ def 主函数():
             if 运行结果.returncode != 0 and 运行结果.stderr:
                 print(f"  [!] 快照生成 stderr: {运行结果.stderr[-500:]}")
             # 查找生成的快照（搜索所有子目录，取最新的 post_fastpath）
-            for pattern in ["il2cpp_snapshot.pkl", "post_fastpath_*_mem.pkl", "mu_mem.pkl"]:
+            for pattern in ["解密快照.pkl", "il2cpp_snapshot.pkl", "post_fastpath_*_mem.pkl", "阶段1快照_内存.pkl", "mu_mem.pkl"]:
                 matches = sorted(输出目录.rglob(pattern))
                 if matches:
                     快照路径 = str(matches[-1])
@@ -490,7 +510,7 @@ def 主函数():
         print("  [X] 快照生成失败，元数据和方法表已完整提取")
 
     # ── 汇总 ──
-    摘要路径 = 输出目录 / "summary.txt"
+    摘要路径 = 输出目录 / "摘要.txt"
     with 摘要路径.open("w") as f:
         f.write(f"天下布魔 战斗引擎提取摘要\n")
         f.write(f"{'='*50}\n")

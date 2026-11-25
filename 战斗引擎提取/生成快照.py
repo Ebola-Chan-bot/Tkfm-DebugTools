@@ -43,7 +43,7 @@ def 生成快照(APK提取目录: str, 输出目录: str, 脚本目录: str = No
             print(f"[X] 缺少模拟器文件: {条目}")
             return False
 
-    工作路径 = 输出路径 / "emu_work"
+    工作路径 = 输出路径 / "模拟工作区"
     工作路径.mkdir(parents=True, exist_ok=True)
     print(f"[1/3] 准备模拟环境: {工作路径}")
 
@@ -72,11 +72,11 @@ def 生成快照(APK提取目录: str, 输出目录: str, 脚本目录: str = No
         print(f"  stdout: {阶段1结果.stdout[-500:]}")
         print(f"  stderr: {阶段1结果.stderr[-500:]}")
 
-    内存快照文件 = 工作路径 / "mu_mem.pkl"
+    内存快照文件 = 工作路径 / "阶段1快照_内存.pkl"
     if not 内存快照文件.exists():
-        print("  [X] 阶段1未产生 mu_mem.pkl")
+        print("  [X] 阶段1未产生 阶段1快照_内存.pkl")
         return False
-    print(f"  [OK] mu_mem.pkl ({内存快照文件.stat().st_size/1024/1024:.1f} MB)")
+    print(f"  [OK] 阶段1快照_内存.pkl ({内存快照文件.stat().st_size/1024/1024:.1f} MB)")
 
     print("  阶段 2: libil2cpp DT_INIT（一趟跑完）...")
     环境变量 = os.environ.copy()
@@ -94,24 +94,29 @@ def 生成快照(APK提取目录: str, 输出目录: str, 脚本目录: str = No
     if 阶段2结果.returncode != 0 and 阶段2结果.stderr:
         for 行 in 阶段2结果.stderr.strip().split("\n")[-5:]:
             print(f"    ERR: {行}")
-    模幂内存文件 = 工作路径 / "post_mod_mem.pkl"
+    模幂内存文件 = 工作路径 / "模幂快照_内存.pkl"
     if 模幂内存文件.exists():
-        快照目标路径 = 工作路径 / "il2cpp_snapshot.pkl"
+        快照目标路径 = 工作路径 / "解密快照.pkl"
         模幂内存文件.rename(快照目标路径)
         快照路径 = 快照目标路径
         print(f"  [OK] 快照产出: {快照目标路径.name} ({快照目标路径.stat().st_size/1024/1024:.1f} MB)")
     if not 快照路径:
-        for 条目 in sorted(工作路径.glob("mu_mem.pkl")):
+        for 条目 in sorted(工作路径.glob("阶段1快照_内存.pkl")):
             快照路径 = 条目
             break
 
     输出副本路径 = 输出路径 / 快照路径.name
     shutil.copy2(快照路径, 输出副本路径)
     print(f"  [OK] 快照: {输出副本路径.name} ({输出副本路径.stat().st_size/1024/1024:.1f} MB)")
-    for 后缀 in ["_ctx.pkl", "_pystate.pkl"]:
-        条目 = 快照路径.parent / (快照路径.stem.replace("_mem", "") + 后缀)
+    for 后缀 in ["_上下文.pkl", "_进程状态.pkl"]:
+        条目 = 快照路径.parent / (快照路径.stem.replace("_内存", "") + 后缀)
         if 条目.exists():
             shutil.copy2(条目, 输出路径 / 条目.name)
+    # 全部输出（从解压到汇编）集中在 -o 目录：模拟工作区里的解密映像/明文捕获/追踪日志也拷出，工作副本随后删除避免大文件双份分散
+    for 条目 in sorted(工作路径.iterdir()):
+        if 条目.is_file() and 条目.suffix in ('.bin', '.txt', '.pkl') and not (输出路径 / 条目.name).exists():
+            shutil.copy2(条目, 输出路径 / 条目.name)
+    shutil.rmtree(工作路径, ignore_errors=True)
     return True
 
 

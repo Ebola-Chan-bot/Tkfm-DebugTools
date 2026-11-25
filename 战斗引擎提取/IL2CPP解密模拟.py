@@ -10,39 +10,9 @@ from unicorn.arm64_const import *
 # runpy 返回的是 globals 副本；钩子函数的真实 globals 要从函数对象取，替换日志才能生效
 真实全局表 = 命名空间['中断钩子'].__globals__
 # 重新打开日志（emu2 末尾关闭了）
-日志 = open(os.path.join(本目录, 'emu4_trace.txt'), 'w', buffering=1)
+日志 = open(os.path.join(本目录, '阶段2追踪.txt'), 'w', buffering=1)
 真实全局表['日志'] = 日志
-目标日志 = open(os.path.join(本目录, 'target_process.txt'), 'w', buffering=1)
-if os.environ.get('元数据快速路径') == '1':
-    from unicorn import UC_HOOK_CODE, UC_HOOK_MEM_READ_UNMAPPED, UC_HOOK_MEM_WRITE_UNMAPPED, UC_HOOK_MEM_FETCH_UNMAPPED
-    def 快速路径未映射钩子(引擎, 访问类型, 地址, 大小, 写入值, 用户数据):
-        程序计数器 = 引擎.reg_read(UC_ARM64_REG_PC)
-        print('FASTPATH UNMAPPED', 'access', 访问类型, 'address', hex(地址), 'pc', hex(程序计数器), 'lr', hex(引擎.reg_read(UC_ARM64_REG_LR)), flush=True)
-        目标日志.write(f'UNMAPPED access={访问类型} address={地址:#x} size={大小} pc={程序计数器-基址:#x} lr={引擎.reg_read(UC_ARM64_REG_LR)-基址:#x}\n')
-        return False
-    模拟器.hook_add(UC_HOOK_MEM_READ_UNMAPPED | UC_HOOK_MEM_WRITE_UNMAPPED | UC_HOOK_MEM_FETCH_UNMAPPED, 快速路径未映射钩子)
-    def 元数据初始化钩子(引擎, 地址, 大小, 用户数据):
-        print('METADATA INITIALIZE ENTER', hex(地址 - IL2CPP基址), 'LR', hex(引擎.reg_read(UC_ARM64_REG_LR) - IL2CPP基址), flush=True)
-    def 元数据返回钩子(引擎, 地址, 大小, 用户数据):
-        指针 = struct.unpack('<Q', bytes(引擎.mem_read(IL2CPP基址 + 0x5369348, 8)))[0]
-        print('METADATA INITIALIZE RETURN pointer', hex(指针), flush=True)
-        try:
-            头部 = bytes(引擎.mem_read(指针, 0x120))
-        except UcError:
-            头部 = b''
-        if 头部[:4] == bytes.fromhex('af1bb1fa') and 20 <= struct.unpack_from('<i', 头部, 4)[0] <= 40:
-            长度 = max((偏移 + 大小 for 偏移, 大小 in struct.iter_unpack('<ii', 头部[8:0x110]) if 偏移 > 0 and 大小 > 0), default=0)
-            输出路径 = os.path.join(本目录, 'global-metadata_decrypted.dat')
-            with open(输出路径, 'wb') as 输出文件:
-                输出文件.write(引擎.mem_read(指针, 长度))
-            print('VERIFIED METADATA SAVED', 输出路径, 'length', hex(长度), flush=True)
-        else:
-            print('METADATA HEADER NOT VALID', 头部[:32].hex(), flush=True)
-        引擎.emu_stop()
-    元数据基址 = 0x8000000000
-    模拟器.hook_add(UC_HOOK_CODE, 元数据初始化钩子, begin=元数据基址 + 0x205e01c, end=元数据基址 + 0x205e01c)
-    模拟器.hook_add(UC_HOOK_CODE, 元数据返回钩子, begin=元数据基址 + 0x205e1f0, end=元数据基址 + 0x205e1f0)
-
+目标日志 = open(os.path.join(本目录, '目标处理日志.txt'), 'w', buffering=1)
 def 读取全局(偏移):
     return struct.unpack('<Q', bytes(模拟器.mem_read(基址 + 偏移, 8)))[0]
 
@@ -52,7 +22,7 @@ print(f'init flag [0x1b1020]={标志:#x}  real SoLibraryStart fn [0x1b2bf8]={真
 # 注意：这两个槽位可能由 SoLibraryStart 内部的懒初始化(0x9c5a0)填充，DT_INIT 只负责解密 NP 自身代码，不强制要求非零
 
 # DT_INIT 末尾 NP 会重加密自身代码；从模幂快照恢复时保留其中的实时NP代码状态
-明文文件路径 = os.path.join(本目录, 'compatible_decrypted.bin')
+明文文件路径 = os.path.join(本目录, '兼容库明文.bin')
 if os.environ.get('续跑模式') != '1' and os.path.exists(明文文件路径):
     明文数据 = open(明文文件路径, 'rb').read()
     模拟器.mem_write(基址, 明文数据)
@@ -63,7 +33,7 @@ else:
 # NP 的 libc 函数指针表 ctx=[0x1b3070] 在 DT_INIT 后仍为 NULL（建表由 Java 层 native init 触发，未模拟）。
 # dispatch 桩对空函数指针优雅返回 0/-1，仅 ctx 本身为 NULL 才崩溃。先给一个有效结构让懒初始化推进。
 # 用真实语义桩填充已知偏移，其余置 0（优雅降级）。
-上下文 = 命名空间['分配内存'](0x400) if os.environ.get('元数据快速路径') != '1' else struct.unpack('<Q', bytes(模拟器.mem_read(基址 + 0x1b3070, 8)))[0]
+上下文 = 命名空间['分配内存'](0x400)
 if not 上下文:
     raise RuntimeError('模幂快照缺少有效libc上下文，停止以避免错误初始化')
 桩地址映射 = 命名空间['桩地址映射']
@@ -174,7 +144,9 @@ def 执行系统调用(引擎, 调用号, x):
     if 调用号 == 48:  # faccessat
         p = 命名空间['读取字符串'](x[1]); return 0 if 命名空间['库文件存在'](p) else -2
     if 调用号 == 79:  # fstatat
-        p = 命名空间['读取字符串'](x[1]); c = 命名空间['文件内容'](p)
+        p = 命名空间['读取字符串'](x[1])
+        try: c = 命名空间['文件内容'](p)
+        except FileNotFoundError: return -2  # 路径探测语义：不存在返回 ENOENT；必需库缺失会在 read/lseek 等消费路径直接抛出
         if c: 命名空间['写入文件状态'](x[2], len(c)); return 0
         return -2
     if 调用号 == 62:  # lseek：NP 的 maps 读取器每轮会重新定位到文件头
@@ -203,7 +175,7 @@ def 执行系统调用(引擎, 调用号, x):
 
 # dispatch 桩调用日志：记录每个 ctx 偏移的调用参数，用于反推函数语义
 from unicorn import UC_HOOK_CODE
-分发日志 = open(os.path.join(本目录, 'dispatch_log.txt'), 'w', buffering=1)
+分发日志 = open(os.path.join(本目录, '分发日志.txt'), 'w', buffering=1)
 分发计数 = [0]
 def 分发桩钩子(引擎, 地址, 大小, 用户数据):
     import struct as _s
@@ -233,7 +205,7 @@ from unicorn import UC_HOOK_BLOCK
 from unicorn.arm64_const import (UC_ARM64_REG_X0, UC_ARM64_REG_X1, UC_ARM64_REG_X8, UC_ARM64_REG_X9,
     UC_ARM64_REG_X16, UC_ARM64_REG_X17, UC_ARM64_REG_X19, UC_ARM64_REG_X20, UC_ARM64_REG_LR, UC_ARM64_REG_PC)
 from collections import deque
-追踪日志 = open(os.path.join(本目录, 'scall_trace.txt'), 'w', buffering=1)
+追踪日志 = open(os.path.join(本目录, '系统调用桩追踪.txt'), 'w', buffering=1)
 寄存器环 = deque(maxlen=300)
 def 寄存器环钩子(引擎, 地址, 大小, 用户数据):
     r = [引擎.reg_read(x) for x in (UC_ARM64_REG_X0, UC_ARM64_REG_X1, UC_ARM64_REG_X8, UC_ARM64_REG_X9, UC_ARM64_REG_X16, UC_ARM64_REG_X17, UC_ARM64_REG_X19, UC_ARM64_REG_X20, UC_ARM64_REG_LR)]
@@ -246,7 +218,7 @@ def 转储寄存器环():
 
 # 广域监视：懒初始化期间写入 bss(0x1b0000-0x1c5000) 的代码指针值（找解密器地址）
 from unicorn import UC_HOOK_MEM_WRITE
-指针写入日志 = open(os.path.join(本目录, 'bss_ptr_writes.txt'), 'w', buffering=1)
+指针写入日志 = open(os.path.join(本目录, '指针写入日志.txt'), 'w', buffering=1)
 def BSS指针写入钩子(引擎, 访问类型, 地址, 大小, 写入值, 用户数据):
     if 大小 == 8 and 0x10000000 <= 写入值 < 0x101c6000:
         程序计数器 = 引擎.reg_read(UC_ARM64_REG_PC)
@@ -273,9 +245,42 @@ for 段 in 目标库ELF.iter_segments():
     print(f'il2cpp seg va={段虚拟地址:#x} fsz={段文件大小:#x} msz={段内存大小:#x} flags={段.header.p_flags}')
 print(f'il2cpp image end: {映像结束偏移:#x}')
 
-# 手填唯一关键 GOT：PLT@0x4dbbbb0 用 [0x50cd4c8] → SoLibraryStart 包装器
-if os.environ.get('元数据快速路径') != '1':
-    模拟器.mem_write(IL2CPP基址 + 0x50cd4c8, struct.pack('<Q', 基址 + 0x9c55c))
+def 读动态标签():
+    # 直接从 PT_DYNAMIC 段解析标签：加壳 ELF 的节表不可依赖，程序头表才是稳定入口
+    动态段 = next(段 for 段 in 目标库ELF.iter_segments() if 段.header.p_type == 'PT_DYNAMIC')
+    标签 = {}
+    段数据 = 动态段.data()
+    for 偏移 in range(0, len(段数据), 16):
+        号, 值 = struct.unpack_from('<QQ', 段数据, 偏移)
+        if 号 == 0: break
+        标签.setdefault(号, 值)
+    return 标签
+
+动态标签 = 读动态标签()
+# DT_INIT(12)=NP 解密桩入口：该偏移随游戏构建漂移（0923=0x3134504，2.3.0=0x3134210），必须从动态表读取而非硬编码
+目标初始偏移 = 动态标签[12]
+代码段起始 = next(段.header.p_vaddr for 段 in 目标库ELF.iter_segments() if 段.header.p_type == 'PT_LOAD' and 段.header.p_flags & 1)
+
+def 解析重定位槽(符号名):
+    # 从 DT_JMPREL(23) 重定位表按符号名找 GOT 槽地址；SoLibraryStart 是本库唯一 PLT 重定位，符号名是跨构建稳定锚（0923 槽=0x50cd4c8，2.3.0 槽=0x50cbf20）
+    加载段头 = [段.header for 段 in 目标库ELF.iter_segments() if 段.header.p_type == 'PT_LOAD']
+    def 文件偏移(虚拟地址):
+        for 头 in 加载段头:
+            if 头.p_vaddr <= 虚拟地址 < 头.p_vaddr + 头.p_filesz:
+                return 头.p_offset + 虚拟地址 - 头.p_vaddr
+        raise RuntimeError(f'虚拟地址 {虚拟地址:#x} 不在任何 PT_LOAD 文件区')
+    字符串表 = 文件偏移(动态标签[5])
+    符号表 = 文件偏移(动态标签[6])
+    跳转重定位表 = 文件偏移(动态标签[23])
+    for 偏移 in range(0, 动态标签[2], 24):
+        槽地址, 信息 = struct.unpack_from('<QQ', 文件数据, 跳转重定位表 + 偏移)
+        名偏移 = 字符串表 + struct.unpack_from('<I', 文件数据, 符号表 + (信息 >> 32) * 24)[0]
+        if 文件数据[名偏移:文件数据.index(b'\0', 名偏移)].decode() == 符号名:
+            return 槽地址
+    raise RuntimeError('JMPREL 中未找到符号: ' + 符号名)
+
+# 手填唯一关键 GOT：JMPREL 中 SoLibraryStart 的 JUMP_SLOT 槽 → NP 包装器（槽地址按符号名动态解析，不随构建硬编码）
+模拟器.mem_write(IL2CPP基址 + 解析重定位槽('SoLibraryStart'), struct.pack('<Q', 基址 + 0x9c55c))
 
 # maps 加入 libil2cpp（NP 可能按 x0 地址查 maps 定位调用模块）；保留 emu2 的合成 libc 等行
 if not any(模块起始 == IL2CPP基址 for 模块起始, 模块结束, 模块路径 in 真实全局表['已加载模块']):
@@ -296,7 +301,7 @@ for i in range(250):
     模拟器.mem_write(JNI函数表 + i * 8, struct.pack('<Q', JNI桩区 + i * 4))
     模拟器.mem_write(JNI桩区 + i * 4, struct.pack('<I', 0xd65f03c0))
 模拟器.mem_write(JNI环境, struct.pack('<Q', JNI函数表))
-JNI日志 = open(os.path.join(本目录, 'jni_calls.txt'), 'w', buffering=1)
+JNI日志 = open(os.path.join(本目录, 'JNI调用日志.txt'), 'w', buffering=1)
 def 读取内存字符串(引擎, 指针, 上限=256):
     if not 指针: return ''
     try:
@@ -355,7 +360,7 @@ def JNI钩子(引擎, 地址, 大小, 用户数据):
 
 信号处理器列表 = []
 if os.environ.get('捕获信号') == '1':
-    信号日志 = open(os.path.join(本目录, 'signal_setup.txt'), 'w', buffering=1)
+    信号日志 = open(os.path.join(本目录, '信号安装日志.txt'), 'w', buffering=1)
     def 信号安装钩子(引擎, 地址, 大小, 用户数据):
         寄存器x0 = 引擎.reg_read(UC_ARM64_REG_X0)
         寄存器x1 = 引擎.reg_read(UC_ARM64_REG_X1)
@@ -366,18 +371,17 @@ if os.environ.get('捕获信号') == '1':
 
 JNI初始化入口 = 基址 + 0x133ec4
 # DT_INIT 未设全局状态表基址 [0x1b2b90]（JNI init 崩溃 str w8,[x9=*[0x1b2b90],#0x254]）。手动 alloc 零表让其推进。
-if os.environ.get('元数据快速路径') != '1':
-    状态表 = 命名空间['分配内存'](0x4000)
-    模拟器.mem_write(基址 + 0x1b2b90, struct.pack('<Q', 状态表))
-    模拟器.mem_write(基址 + 0x1b2ba0, struct.pack('<Q', 状态表 + 0x100))
-    print('manual state table [0x1b2b90] @', hex(状态表), ' [0x1b2ba0]->', hex(状态表 + 0x100))
-    print('calling NP JNI init @', hex(JNI初始化入口))
-    模拟器.reg_write(UC_ARM64_REG_SP, 栈基址 + 栈大小 - 0x2000)
-    模拟器.reg_write(UC_ARM64_REG_LR, 返回地址)
-    模拟器.reg_write(UC_ARM64_REG_X0, JNI环境)
-    模拟器.reg_write(UC_ARM64_REG_X1, JNI对象)
-    模拟器.reg_write(UC_ARM64_REG_X2, 0)
-    模拟器.reg_write(UC_ARM64_REG_X3, 0)
+状态表 = 命名空间['分配内存'](0x4000)
+模拟器.mem_write(基址 + 0x1b2b90, struct.pack('<Q', 状态表))
+模拟器.mem_write(基址 + 0x1b2ba0, struct.pack('<Q', 状态表 + 0x100))
+print('manual state table [0x1b2b90] @', hex(状态表), ' [0x1b2ba0]->', hex(状态表 + 0x100))
+print('calling NP JNI init @', hex(JNI初始化入口))
+模拟器.reg_write(UC_ARM64_REG_SP, 栈基址 + 栈大小 - 0x2000)
+模拟器.reg_write(UC_ARM64_REG_LR, 返回地址)
+模拟器.reg_write(UC_ARM64_REG_X0, JNI环境)
+模拟器.reg_write(UC_ARM64_REG_X1, JNI对象)
+模拟器.reg_write(UC_ARM64_REG_X2, 0)
+模拟器.reg_write(UC_ARM64_REG_X3, 0)
 try:
     if os.environ.get('续跑模式') == '1':
         print('JNI init skipped for post-mod resume')
@@ -436,7 +440,7 @@ print('已填充真实实现地址:', {hex(k): hex(v) for k, v in 实现地址�
 
 # 记录关键控制流门和实现入口；emu2 的 bss/rx 写hook本身报告重加密并终止跟踪，不阻止写入
 from unicorn import UC_HOOK_CODE
-流程日志 = open(os.path.join(本目录, 'real_flow.txt'), 'w', buffering=1)
+流程日志 = open(os.path.join(本目录, '真实流程日志.txt'), 'w', buffering=1)
 流程偏移表 = [0x133ec4, 0x133f24, 0x13457c, 0x9c5a0, 0x9c570, 0x9c578, 0x9c58c, 0x173b1c,
             0x9cb0c, 0x9c6fc, 0x9c7f0, 0x9cdd4, 0x9ce70]
 def 真实流程钩子(引擎, 地址, 大小, 用户数据):
@@ -446,10 +450,10 @@ def 真实流程钩子(引擎, 地址, 大小, 用户数据):
         寄存器组['sp'] = 引擎.reg_read(UC_ARM64_REG_SP)
         流程日志.write('BEFORE REAL ' + repr(寄存器组) + '\n')
         import pickle
-        pickle.dump(寄存器组, open(os.path.join(本目录, 'real_call_regs.pkl'), 'wb'))
+        pickle.dump(寄存器组, open(os.path.join(本目录, '真实调用寄存器.pkl'), 'wb'))
     if 地址 == 基址 + 0x9c58c:
-        print('real function returned; il2cpp desc head=', bytes(模拟器.mem_read(IL2CPP基址 + 0x3134000, 32)).hex())
-        print('libil2cpp code head=', bytes(模拟器.mem_read(IL2CPP基址 + 0x1d5aafc, 32)).hex())
+        print('real function returned; il2cpp desc head=', bytes(模拟器.mem_read(IL2CPP基址 + (目标初始偏移 & ~0xfff), 32)).hex())
+        print('libil2cpp code head=', bytes(模拟器.mem_read(IL2CPP基址 + 代码段起始, 32)).hex())
 if os.environ.get('跟踪真实流程') == '1':
     for 偏移 in 流程偏移表:
         模拟器.hook_add(UC_HOOK_CODE, 真实流程钩子, begin=基址 + 偏移, end=基址 + 偏移)
@@ -495,7 +499,7 @@ if os.environ.get('跟踪初始化入口') == '1':
 
 # 捕获密钥派生/OpenSSL 解析函数的间接调用及其输入输出；不改写正常逻辑
 if os.environ.get('跟踪加密') == '1':
-    加密日志 = open(os.path.join(本目录, 'crypto_trace.txt'), 'w', buffering=1)
+    加密日志 = open(os.path.join(本目录, '加密追踪日志.txt'), 'w', buffering=1)
     def 加密钩子(引擎, 地址, 大小, 用户数据):
         v = 地址 - 基址
         寄存器组 = [引擎.reg_read(UC_ARM64_REG_X0 + i) for i in range(4)]
@@ -550,18 +554,6 @@ if os.environ.get('跟踪目标写入') == '1' or os.environ.get('汇总目标�
 def 带跟踪的模拟打开(路径):
     文件描述符 = 原始模拟打开(路径)
     目标日志.write(f'FILE OPEN fd={文件描述符} path={路径}\n')
-    if 'global-metadata.dat' in 路径:
-        print('METADATA OPEN CAPTURED', 路径, 'fd', 文件描述符, flush=True)
-        import pickle
-        快照前缀 = os.path.join(本目录, 'metadata_access')
-        pickle.dump(模拟器上下文 := 模拟器.context_save(), open(快照前缀 + '_ctx.pkl', 'wb'))
-        pickle.dump({'堆指针': 命名空间['堆指针'][0], '下一个文件描述符': 命名空间['下一个文件描述符'][0], '文件描述符表': dict(命名空间['文件描述符表']), '随机数状态': 命名空间['随机数状态'][0], '路径': 路径, '文件描述符': 文件描述符}, open(快照前缀 + '_pystate.pkl', 'wb'))
-        内存区域列表 = []
-        for 区域起始, 区域结束, 区域权限 in 模拟器.mem_regions():
-            内存区域列表.append((区域起始, 区域结束 - 区域起始 + 1, bytes(模拟器.mem_read(区域起始, 区域结束 - 区域起始 + 1))))
-        pickle.dump(内存区域列表, open(快照前缀 + '_mem.pkl', 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
-        print('METADATA SNAPSHOT SAVED', flush=True)
-        模拟器.emu_stop()
     return 文件描述符
 真实全局表['模拟打开'] = 带跟踪的模拟打开
 
@@ -569,12 +561,11 @@ def 带跟踪的模拟打开(路径):
 # 影子快照可能漏掉局部代码的首次写入；进入目标函数前保存真实执行字节供后续分析/恢复
 def 函数捕获钩子(引擎, 地址, 大小, 用户数据):
     区域字节 = bytes(引擎.mem_read(基址 + 0xfcf10, 0x100))
-    open(os.path.join(本目录, 'fcfn_live.bin'), 'wb').write(区域字节)
+    open(os.path.join(本目录, '解密函数现场.bin'), 'wb').write(区域字节)
     目标日志.write('FCFN LIVE=' + 区域字节.hex() + '\n')
     print('captured fcfn live:', 区域字节[0xb0:0xd0].hex())
     引擎.hook_del(函数捕获钩子引用)
-if os.environ.get('元数据快速路径') != '1':
-    函数捕获钩子引用 = 模拟器.hook_add(UC_HOOK_CODE, 函数捕获钩子, begin=基址 + 0xfcf10, end=基址 + 0xfcf10)
+函数捕获钩子引用 = 模拟器.hook_add(UC_HOOK_CODE, 函数捕获钩子, begin=基址 + 0xfcf10, end=基址 + 0xfcf10)
 
 if os.environ.get('捕获目标陷阱') == '1':
     import pickle
@@ -589,7 +580,7 @@ if os.environ.get('捕获目标陷阱') == '1':
                 结果[寄存器名] = bytes(引擎.mem_read(寄存器组[寄存器名], 0x100))
             except UcError:
                 结果[寄存器名] = None
-        with open(os.path.join(本目录, 'target_trap.pkl'), 'wb') as 输出文件:
+        with open(os.path.join(本目录, '目标陷阱现场.pkl'), 'wb') as 输出文件:
             pickle.dump(结果, 输出文件)
         print('target trap captured:', hex(地址))
         引擎.emu_stop()
@@ -622,7 +613,7 @@ if os.environ.get('跟踪目标调度') == '1':
         寄存器组 = {f'x{i}': 引擎.reg_read(UC_ARM64_REG_X0 + i) for i in range(31)}
         寄存器组.update(pc=程序计数器, sp=引擎.reg_read(UC_ARM64_REG_SP), lr=引擎.reg_read(UC_ARM64_REG_LR), 故障地址=地址, 访问类型=访问类型)
         import pickle
-        with open(os.path.join(本目录, 'target_invalid.pkl'), 'wb') as 输出文件:
+        with open(os.path.join(本目录, '目标非法访问现场.pkl'), 'wb') as 输出文件:
             pickle.dump(寄存器组, 输出文件)
         print('TARGET INVALID FETCH', hex(地址), 'PC', hex(程序计数器), 'LR', hex(寄存器组['lr']))
         引擎.emu_stop()
@@ -643,7 +634,7 @@ if os.environ.get('捕获内容帧') == '1':
             '密钥': bytes(引擎.mem_read(帧指针 - 0x40, 0x10)),
             'pc': 地址,
         }
-        with open(os.path.join(本目录, 'content_frame.pkl'), 'wb') as 输出文件:
+        with open(os.path.join(本目录, '内容帧现场.pkl'), 'wb') as 输出文件:
             pickle.dump(结果, 输出文件)
         print('content frame captured sp=', hex(栈指针), 'fp=', hex(帧指针), 'key=', 结果['密钥'].hex())
         引擎.emu_stop()
@@ -677,7 +668,7 @@ if os.environ.get('捕获异或密钥') == '1':
             '目标采样': 采样(目标地址),
             '寄存器组': {f'x{i}': 引擎.reg_read(UC_ARM64_REG_X0 + i) for i in range(31)},
         }
-        with open(os.path.join(本目录, 'xor_key_frame.pkl'), 'wb') as 输出文件:
+        with open(os.path.join(本目录, '异或密钥现场.pkl'), 'wb') as 输出文件:
             pickle.dump(结果, 输出文件)
         print('XOR frame captured key=', 密钥.hex(), 'index=', 索引, 'limit=', 上限, 'source=', hex(源地址), 'dest=', hex(目标地址))
         引擎.emu_stop()
@@ -685,7 +676,7 @@ if os.environ.get('捕获异或密钥') == '1':
 
 if os.environ.get('捕获已执行页') == '1':
     from pathlib import Path
-    捕获目录 = Path(本目录) / 'executed_pages'
+    捕获目录 = Path(本目录) / '已执行页捕获'
     捕获目录.mkdir(exist_ok=True)
     已捕获页集合 = set()
     def 已执行页钩子(引擎, 地址, 大小, 用户数据):
@@ -785,7 +776,7 @@ if os.environ.get('捕获故障') == '1':
                     结果['内存数据'][寄存器名] = bytes(引擎.mem_read(地址值, 0x100)).hex()
                 except UcError:
                     结果['内存数据'][寄存器名] = None
-        open(os.path.join(本目录, 'fault_context.json'), 'w').write(json.dumps(结果, indent=2))
+        open(os.path.join(本目录, '故障现场.json'), 'w').write(json.dumps(结果, indent=2))
         print('fault context captured; stopping without SVC substitution')
         引擎.emu_stop()
     模拟器.hook_add(UC_HOOK_CODE, 故障捕获钩子, begin=基址 + 0xfcfdc, end=基址 + 0xfcfdc)
@@ -825,7 +816,7 @@ if os.environ.get('跟踪定位') == '1':
         模拟器.hook_add(UC_HOOK_CODE, 映射读取钩子, begin=基址 + 偏移, end=基址 + 偏移)
 
 print('SNAPSHOT AND PROBES READY', flush=True)
-目标初始化入口 = IL2CPP基址 + 0x3134504
+目标初始化入口 = IL2CPP基址 + 目标初始偏移
 print('il2cpp DT_INIT @', hex(目标初始化入口), flush=True)
 from ELF工具库 import 启动进度心跳
 启动进度心跳(模拟器, IL2CPP基址, 映像结束偏移, int(os.environ.get('进度间隔秒', '60')))
@@ -856,16 +847,14 @@ except UcError as e:
     print('  ctx[0x1b3070]=', hex(诊断读取(0x1b3070) or 0), ' flag[0x1b1020]=', hex(诊断读取(0x1b1020) or 0), ' real_fn[0x1b2bf8]=', hex(诊断读取(0x1b2bf8) or 0))
     # 垃圾 PC 的字节来源
     垃圾字节 = 程序计数器.to_bytes(8, 'little')
-    影子明文 = open(os.path.join(本目录, 'compatible_decrypted.bin'), 'rb').read()
+    影子明文 = open(os.path.join(本目录, '兼容库明文.bin'), 'rb').read()
     命中位置 = 影子明文.find(垃圾字节)
     print('  garbage PC bytes found in shadow at:', hex(命中位置) if 命中位置 >= 0 else 'not found')
     转储寄存器环()
-if os.environ.get('元数据快速路径') == '1':
-    print('metadata fastpath stopped', 'PC', hex(模拟器.reg_read(UC_ARM64_REG_PC)), 'blocks', 命名空间['基本块计数'][0], 'LR', hex(模拟器.reg_read(UC_ARM64_REG_LR)), 'SP', hex(模拟器.reg_read(UC_ARM64_REG_SP)), flush=True)
 # 转储 phase2 后的 compatible 内存
 try:
     兼容层内存映像 = bytes(模拟器.mem_read(基址, 0x1c6000))
-    open(os.path.join(本目录, 'compatible_phase2.bin'), 'wb').write(兼容层内存映像)
+    open(os.path.join(本目录, '兼容库阶段2内存.bin'), 'wb').write(兼容层内存映像)
 except UcError: pass
 print('final PC:', hex(模拟器.reg_read(UC_ARM64_REG_PC)), 'LR:', hex(模拟器.reg_read(UC_ARM64_REG_LR)))
 print('blocks:', 命名空间['基本块计数'][0], 'svc:', len(命名空间['系统调用日志']), 'heap:', hex(命名空间['堆指针'][0] - 命名空间['堆基址']))
@@ -882,7 +871,7 @@ try:
             区域起始 = 命名空间['栈基址'] + 命名空间['栈大小'] - 0x20000
             区域大小 = 0x20000
         内存区域列表.append((区域起始, 区域大小, bytes(模拟器.mem_read(区域起始, 区域大小))))
-    pickle.dump(内存区域列表, open(os.path.join(本目录, 'post_mod_mem.pkl'), 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(内存区域列表, open(os.path.join(本目录, '模幂快照_内存.pkl'), 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
     print('memory snapshot saved')
 except Exception as e:
     print(f'memory snapshot save failed: {e}')
@@ -892,10 +881,10 @@ for 段 in 目标库ELF.iter_segments():
     if 段.header.p_type != 'PT_LOAD': continue
     段虚拟地址, 段内存大小 = 段.header.p_vaddr, 段.header.p_memsz
     映像缓冲[段虚拟地址:段虚拟地址+段内存大小] = bytes(模拟器.mem_read(IL2CPP基址 + 段虚拟地址, 段内存大小))
-open(os.path.join(本目录, 'libil2cpp_mem.bin'), 'wb').write(bytes(映像缓冲))
+open(os.path.join(本目录, '目标库解密内存.bin'), 'wb').write(bytes(映像缓冲))
 print('il2cpp memory dumped:', hex(映像结束偏移))
 import json
-with open(os.path.join(本目录, 'target_write_summary.json'), 'w') as 输出文件:
+with open(os.path.join(本目录, '目标写入统计.json'), 'w') as 输出文件:
     json.dump(目标写入摘要, 输出文件, indent=2)
 print('target write summary:', 目标写入摘要)
 print('loaded file cache:', list(命名空间['真实库缓存'].keys()))
@@ -911,5 +900,5 @@ print('metadata magic in heap:', [hex(x) for x in 元数据偏移表])
 for 位置 in 元数据偏移表:
     可用数据 = 堆数据[位置:位置 + 0xbcdd9c]
     if len(可用数据) >= 0x100:
-        open(os.path.join(本目录, f'metadata_heap_{位置:x}.bin'), 'wb').write(可用数据)
+        open(os.path.join(本目录, f'元数据堆片段_{位置:x}.bin'), 'wb').write(可用数据)
         print('metadata heap candidate saved at', hex(位置))

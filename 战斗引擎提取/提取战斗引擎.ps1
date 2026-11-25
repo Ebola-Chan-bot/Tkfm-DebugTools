@@ -7,6 +7,7 @@
   2. AES-ECB + LZ4 解密元数据，解析方法表
   3. 从内存快照/离线 dump 恢复 IL2CPP 解密后代码
   4. 按方法 token 反查地址，反汇编战斗引擎方法
+  全部输出（APK解压/元数据明文/解密快照/战斗汇编/摘要.txt 等）集中在输出目录，自产文件一律中文命名
 
   依赖：Python 3.x + pycryptodome + lz4
 .PARAMETER ApkPath
@@ -14,7 +15,7 @@
 .PARAMETER OutDir
   输出目录（默认在 APK 同级 <APK名>_提取/）
 .PARAMETER SnapshotDir
-  内存快照目录（post_fastpath_6_mem.pkl 等），用于恢复 IL2CPP 解密代码
+  内存快照（解密快照.pkl 或归档 post_fastpath_6_mem.pkl 等），用于恢复 IL2CPP 解密代码
 .EXAMPLE
   .\提取战斗引擎.ps1 -ApkPath "D:\天下布魔\天下布魔-2.3.0-erolabs-com.pinkcore.tkfm.erolabs.apk"
 #>

@@ -130,7 +130,8 @@ print(f'self-resolved: {内部符号数}+jmp, external stubs: {len(桩地址映�
 # ---- 合成 libc/libm/libdl/liblog：NP 通过 maps+内存解析自建 libc 函数指针表(anti-hook)，必须提供可解析的 ELF ----
 # 符号来源分两层：①自动提取——libcompatible.so dynsym 中全部 UNDEF 符号（148 个，即其直接导入）；②语义推断——NP 反 hook 机制动态解析的符号（91 个），由逆向 NP 函数指针表构建逻辑确定，不走重定位
 _自动提取未定义符号 = sorted({s.name for s in 动态符号列表 if s.name and s.entry.st_shndx == 'SHN_UNDEF'})
-人工筛选符号 = ['fork', 'vfork', 'ptrace', 'inotify_init', 'inotify_add_watch', 'epoll_create', 'epoll_ctl', 'epoll_wait', 'socket', 'connect', 'send', 'recv', '__android_log_print', '__android_log_write', '__android_log_buf_write', 'system', 'popen', 'pclose', 'execvp', 'sigaction', 'signal', 'longjmp', 'setjmp', '__system_property_find', '__system_property_read', 'android_get_device_api_level', 'pthread_create', 'pthread_join', 'pthread_detach', 'pthread_mutex_lock', 'pthread_mutex_unlock', 'pthread_once', 'pthread_key_create', 'pthread_getspecific', 'pthread_setspecific', 'pthread_self', 'getenv', 'setenv', 'unsetenv', 'mmap', 'munmap', 'mprotect', 'madvise', 'open', 'openat', 'read', 'write', 'pread64', 'lseek', 'fstat', 'fstatat', 'access', 'faccessat', 'readlink', 'readlinkat', 'getdents64', 'gettid', 'geteuid', 'prctl', 'clone', 'kill', 'tgkill', 'raise', 'gettimeofday', 'sleep', 'usleep', 'futex', 'pipe2', 'uname', 'getpagesize', 'memalign', 'memcpy', 'memmove', 'memset', 'memcmp', 'memchr', 'strlen', 'strcmp', 'strncmp', 'strcpy', 'strncpy', 'strcat', 'strchr', 'strstr', 'strerror', 'atoi', 'atol', 'strtol', 'strtoul', 'snprintf', 'vsnprintf', 'sprintf', 'vsprintf', 'vasprintf', 'fopen', 'qsort', 'mktime', 'getentropy', 'strdup', 'strndup', 'sscanf', 'strrchr', 'strcasecmp', 'strncasecmp', 'bsearch', 'abs', 'labs', 'div', 'ldiv', 'isatty', 'tcgetattr', 'tcsetattr', 'pthread_rwlock_rdlock', 'pthread_rwlock_wrlock', 'pthread_rwlock_unlock', 'pthread_cond_broadcast', 'pthread_cond_timedwait', 'pthread_cond_destroy', 'pthread_mutex_init', 'pthread_mutex_destroy', 'pthread_mutex_trylock', 'pthread_mutexattr_init', 'pthread_mutexattr_destroy', 'pthread_mutexattr_settype', 'pthread_key_delete', '__memcpy_chk', '__memmove_chk', '__strlen_chk', '__open_2', '__read_chk', '__vsnprintf_chk', '__snprintf_chk', '__vsprintf_chk', '__vfprintf_chk', '__fprintf_chk', '__printf_chk', '__strncpy_chk', '__strcpy_chk', 'syscall']
+# AAssetManager_open/AAsset_close/_environ/ioctl 不在 compatible 未定义符号里（NP 经 dlsym 动态查找），必须手工登记，缺失会使 NP JNI init 走环境异常分支给 il2cpp DT_INIT 写空桩直接返回
+人工筛选符号 = ['AAssetManager_open', 'AAsset_close', '_environ', 'ioctl', 'fork', 'vfork', 'ptrace', 'inotify_init', 'inotify_add_watch', 'epoll_create', 'epoll_ctl', 'epoll_wait', 'socket', 'connect', 'send', 'recv', '__android_log_print', '__android_log_write', '__android_log_buf_write', 'system', 'popen', 'pclose', 'execvp', 'sigaction', 'signal', 'longjmp', 'setjmp', '__system_property_find', '__system_property_read', 'android_get_device_api_level', 'pthread_create', 'pthread_join', 'pthread_detach', 'pthread_mutex_lock', 'pthread_mutex_unlock', 'pthread_once', 'pthread_key_create', 'pthread_getspecific', 'pthread_setspecific', 'pthread_self', 'getenv', 'setenv', 'unsetenv', 'mmap', 'munmap', 'mprotect', 'madvise', 'open', 'openat', 'read', 'write', 'pread64', 'lseek', 'fstat', 'fstatat', 'access', 'faccessat', 'readlink', 'readlinkat', 'getdents64', 'gettid', 'geteuid', 'prctl', 'clone', 'kill', 'tgkill', 'raise', 'gettimeofday', 'sleep', 'usleep', 'futex', 'pipe2', 'uname', 'getpagesize', 'memalign', 'memcpy', 'memmove', 'memset', 'memcmp', 'memchr', 'strlen', 'strcmp', 'strncmp', 'strcpy', 'strncpy', 'strcat', 'strchr', 'strstr', 'strerror', 'atoi', 'atol', 'strtol', 'strtoul', 'snprintf', 'vsnprintf', 'sprintf', 'vsprintf', 'vasprintf', 'fopen', 'qsort', 'mktime', 'getentropy', 'strdup', 'strndup', 'sscanf', 'strrchr', 'strcasecmp', 'strncasecmp', 'bsearch', 'abs', 'labs', 'div', 'ldiv', 'isatty', 'tcgetattr', 'tcsetattr', 'pthread_rwlock_rdlock', 'pthread_rwlock_wrlock', 'pthread_rwlock_unlock', 'pthread_cond_broadcast', 'pthread_cond_timedwait', 'pthread_cond_destroy', 'pthread_mutex_init', 'pthread_mutex_destroy', 'pthread_mutex_trylock', 'pthread_mutexattr_init', 'pthread_mutexattr_destroy', 'pthread_mutexattr_settype', 'pthread_key_delete', '__memcpy_chk', '__memmove_chk', '__strlen_chk', '__open_2', '__read_chk', '__vsnprintf_chk', '__snprintf_chk', '__vsprintf_chk', '__vfprintf_chk', '__fprintf_chk', '__printf_chk', '__strncpy_chk', '__strcpy_chk', 'syscall']
 补充符号 = sorted(set(_自动提取未定义符号) | set(人工筛选符号))
 for 符号名 in 补充符号:
     if 符号名 not in 桩地址映射 and 符号名 not in 已定义符号:
@@ -224,7 +225,8 @@ def 模拟打开(路径):
              f'{0x7200000000:08x}-{0x7200010000:08x} r-xp 00000000 fd:00 1241 /system/lib64/libm.so\n'
              f'{0x7300000000:08x}-{0x7300010000:08x} r-xp 00000000 fd:00 1242 /system/lib64/libdl.so\n'
              f'{0x7400000000:08x}-{0x7400010000:08x} r-xp 00000000 fd:00 1243 /system/lib64/liblog.so\n').encode()
-安卓包库目录 = os.path.join(脚本目录, '..', '..', '..', '0923_63_1_TenkafuMADiablosHarem', 'lib', 'arm64-v8a') + '/'
+# 库文件由 生成快照.py 从当前 APK 提取后拷贝到脚本自身工作目录（模拟工作区），故直接从脚本目录提供文件内容，与游戏版本/构建无关，不依赖任何固定包名目录
+安卓包库目录 = 脚本目录 + '/'
 进程挂载内容 = (b'rootfs / rootfs ro,relatime 0 0\n'
     b'/dev/block/bootdevice/by-name/system /system ext4 ro,relatime,data=ordered 0 0\n'
     b'/dev/block/bootdevice/by-name/vendor /vendor ext4 ro,relatime,data=ordered 0 0\n'
@@ -248,8 +250,10 @@ def 文件内容(路径):
         if 文件名 not in 真实库缓存:
             候选路径 = 安卓包库目录 + 文件名
             if not os.path.exists(候选路径) and 文件名 == 'global-metadata.dat':
-                候选路径 = os.path.join(脚本目录, '..', '..', '..', '0923_63_1_TenkafuMADiablosHarem', 'assets', 'bin', 'Data', 'Managed', 'Metadata', 'global-metadata.dat')
-            真实库缓存[文件名] = open(候选路径, 'rb').read() if os.path.exists(候选路径) else b''
+                候选路径 = os.path.join(脚本目录, '元数据明文.dat')
+            if not os.path.exists(候选路径):
+                raise FileNotFoundError(f'库文件缺失: {候选路径} —— 工作目录必须包含 生成快照.py 从当前 APK 提取的库文件；静默返回空字节会让 NP 误判目标库为空并给 il2cpp DT_INIT 写空桩')
+            真实库缓存[文件名] = open(候选路径, 'rb').read()
             日志.write(f'FILE serve {路径} -> {len(真实库缓存[文件名])} bytes\n')
         return 真实库缓存[文件名]
     return b''
@@ -260,7 +264,7 @@ def 写入文件状态(地址, 大小):
     struct.pack_into('<I', 状态缓冲, 56, 4096)      # st_blksize
     模拟器.mem_write(地址, bytes(状态缓冲))
 
-日志 = open(os.path.join(脚本目录, 'emu2_trace.txt'), 'w', buffering=1)
+日志 = open(os.path.join(脚本目录, '阶段1追踪.txt'), 'w', buffering=1)
 已停止 = [False]
 系统调用日志 = []
 
@@ -668,7 +672,9 @@ def 处理系统调用(引擎):
         p = 读取字符串(x[1])
         返回值 = 0 if 库文件存在(p) else -2
     elif 系统调用号 == 79:  # fstatat/newfstatat
-        p = 读取字符串(x[1]); c = 文件内容(p)
+        p = 读取字符串(x[1])
+        try: c = 文件内容(p)
+        except FileNotFoundError: c = b''  # 路径探测语义：不存在返回 ENOENT；必需库缺失会在 read/lseek 等消费路径直接抛出
         if c: 写入文件状态(x[2], len(c)); 返回值 = 0
         else: 返回值 = -2
     elif 系统调用号 == 80:  # fstat
@@ -751,7 +757,7 @@ def 实时转储钩子(引擎, 地址, 大小, 用户数据):
             已转储区域.add(区域)
             try:
                 转储字节 = bytes(引擎.mem_read(基址 + 区域, 0x1000))
-                open(os.path.join(脚本目录, f'live_{区域:x}.bin'), 'wb').write(转储字节)
+                open(os.path.join(脚本目录, f'实时页_{区域:x}.bin'), 'wb').write(转储字节)
                 日志.write(f'LIVE DUMP region {区域:#x}\n')
             except UcError: pass
 if os.environ.get('捕获初始化页') == '1':
@@ -843,7 +849,7 @@ if os.environ.get('跟踪初始化指针') == '1':
                     帧 = 上一帧
                 except UcError:
                     break
-            with open(os.path.join(脚本目录, 'init_table_processor_live.bin'), 'wb') as 输出:
+            with open(os.path.join(脚本目录, '初始化表处理器现场.bin'), 'wb') as 输出:
                 输出.write(引擎.mem_read(基址 + 0x152000, 0x1000))
             已停止[0] = True
             引擎.emu_stop()
@@ -859,7 +865,7 @@ def 区域写入钩子(引擎, 访问类型, 地址, 大小, 写入值, 用户�
         日志.write(f'RW#{n} pc={程序计数器-基址:#x} addr={地址-基址:#x} size={大小} val={写入值:#x}\n')
     if 地址 <= 基址 + 0x1074a8 < 地址 + 大小 or 地址 == 基址 + 0x1074a8:
         区域快照 = bytes(引擎.mem_read(基址 + 0x107000, 0x1000))
-        open(os.path.join(脚本目录, f'region107_{n:06d}.bin'), 'wb').write(区域快照)
+        open(os.path.join(脚本目录, f'区域107_{n:06d}.bin'), 'wb').write(区域快照)
         程序计数器 = 引擎.reg_read(UC_ARM64_REG_PC); 链接寄存器 = 引擎.reg_read(UC_ARM64_REG_LR)
         日志.write(f'RW snapshot at write#{n} pc={程序计数器-基址:#x} lr={链接寄存器-基址:#x} entry bytes={区域快照[0x4a8:0x4b8].hex()}\n')
 if os.environ.get('跟踪区域写入') == '1':
@@ -885,7 +891,7 @@ def 代码段写入钩子(引擎, 访问类型, 地址, 大小, 写入值, 用�
         日志.write(f'REENC POINT at second write to {偏移:#x} pc={程序计数器-基址:#x} lr={链接寄存器-基址:#x}\n')
         转储回溯(引擎, 'REENC')
         即时快照 = bytes(引擎.mem_read(基址, 代码段结束偏移))
-        open(os.path.join(脚本目录, 'compatible_reenc_point.bin'), 'wb').write(即时快照)
+        open(os.path.join(脚本目录, '兼容库重加密点.bin'), 'wb').write(即时快照)
 if os.environ.get('捕获代码写入') == '1' or not os.environ.get('跳过初始化') == '1':
     模拟器.hook_add(UC_HOOK_MEM_WRITE, 代码段写入钩子, begin=基址, end=基址 + 代码段结束偏移)
 
@@ -934,16 +940,16 @@ print('DT_INIT @', hex(初始化入口), 'vaddr', hex(d['DT_INIT'][0]), flush=Tr
 跳过初始化 = os.environ.get('跳过初始化') == '1'
 if 跳过初始化:
     import pickle
-    _前缀 = os.environ.get('快照前缀') or ('post_mod' if os.environ.get('续跑模式') == '1' else 'mu')
+    _前缀 = os.environ.get('快照前缀') or ('模幂快照' if os.environ.get('续跑模式') == '1' else '阶段1快照')
     if os.environ.get('跟踪启动') == '1': print('STARTUP: restoring context', _前缀, flush=True)
-    _上下文 = pickle.load(open(os.path.join(脚本目录, f'{_前缀}_ctx.pkl'), 'rb'))
+    _上下文 = pickle.load(open(os.path.join(脚本目录, f'{_前缀}_上下文.pkl'), 'rb'))
     模拟器.context_restore(_上下文)
-    _进程状态 = pickle.load(open(os.path.join(脚本目录, f'{_前缀}_pystate.pkl'), 'rb'))
+    _进程状态 = pickle.load(open(os.path.join(脚本目录, f'{_前缀}_进程状态.pkl'), 'rb'))
     快照进程状态 = _进程状态
     堆指针[0] = _进程状态['堆指针']; 下一个文件描述符[0] = _进程状态['下一个文件描述符']; 文件描述符表.update(_进程状态['文件描述符表']); 随机数状态[0] = _进程状态['随机数状态']
     已停止[0] = False
     # unicorn2 context 不含内存：显式恢复 DT_INIT 建立的全部内存状态；新快照可能包含原脚本尚未创建的il2cpp映射
-    for _地址, _大小, _字节 in pickle.load(open(os.path.join(脚本目录, f'{_前缀}_mem.pkl'), 'rb')):
+    for _地址, _大小, _字节 in pickle.load(open(os.path.join(脚本目录, f'{_前缀}_内存.pkl'), 'rb')):
         if os.environ.get('续跑模式') == '1':
             _已有区域 = next(((a, b) for a, b, _ in 模拟器.mem_regions() if a <= _地址 and b >= _地址 + _大小 - 1), None)
             if _已有区域 is None:
@@ -954,7 +960,7 @@ if 跳过初始化:
     print('SKIP_INIT: context + memory restored, heap used', hex(堆指针[0] - 堆基址), 'snapshot', _前缀, flush=True)
 else:
     if os.environ.get('跟踪DT_AES') == '1':
-        _aes日志 = open(os.path.join(脚本目录, 'aes_calls.txt'), 'w', buffering=1)
+        _aes日志 = open(os.path.join(脚本目录, 'AES调用日志.txt'), 'w', buffering=1)
         _aes计数 = [0]
         _aes钩子引用 = [None]
         def dt_aes钩子(引擎, 地址, 大小, 用户数据):
@@ -971,7 +977,7 @@ else:
                 pass
         _aes钩子引用[0] = 模拟器.hook_add(UC_HOOK_CODE, dt_aes钩子, begin=基址 + 0x137968, end=基址 + 0x137968)
     if os.environ.get('捕获信号') == '1':
-        _信号日志 = open(os.path.join(脚本目录, 'signal_setup_dt.txt'), 'w', buffering=1)
+        _信号日志 = open(os.path.join(脚本目录, '信号安装日志_初始化.txt'), 'w', buffering=1)
         def dt信号钩子(引擎, 地址, 大小, 用户数据):
             旧动作地址 = 引擎.reg_read(UC_ARM64_REG_X0); 处理器地址 = 引擎.reg_read(UC_ARM64_REG_X1); 链接寄存器 = 引擎.reg_read(UC_ARM64_REG_LR)
             _信号日志.write(f'ENTER 0x93ef0 old_actions={旧动作地址:#x} handler={处理器地址:#x} handler_off={处理器地址-基址:#x} lr={链接寄存器:#x} lr_off={链接寄存器-基址:#x}\n')
@@ -996,7 +1002,7 @@ if os.environ.get('停止初始化指针') == '1' and 已停止[0]:
 import pickle
 if not 跳过初始化 and os.environ.get('捕获信号') != '1':
     # 保存内存快照供后续分析
-    with open(os.path.join(脚本目录, 'mu_state.pkl'), 'wb') as 状态文件:
+    with open(os.path.join(脚本目录, '阶段1状态.pkl'), 'wb') as 状态文件:
         pickle.dump({'堆指针': 堆指针[0], '已停止': 已停止[0], '崩溃信息': 崩溃信息[0]}, 状态文件)
     映像结束 = max(s.header.p_vaddr + s.header.p_memsz for s in ELF文件.iter_segments() if s.header.p_type == 'PT_LOAD')
     映像字节 = bytearray(映像结束)
@@ -1004,15 +1010,15 @@ if not 跳过初始化 and os.environ.get('捕获信号') != '1':
         if s.header.p_type != 'PT_LOAD': continue
         段虚拟地址, 段内存大小 = s.header.p_vaddr, s.header.p_memsz
         映像字节[段虚拟地址:段虚拟地址+段内存大小] = bytes(模拟器.mem_read(基址 + 段虚拟地址, 段内存大小))
-    open(os.path.join(脚本目录, 'compatible_mem.bin'), 'wb').write(bytes(映像字节))
+    open(os.path.join(脚本目录, '兼容库内存.bin'), 'wb').write(bytes(映像字节))
     print('memory snapshot saved, size', hex(映像结束))
-    open(os.path.join(脚本目录, 'compatible_decrypted.bin'), 'wb').write(bytes(影子明文))
+    open(os.path.join(脚本目录, '兼容库明文.bin'), 'wb').write(bytes(影子明文))
     已写槽数 = sum(1 for c in 槽写入计数 if c)
     print('shadow plaintext saved; slots written:', 已写槽数, 'double-written:', sum(1 for c in 槽写入计数 if c >= 2))
     # 尾部执行路径转储（用影子明文反汇编）
     from capstone import Cs, CS_ARCH_ARM64, CS_MODE_ARM
     _反汇编器 = Cs(CS_ARCH_ARM64, CS_MODE_ARM)
-    with open(os.path.join(脚本目录, 'tail_blocks.txt'), 'w') as 尾部转储文件:
+    with open(os.path.join(脚本目录, '尾部块反汇编.txt'), 'w') as 尾部转储文件:
         for 地址 in list(基本块环形记录)[-400:]:
             v = 地址 - 基址
             if not (0 <= v < 代码段结束偏移):
@@ -1023,9 +1029,9 @@ if not 跳过初始化 and os.environ.get('捕获信号') != '1':
     print('tail blocks dumped')
     try:
         上下文 = 模拟器.context_save()
-        pickle.dump(上下文, open(os.path.join(脚本目录, 'mu_ctx.pkl'), 'wb'))
+        pickle.dump(上下文, open(os.path.join(脚本目录, '阶段1快照_上下文.pkl'), 'wb'))
         pickle.dump({'堆指针': 堆指针[0], '下一个文件描述符': 下一个文件描述符[0], '文件描述符表': dict(文件描述符表), '随机数状态': 随机数状态[0]},
-                    open(os.path.join(脚本目录, 'mu_pystate.pkl'), 'wb'))
+                    open(os.path.join(脚本目录, '阶段1快照_进程状态.pkl'), 'wb'))
         # 保存全部内存区域（unicorn2 context 不含内存），堆基址裁剪到已用、栈基址只存顶部
         # mem_regions 返回 (begin, end, perms)，end 为末字节地址
         _区域列表 = []
@@ -1036,7 +1042,7 @@ if not 跳过初始化 and os.environ.get('捕获信号') != '1':
             elif _a == 栈基址: _a = 栈基址 + 栈大小 - 0x20000; _s = 0x20000
             elif _a == 线程本地存储: _s = 0x1000
             _区域列表.append((_a, _s, bytes(模拟器.mem_read(_a, _s))))
-        pickle.dump(_区域列表, open(os.path.join(脚本目录, 'mu_mem.pkl'), 'wb'))
+        pickle.dump(_区域列表, open(os.path.join(脚本目录, '阶段1快照_内存.pkl'), 'wb'))
         print('unicorn context + pystate + memory saved')
     except Exception as e:
         print('context save failed:', e)

@@ -140,7 +140,7 @@ if __name__ == '__main__':
     print(f'== symbols total {len(符号列表)} named {len(有名字的符号)} ==')
     for 项 in 有名字的符号:
         print(f"{项['名称']} @0x{项['值']:x} size={项['大小']} {项['信息']} shndx={项['节索引']}")
-    json.dump(有名字的符号, open(os.path.join(脚本目录, f'{文件名}.syms.json'), 'w'))
+    json.dump(有名字的符号, open(os.path.join(脚本目录, f'{文件名}.符号.json'), 'w'))
     # segments
     print('== segments ==')
     for 段 in ELF文件.iter_segments():
