@@ -48,8 +48,32 @@ for s in 动态符号列表:
         if s.name not in 已定义符号:
             已定义符号[s.name] = s.entry.st_value
 
-重定位表 = json.load(open(os.path.join(脚本目录, 'compatible_relocs.json')))
-if os.environ.get('跟踪启动') == '1': print('STARTUP: relocations loaded', flush=True)
+# 从动态段 DT_RELA/DT_JMPREL 解析重定位表：NP 抹除了重定位节头（节级解析结果为空），而动态段是加载器运行的必需数据、无法抹除
+重定位表 = {'rela': [], 'jmp': []}
+动态标签 = {}
+for 段 in ELF文件.iter_segments():
+    if 段.header.p_type == 'PT_DYNAMIC':
+        for 标签 in 段.iter_tags():
+            动态标签.setdefault(标签.entry.d_tag, 标签.entry.d_val)
+def 虚拟转文件偏移(地址):
+    for 段 in ELF文件.iter_segments():
+        if 段.header.p_type == 'PT_LOAD' and 段.header.p_vaddr <= 地址 < 段.header.p_vaddr + 段.header.p_filesz:
+            return 地址 - 段.header.p_vaddr + 段.header.p_offset
+    raise ValueError(f'虚拟地址 {地址:#x} 不在任何 PT_LOAD 段内')
+def 解析重定位表(表地址, 表大小):
+    # 每条 Elf64_Rela 24 字节：r_offset(8) + r_info(8, 低32位类型/高32位符号索引) + r_addend(8)
+    出 = []
+    文件偏移 = 虚拟转文件偏移(表地址)
+    for i in range(0, 表大小, 24):
+        偏移, 信息, 加数 = struct.unpack_from('<QQq', 文件数据, 文件偏移 + i)
+        符号索引 = 信息 >> 32
+        符号 = 动态符号列表[符号索引] if 符号索引 else None
+        名称 = 符号.name if 符号 else ''
+        出.append((偏移, 信息 & 0xffffffff, 符号索引, 加数, 名称))
+    return 出
+重定位表['rela'] = 解析重定位表(动态标签['DT_RELA'], 动态标签['DT_RELASZ'])
+重定位表['jmp'] = 解析重定位表(动态标签['DT_JMPREL'], 动态标签['DT_PLTRELSZ'])
+if os.environ.get('跟踪启动') == '1': print(f'STARTUP: relocations loaded rela={len(重定位表["rela"])} jmp={len(重定位表["jmp"])}', flush=True)
 桩地址映射 = {}; 桩名称映射 = {}
 n = 0
 def 获取桩地址(名称):
@@ -177,8 +201,6 @@ for _库名, _库基址 in 模拟库基址表.items():
     已加载模块.append((_库基址, _库基址 + 模拟库大小, _库路径))
 堆指针 = [堆基址]
 def 分配内存(大小, 清零=True):
-    if globals().get('跟踪分配'):
-        分配日志.write(f'ALLOC size={大小:#x} ptr={堆指针[0]:#x} pc={模拟器.reg_read(UC_ARM64_REG_PC)-基址:#x} lr={模拟器.reg_read(UC_ARM64_REG_LR)-基址:#x}\n')
     大小 = (大小 + 15) & ~15
     p = 堆指针[0]; 堆指针[0] += 大小
     if 堆指针[0] > 堆基址 + 堆大小 - 0x1000: raise RuntimeError('heap exhausted')
@@ -594,23 +616,11 @@ def 代码钩子(引擎, 地址, 大小, 用户数据):
         名称 = 桩名称映射.get(地址, '?')
         处理导入(名称, 引擎)
 def 中断钩子(引擎, 中断号, 用户数据):
+    处理系统调用(引擎)
+
+def 处理系统调用(引擎):
     系统调用号 = 引擎.reg_read(UC_ARM64_REG_X8)
     x = [引擎.reg_read(r) for r in (UC_ARM64_REG_X0, UC_ARM64_REG_X1, UC_ARM64_REG_X2, UC_ARM64_REG_X3, UC_ARM64_REG_X4, UC_ARM64_REG_X5)]
-    if globals().get('捕获私有中断'):
-        程序计数器 = 引擎.reg_read(UC_ARM64_REG_PC)
-        指令字 = struct.unpack('<I', bytes(引擎.mem_read(程序计数器, 4)))[0]
-        if 指令字 != 0xd4000001:
-            寄存器组 = {f'x{i}': 引擎.reg_read(UC_ARM64_REG_X0 + i) for i in range(31)}
-            寄存器组['sp'] = 引擎.reg_read(UC_ARM64_REG_SP)
-            寄存器组['pc'] = 程序计数器
-            寄存器组['lr'] = 引擎.reg_read(UC_ARM64_REG_LR)
-            import pickle
-            with open(os.path.join(脚本目录, 'private_interrupt.pkl'), 'wb') as 转储文件:
-                pickle.dump({'中断号': 中断号, '指令字': 指令字, '寄存器组': 寄存器组, '代码字节': bytes(引擎.mem_read(程序计数器 - 64, 128))}, 转储文件)
-            日志.write(f'PRIVATE INTR intno={中断号} pc={程序计数器-基址:#x} word={指令字:#x} x8={系统调用号:#x}\n')
-            已停止[0] = True
-            引擎.emu_stop()
-            return
     系统调用日志.append((系统调用号, x[0]))
     返回值 = 0
     # arm64 系统调用号

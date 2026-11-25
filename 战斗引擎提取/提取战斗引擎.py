@@ -8,7 +8,7 @@
 
 不依赖 Temp 目录中任何预生成文件。
 """
-import sys, os, struct, hashlib, zipfile, pathlib, csv, io, bisect
+import sys, os, struct, hashlib, zipfile, pathlib, csv, io, bisect, subprocess
 
 # ─── 常量 ───────────────────────────────────────────────────────
 # IL2CPP 元数据格式魔术码（Unity IL2CPP 运行时 GlobalMetadataFileInternals.h 规范定义的格式标识，类似 ZIP 的 "PK"，非从 APK 提取）
@@ -282,9 +282,11 @@ def 从快照恢复代码(快照路径: str, 输出目录: pathlib.Path, 战斗�
     # Assembly-CSharp CodeGenModule
     代码生成模块偏移 = 0x4E0EA00
     名称指针, 方法数量, 方法指针表 = struct.unpack_from("<QQQ", 目标数据, 代码生成模块偏移)
-    print(f"  Assembly-CSharp CodeGenModule: methods={方法数量} ptrs=0x{方法指针表-基址:x}")
-    if 方法指针表 == 0:
-        print("  [!] method_ptrs 为 0，IL2CPP 尚未完成解密，需要更多轮次的快照")
+    # 直接打绝对地址：旧写法减基址在指针为0时会输出负号十六进制（如 0x-8000000000），极易误读
+    print(f"  Assembly-CSharp CodeGenModule: methods={方法数量} ptrs={方法指针表:#x}")
+    if 方法指针表 == 0 or not (基址 <= 方法指针表 < 基址 + len(目标数据)):
+        print("  [X] 方法指针表未建立，IL2CPP 代码尚未解密完成；本次快照是模拟达到超时/指令上限后保存的半成品，不能用于提取")
+        print("      请调大 模拟超时微秒 / 指令上限 后重跑，或用已完成的快照通过 --snapshot 指定")
         return False
 
     反汇编器 = Cs(CS_ARCH_ARM64, CS_MODE_ARM)
@@ -462,12 +464,14 @@ def 主函数():
         print("  未提供快照，自动生成（Unicorn 模拟 NP 解包）...")
         生成脚本 = pathlib.Path(__file__).parent / "生成快照.py"
         if 生成脚本.exists():
-            import subprocess as sp
-            运行结果 = sp.run(
+            from ELF工具库 import 运行子进程
+            # 外层超时必须覆盖内层全部上限并留裕量（阶段1 600秒 + 阶段2模拟上限 + 硬超时裕量）；旧值900秒会在模拟中途超时杀掉直接子进程而留下孤儿模拟进程
+            # stdout 直通控制台，使子进程的阶段输出与进度心跳实时可见
+            外层超时 = 600 + int(os.environ.get('模拟超时微秒', '5400000000')) // 1000000 + 1200
+            运行结果 = 运行子进程(
                 [sys.executable, str(生成脚本), str(APK内容目录), "-o", str(输出目录)],
-                capture_output=True, text=True, timeout=900,
+                stderr=subprocess.PIPE, text=True, timeout=外层超时,
             )
-            print(运行结果.stdout[-1000:] if 运行结果.stdout else "")
             if 运行结果.returncode != 0 and 运行结果.stderr:
                 print(f"  [!] 快照生成 stderr: {运行结果.stderr[-500:]}")
             # 查找生成的快照（搜索所有子目录，取最新的 post_fastpath）
@@ -478,11 +482,12 @@ def 主函数():
                     break
         else:
             print("  [!] 未找到 生成快照.py")
+    代码恢复成功 = False
     if 快照路径:
         print(f"  使用快照: {快照路径}")
-        从快照恢复代码(快照路径, 输出目录, 战斗方法列表)
+        代码恢复成功 = bool(从快照恢复代码(快照路径, 输出目录, 战斗方法列表))
     else:
-        print("  [!] 快照生成失败，元数据和方法表已完整提取")
+        print("  [X] 快照生成失败，元数据和方法表已完整提取")
 
     # ── 汇总 ──
     摘要路径 = 输出目录 / "summary.txt"
@@ -505,8 +510,14 @@ def 主函数():
 
     print(f"\n  [OK] 摘要: {摘要路径}")
     print(f"\n{'='*60}")
-    print(f"  提取完成。输出目录: {输出目录}")
+    if 代码恢复成功:
+        print(f"  提取完成。输出目录: {输出目录}")
+    else:
+        print(f"  提取未完成：仅元数据与方法表就绪，汇编代码未导出（详见上方原因）。输出目录: {输出目录}")
     print(f"{'='*60}")
+    # 代码未导出属于任务失败，必须以非零码退出，避免上层靠退出码误判为成功
+    if not 代码恢复成功:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

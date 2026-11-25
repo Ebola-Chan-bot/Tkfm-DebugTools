@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   从天下布魔 APK 中提取完整战斗引擎汇编代码（NP AppGuard 加壳游戏专用）。
 .DESCRIPTION
@@ -46,10 +46,39 @@ if ($LASTEXITCODE -ne 0) {
     & $pyExe -m pip install --user pycryptodome lz4 2>$null
 }
 
-# 执行主脚本
+# 执行主脚本：放入关闭即终止的作业对象（Job Object），本 PowerShell 无论正常退出还是被强杀，内核都会自动终止 Python 及其全部后代模拟进程，杜绝孤儿进程
+Add-Type -Namespace Win32 -Name JobGuard -MemberDefinition @'
+[StructLayout(LayoutKind.Sequential)] public struct BASIC_LIMIT {
+    public long PerProcessUserTimeLimit; public long PerJobUserTimeLimit; public uint LimitFlags;
+    public UIntPtr MinimumWorkingSetSize; public UIntPtr MaximumWorkingSetSize;
+    public uint ActiveProcessLimit; public UIntPtr Affinity; public uint PriorityClass; public uint SchedulingClass;
+}
+[StructLayout(LayoutKind.Sequential)] public struct IO_COUNTERS {
+    public ulong ReadOperationCount, WriteOperationCount, OtherOperationCount, ReadTransferCount, WriteTransferCount, OtherTransferCount;
+}
+[StructLayout(LayoutKind.Sequential)] public struct EXTENDED_LIMIT {
+    public BASIC_LIMIT Basic; public IO_COUNTERS Io;
+    public UIntPtr ProcessMemoryLimit, JobMemoryLimit, PeakProcessMemoryUsed, PeakJobMemoryUsed;
+}
+[DllImport("kernel32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr CreateJobObjectW(IntPtr sa, string name);
+[DllImport("kernel32.dll")] public static extern bool SetInformationJobObject(IntPtr job, int cls, ref EXTENDED_LIMIT info, uint len);
+[DllImport("kernel32.dll")] public static extern bool AssignProcessToJobObject(IntPtr job, IntPtr proc);
+'@
+$守护作业 = [Win32.JobGuard]::CreateJobObjectW([IntPtr]::Zero, $null)
+if ($守护作业 -ne [IntPtr]::Zero) {
+    $限制 = New-Object Win32.JobGuard+EXTENDED_LIMIT
+    $限制.Basic.LimitFlags = 0x2000  # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+    [Win32.JobGuard]::SetInformationJobObject($守护作业, 9, [ref]$限制, [Runtime.InteropServices.Marshal]::SizeOf($限制)) | Out-Null
+}
+
 $mainPy = Join-Path $PSScriptRoot "提取战斗引擎.py"
 $pyArgs = @($mainPy, $ApkPath)
 if ($OutDir) { $pyArgs += @("-o", $OutDir) }
 if ($Snapshot) { $pyArgs += @("--snapshot", $Snapshot) }
-& $pyExe @pyArgs
-exit $LASTEXITCODE
+$引号参数 = $pyArgs | ForEach-Object { '"{0}"' -f $_ }
+$主进程 = Start-Process -FilePath $pyExe -ArgumentList $引号参数 -NoNewWindow -PassThru
+if ($守护作业 -ne [IntPtr]::Zero) {
+    [Win32.JobGuard]::AssignProcessToJobObject($守护作业, $主进程.Handle) | Out-Null
+}
+$主进程.WaitForExit()
+exit $主进程.ExitCode

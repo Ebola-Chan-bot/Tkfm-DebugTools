@@ -4,6 +4,7 @@
 自动修补模拟器脚本中的硬编码路径，无需手动准备。
 """
 import sys, os, shutil, pathlib, subprocess
+from ELF工具库 import 运行子进程
 
 def 修补脚本(源文件: pathlib.Path, 目标文件: pathlib.Path, 工作目录: pathlib.Path):
     """将脚本中的硬编码路径替换为工作目录"""
@@ -20,12 +21,13 @@ def 生成快照(APK提取目录: str, 输出目录: str, 脚本目录: str = No
       输出目录: 输出目录（快照保存在此）
       脚本目录: 模拟器脚本目录（默认与本脚本同目录）
     """
-    APK目录 = pathlib.Path(APK提取目录)
-    输出路径 = pathlib.Path(输出目录)
+    # 全部转为绝对路径：子进程 cwd 设为工作目录后，相对路径会被再解析一次导致路径翻倍
+    APK目录 = pathlib.Path(APK提取目录).resolve()
+    输出路径 = pathlib.Path(输出目录).resolve()
     if 脚本目录 is None:
-        脚本目录 = pathlib.Path(__file__).parent
+        脚本目录 = pathlib.Path(__file__).parent.resolve()
     else:
-        脚本目录 = pathlib.Path(脚本目录)
+        脚本目录 = pathlib.Path(脚本目录).resolve()
 
     输出路径.mkdir(parents=True, exist_ok=True)
 
@@ -34,7 +36,7 @@ def 生成快照(APK提取目录: str, 输出目录: str, 脚本目录: str = No
             print(f"[X] 缺少 {文件名}，请先从 APK 提取")
             return False
 
-    模拟器文件列表 = ["NP自解密模拟.py", "IL2CPP解密模拟.py", "ELF工具库.py", "compatible_relocs.json", "compatible_decrypted.bin"]
+    模拟器文件列表 = ["NP自解密模拟.py", "IL2CPP解密模拟.py", "ELF工具库.py"]
 
     for 条目 in 模拟器文件列表:
         if not (脚本目录 / 条目).exists():
@@ -63,10 +65,10 @@ def 生成快照(APK提取目录: str, 输出目录: str, 脚本目录: str = No
     Python解释器 = sys.executable or "python"
 
     print("  阶段 1: libcompatible DT_INIT ...")
-    阶段1结果 = subprocess.run([Python解释器, str(工作路径 / "NP自解密模拟.py")], cwd=str(工作路径),
+    阶段1结果 = 运行子进程([Python解释器, str(工作路径 / "NP自解密模拟.py")], cwd=str(工作路径),
                         capture_output=True, text=True, timeout=600)
     if 阶段1结果.returncode != 0:
-        print(f"  [!] emu2.py 返回 {阶段1结果.returncode}")
+        print(f"  [!] NP自解密模拟.py 返回 {阶段1结果.returncode}")
         print(f"  stdout: {阶段1结果.stdout[-500:]}")
         print(f"  stderr: {阶段1结果.stderr[-500:]}")
 
@@ -78,15 +80,17 @@ def 生成快照(APK提取目录: str, 输出目录: str, 脚本目录: str = No
 
     print("  阶段 2: libil2cpp DT_INIT（一趟跑完）...")
     环境变量 = os.environ.copy()
-    环境变量['指令上限'] = '50000000000'
-    环境变量['模拟超时微秒'] = '1800000000'
+    环境变量.setdefault('指令上限', '50000000000')
+    # 旧值30分钟在本机会刚好跑满上限而产出半成品快照（方法指针表未建立）；默认放宽到90分钟，可用同名环境变量覆盖
+    环境变量.setdefault('模拟超时微秒', '5400000000')
+    print(f"  模拟上限: {int(环境变量['模拟超时微秒'])/60000000:.0f} 分钟 / {int(环境变量['指令上限']):,} 条指令")
     快照路径 = None
     print("  运行 IL2CPP DT_INIT 解密（一趟跑完）...")
-    阶段2结果 = subprocess.run([Python解释器, str(工作路径 / "IL2CPP解密模拟.py")], cwd=str(工作路径),
-                        capture_output=True, text=True, timeout=3600, env=环境变量)
-    if 阶段2结果.stdout:
-        for 行 in 阶段2结果.stdout.strip().split("\n")[-8:]:
-            print(f"    {行}")
+    # stderr 仍捕获以便报错，stdout 直通父进程控制台，让阶段内进度心跳与阶段输出实时可见（不再等结束后截尾8行）
+    # 子进程硬超时必须大于模拟超时上限并留裕量，否则会先杀进程导致连半成品快照都存不下
+    阶段2硬超时 = int(环境变量['模拟超时微秒']) // 1000000 + 600
+    阶段2结果 = 运行子进程([Python解释器, str(工作路径 / "IL2CPP解密模拟.py")], cwd=str(工作路径),
+                        stderr=subprocess.PIPE, text=True, timeout=阶段2硬超时, env=环境变量)
     if 阶段2结果.returncode != 0 and 阶段2结果.stderr:
         for 行 in 阶段2结果.stderr.strip().split("\n")[-5:]:
             print(f"    ERR: {行}")

@@ -4,16 +4,11 @@ from unicorn import UcError
 from unicorn.arm64_const import *
 
 本目录 = os.path.dirname(os.path.abspath(__file__))
-命名空间 = runpy.run_path(os.path.join(本目录, 'emu2.py'))
+命名空间 = runpy.run_path(os.path.join(本目录, 'NP自解密模拟.py'))
 模拟器 = 命名空间['模拟器']; 基址 = 命名空间['基址']; 栈基址 = 命名空间['栈基址']; 栈大小 = 命名空间['栈大小']
 返回地址 = 命名空间['返回地址']; 兼容库ELF = 命名空间['ELF文件']
 # runpy 返回的是 globals 副本；钩子函数的真实 globals 要从函数对象取，替换日志才能生效
 真实全局表 = 命名空间['中断钩子'].__globals__
-if os.environ.get('捕获私有中断') == '1':
-    真实全局表['捕获私有中断'] = True
-if os.environ.get('跟踪分配') == '1':
-    真实全局表['跟踪分配'] = True
-    真实全局表['分配日志'] = open(os.path.join(本目录, 'allocations.txt'), 'w', buffering=1)
 # 重新打开日志（emu2 末尾关闭了）
 日志 = open(os.path.join(本目录, 'emu4_trace.txt'), 'w', buffering=1)
 真实全局表['日志'] = 日志
@@ -122,8 +117,10 @@ def 处理系统调用(引擎):
     elif 链接寄存器 == 0x924e8:  # munmap(addr,length)
         返回值 = 释放映射(引擎, x[0], x[1])
     else:
-        分发日志.write(f'SCALL unknown lr={链接寄存器:#x} x0={x[0]:#x} x1={x[1]:#x} x5={x[5]:#x}\n')
-        目标日志.write(f'SCALL UNKNOWN lr={链接寄存器:#x} args={[hex(v) for v in x]}\n')
+        # NP 混淆状态机高频经过未识别包装器，逐次写行缓冲日志会造成持续磁盘IO（曾累积数GB）；仅在显式跟踪时记录
+        if os.environ.get('跟踪系统调用') == '1':
+            分发日志.write(f'SCALL unknown lr={链接寄存器:#x} x0={x[0]:#x} x1={x[1]:#x} x5={x[5]:#x}\n')
+            目标日志.write(f'SCALL UNKNOWN lr={链接寄存器:#x} args={[hex(v) for v in x]}\n')
         返回值 = 0
     引擎.reg_write(UC_ARM64_REG_X0, 返回值 & 0xffffffffffffffff)
 
@@ -199,7 +196,8 @@ def 执行系统调用(引擎, 调用号, x):
         return len(数据块)
     if 调用号 == 117: return 0  # ptrace
     if 调用号 == 167: return 1 if x[0] == 3 else 0  # prctl
-    分发日志.write(f'SCALL syscall {调用号} unhandled x0={x[0]:#x}\n')
+    if os.environ.get('跟踪系统调用') == '1':
+        分发日志.write(f'SCALL syscall {调用号} unhandled x0={x[0]:#x}\n')
     return 0
 真实全局表['处理系统调用'] = 处理系统调用
 
@@ -435,41 +433,6 @@ if os.environ.get('调度实验') == '1':
 for 槽位, 偏移 in 实现地址表.items():
     模拟器.mem_write(基址 + 槽位, struct.pack('<Q', 基址 + 偏移))
 print('已填充真实实现地址:', {hex(k): hex(v) for k, v in 实现地址表.items()})
-# 实现区在该库静态文件中仍加密，真实路径按需解密；记录首次实现的活内存字节用于校验
-if os.environ.get('元数据快速路径') != '1':
-    实现首字节 = bytes(模拟器.mem_read(基址 + 0x173b1c, 64))
-    print('real impl first bytes:', 实现首字节.hex())
-    open(os.path.join(本目录, 'real_impl_live.bin'), 'wb').write(实现首字节)
-    def 实现入口钩子(引擎, 地址, 大小, 用户数据):
-        实现实时字节 = bytes(引擎.mem_read(基址 + 0x173b1c, 0x400))
-        流程日志.write('IMPL LIVE ' + 实现实时字节.hex() + '\n')
-        open(os.path.join(本目录, 'real_impl_live_after.bin'), 'wb').write(实现实时字节)
-        print('real impl live bytes:', 实现实时字节[:64].hex())
-        if os.environ.get('停止实现') == '1':
-            引擎.emu_stop()
-    if os.environ.get('停止实现') == '1':
-        模拟器.hook_add(UC_HOOK_CODE, 实现入口钩子, begin=基址 + 0x173b1c, end=基址 + 0x173b1c)
-    def 实现重加密钩子(引擎, 访问类型, 地址, 大小, 写入值, 用户数据):
-        if 基址 + 0x173b1c <= 地址 < 基址 + 0x174000:
-            区域字节 = bytes(引擎.mem_read(基址 + 0x173000, 0x2000))
-            open(os.path.join(本目录, 'real_impl_reenc.bin'), 'wb').write(区域字节)
-            流程日志.write(f'IMPL REENC addr={地址-基址:#x} size={大小} value={写入值:#x}\n')
-            print('captured implementation region before re-encryption')
-            引擎.hook_del(重加密钩子引用)
-    if os.environ.get('捕获重加密') == '1':
-        重加密钩子引用 = 模拟器.hook_add(UC_HOOK_MEM_WRITE, 实现重加密钩子, begin=基址 + 0x173000, end=基址 + 0x175000)
-    # 实现页发生首次读取/解密时捕获，不执行到可能的重加密路径
-    def 实现读取钩子(引擎, 访问类型, 地址, 大小, 写入值, 用户数据):
-        if 基址 + 0x173000 <= 地址 < 基址 + 0x175000:
-            区域字节 = bytes(引擎.mem_read(基址 + 0x173000, 0x2000))
-            open(os.path.join(本目录, 'real_impl_on_read.bin'), 'wb').write(区域字节)
-            流程日志.write(f'IMPL READ addr={地址-基址:#x} size={大小} pc={引擎.reg_read(UC_ARM64_REG_PC)-基址:#x}\n')
-            print('captured implementation on first read')
-            引擎.emu_stop()
-    if os.environ.get('捕获实现读取') == '1':
-        模拟器.hook_add(UC_HOOK_MEM_READ, 实现读取钩子, begin=基址 + 0x173000, end=基址 + 0x175000)
-    if os.environ.get('跟踪实现') == '1':
-        模拟器.hook_add(UC_HOOK_CODE, lambda 引擎, a, s, u: 流程日志.write(f'IMPL {a-基址:#x} x0={引擎.reg_read(UC_ARM64_REG_X0):#x} x8={引擎.reg_read(UC_ARM64_REG_X8):#x}\n'), begin=基址 + 0x173b1c, end=基址 + 0x173d00)
 
 # 记录关键控制流门和实现入口；emu2 的 bss/rx 写hook本身报告重加密并终止跟踪，不阻止写入
 from unicorn import UC_HOOK_CODE
@@ -864,6 +827,8 @@ if os.environ.get('跟踪定位') == '1':
 print('SNAPSHOT AND PROBES READY', flush=True)
 目标初始化入口 = IL2CPP基址 + 0x3134504
 print('il2cpp DT_INIT @', hex(目标初始化入口), flush=True)
+from ELF工具库 import 启动进度心跳
+启动进度心跳(模拟器, IL2CPP基址, 映像结束偏移, int(os.environ.get('进度间隔秒', '60')))
 模拟器.reg_write(UC_ARM64_REG_SP, 栈基址 + 栈大小 - 0x1000)
 模拟器.reg_write(UC_ARM64_REG_LR, 返回地址)
 模拟器.reg_write(UC_ARM64_REG_X0, 0)
