@@ -1,5 +1,5 @@
 import { 新建战斗, 结算操作, 重放战斗, 当前攻击, 当前护盾, 加成, 可选敌人, 预览敌方行动 } from './战斗引擎.mjs';
-import { 枚举, 枚举名, 易伤基, 来源易伤基, 易伤键, 来源易伤键, 登记语义名, 语义名, 模型版本, 水光易伤 } from './枚举.mjs';
+import { 枚举, 枚举名, 属性名, 职业名, 易伤基, 来源易伤基, 易伤键, 来源易伤键, 登记语义名, 语义名, 模型版本, 水光易伤 } from './枚举.mjs';
 import { 原包机制 } from './原包运行时.mjs';
 import { 真实角色目录, 获取真实角色, 获取真实技能, 创建角色, 职业列表, 属性列表, 调教加成, 普通等级最低, 普通等级最高, ELV突破档位, ELV技能解锁等级, 获取潜力养成, 计算调教面板, 获取适用ELv技能, 提取角色养成 } from './角色数据.mjs';
 import { 更新池角色, 删除池角色, 校验编队引用, 解析角色引用, 生成角色池文件, 解析角色池文件, 合并角色池, 生成引用编队文件, 解析引用编队文件, 新建池角色, 解析Have角色代码, 合并Have角色 } from './玩家角色池.mjs';
@@ -284,7 +284,7 @@ function 打开归档面板(id) {
     查('#归档报表').innerHTML = 报表.length ? 报表.map(行 => `<tr><td>${行.回合}</td><td>${转义(行动说明(行.技能, 项.记录.配置))}</td>${['伤害', '回复', '理论回复', '护盾生成', '护盾吸收', '承伤'].map(字段 => `<td>${简数(行[字段])}</td>`).join('')}<td>${行.存活}/${回放.队伍.length}</td></tr>`).join('') : '<tr><td colspan="9" class="无记录">尚无已结算回合</td></tr>';
     const 日志 = 回放?.日志 ?? [];
     // 归档是已完成的静态记录，按发生顺序正序展示；只显示行动本身，后续结算折叠在各行下，点击行展开。主界面的实时日志仍保持最新在上的平铺。
-    查('#归档日志').innerHTML = 归档行动日志(日志.filter(条目 => !['AI', '系统'].includes(条目.类别)), 项.记录.配置);
+    查('#归档日志').innerHTML = 归档行动日志(日志.filter(条目 => ![枚举.AI, 枚举.系统].includes(条目.类别)), 项.记录.配置);
     查('#归档日志全展开').textContent = '全部展开';
     查('#归档面板').hidden = false;
     document.body.classList.add('归档展开');
@@ -364,7 +364,7 @@ function 分组行动日志(列表) {
         const 批次 = 项.批次 ?? null;
         const 归属 = 项.归属 ?? null;
         const 结算组 = 项.结算组 ?? null;
-        const 是父行 = ['行动', '敌方', '结算'].includes(项.类别);
+        const 是父行 = [枚举.行动, 枚举.敌方, 枚举.结算].includes(项.类别);
         const 延续回合末 = 结算组 !== null && 组.length && 组[组.length - 1].结算组 === 结算组;
         const 新归属 = !延续回合末 && (是父行 || (批次 !== null && 归属 !== null && 组.length && (组[组.length - 1].批次 !== 批次 || 组[组.length - 1].归属 !== 归属)));
         if (新归属) 组.push({ 父: 是父行 ? 项 : null, 子: 是父行 ? [] : [项], 批次, 归属, 结算组 });
@@ -377,12 +377,13 @@ function 分组行动日志(列表) {
 // 归档行动记录按“行动/敌方/结算”分组折叠：父行是行动或结算本身，紧随其后的伤害、治疗、机制等记录收纳为子行，点击父行才展开；首个行动之前的开场机制行保持直接可见。
 function 归档行动日志(列表, 配置源 = 配置) {
     if (!列表.length) return '<tr><td class="无记录" colspan="4">暂无结算记录</td></tr>';
-    const 单行 = (项, 类 = '', 属性 = '') => `<tr${类 ? ` class="${类}"` : ''}${属性}><td>${项.回合}</td><td><span class="事件签 ${转义(项.类别)}">${转义(项.类别)}</span></td><td>${转义(行动说明(项.内容, 配置源))}</td><td>${项.数值 === null ? '—' : 数字(项.数值)}</td></tr>`;
+    // 日志类别存的是枚举数值（系统820/机制821/行动825…），显示与 CSS 着色一律经 枚举名 反查成中文签。
+    const 单行 = (项, 类 = '', 属性 = '') => `<tr${类 ? ` class="${类}"` : ''}${属性}><td>${项.回合}</td><td><span class="事件签 ${转义(枚举名(项.类别))}">${转义(枚举名(项.类别))}</span></td><td>${转义(行动说明(项.内容, 配置源))}</td><td>${项.数值 === null ? '—' : 数字(项.数值)}</td></tr>`;
     const 组 = 分组行动日志(列表);
     return 组.map((段, 序) => {
         if (!段.父) return 段.子.map(项 => 单行(项)).join('');
         const 计数 = 段.子.length ? `<span class="效果数">${段.子.length}项效果</span>` : '';
-        const 父行 = `<tr class="归档父行${段.子.length ? ' 有子' : ''}" data-归档组="${序}"${段.子.length ? ' role="button" tabindex="0" aria-expanded="false" title="点击展开/收起该行动的后续结算"' : ''}><td>${段.父.回合}</td><td><span class="事件签 ${转义(段.父.类别)}">${转义(段.父.类别)}</span></td><td>${转义(行动说明(段.父.内容, 配置源))}${计数}</td><td>${段.父.数值 === null ? '—' : 数字(段.父.数值)}</td></tr>`;
+        const 父行 = `<tr class="归档父行${段.子.length ? ' 有子' : ''}" data-归档组="${序}"${段.子.length ? ' role="button" tabindex="0" aria-expanded="false" title="点击展开/收起该行动的后续结算"' : ''}><td>${段.父.回合}</td><td><span class="事件签 ${转义(枚举名(段.父.类别))}">${转义(枚举名(段.父.类别))}</span></td><td>${转义(行动说明(段.父.内容, 配置源))}${计数}</td><td>${段.父.数值 === null ? '—' : 数字(段.父.数值)}</td></tr>`;
         return 父行 + 段.子.map(项 => 单行(项, '归档子行', ` data-归档组子="${序}" hidden`)).join('');
     }).join('');
 }
@@ -503,7 +504,7 @@ function 渲染战场() {
     查('#撤销').disabled = 游标 === 0 || 运行中;
     查('#重做').disabled = 游标 >= 操作列表.length || 运行中;
     查('#旧记录栏').hidden = Boolean(配置.自动敌方);
-    查('#AI预览').innerHTML = 预览敌方行动(状态).map(项 => `<div><strong>${转义(项.名称)}</strong><span>${转义(项.技能?.map(编号 => 编号 === 枚举.普攻 ? 编号 : 敌方技能名称(编号)).join(' + ') || 项.行动)}</span><span>${项.冷却 === null ? '' : `CD ${项.冷却}`}</span></div>`).join('');
+    查('#AI预览').innerHTML = 预览敌方行动(状态).map(项 => `<div><strong>${转义(项.名称)}</strong><span>${转义(项.技能?.map(编号 => 编号 === 枚举.普攻 ? '普攻' : 敌方技能名称(编号)).join(' + ') || 项.行动)}</span><span>${项.冷却 === null ? '' : `CD ${项.冷却}`}</span></div>`).join('');
     查('#角色队伍').innerHTML = 状态.队伍.map(单位 => {
         const 可行动 = 状态.阶段 === 枚举.我方 && 单位.生命 > 0 && !单位.已行动 && !运行中 && 配置.自动敌方;
         const 百分比 = Math.max(0, 单位.生命 / 单位.生命上限 * 100);
@@ -512,12 +513,12 @@ function 渲染战场() {
         const 状态条 = 单位.生命 <= 0 ? '倒下' : 动作状态.控制.length ? 动作状态.控制.join(' · ') : 单位.防御 ? '防御中' : 单位.已行动 ? '已行动' : '待行动';
         const 全名 = 单位.全名 || 获取真实角色(单位.编号)?.全名 || 单位.名称;
         const 关卡标记 = 配置.关卡 === 60161 ? (单位.状态标记 || []).map(项 => `<span>${转义(项.标记)}${项.层数 > 1 ? ` ${项.层数}` : ''}</span>`).join('') : '';
-        return `<article class="角色卡 ${类名}" data-unit="${单位.位置}"><div class="角色卡头"><span class="站位标">${String(单位.位置 + 1).padStart(2, '0')} ${单位.位置 === 0 ? ' / 队长' : ''}</span><button class="图标按钮" data-detail="${单位.位置}" title="${转义(全名)}状态与技能" aria-label="${转义(全名)}状态与技能"><i data-lucide="ellipsis"></i></button></div><div class="角色名行">${职业像(单位.职业, 单位.编号, 全名)}<div><h3 class="角色姓名">${转义(全名)}</h3><div class="角色属性">${转义(单位.属性)} · ${转义(单位.职业)} · 羁绊 ${单位.羁绊}</div></div></div><div class="角色血量"><span>${数字(单位.生命)}</span><span class="比例">${百分比.toFixed(0)}%</span></div><div class="生命轨"><div style="width:${百分比}%;${百分比 < 30 ? 'background:var(--红)' : ''}"></div></div><div class="角色参数"><div><span>当前攻击</span><strong>${简数(当前攻击(单位))}</strong></div><div><span>有效护盾</span><strong>${简数(当前护盾(单位))}</strong></div></div><div class="角色状态"><span>${状态条}</span>${单位.冷却剩余 ? `<span>CD ${单位.冷却剩余}</span>` : '<span>必杀就绪</span>'}${单位.计数.守护 ? `<span>守护 ${单位.计数.守护}</span>` : ''}${关卡标记}</div><div class="动作栏"><button data-action="普攻" data-position="${单位.位置}" ${可行动 && 动作状态.可攻击 ? '' : 'disabled'} title="${动作状态.可攻击 ? '普攻' : '受控，无法攻击'}">普攻</button><button data-action="必杀" data-position="${单位.位置}" ${可行动 && 动作状态.可必杀 ? '' : 'disabled'} title="${动作状态.控制.length ? '受控或沉默，无法施放必杀' : 单位.冷却剩余 ? `冷却 ${单位.冷却剩余} 回合` : '必杀'}">${单位.冷却剩余 ? `CD ${单位.冷却剩余}` : '必杀'}</button><button data-action="防御" data-position="${单位.位置}" ${可行动 && !动作状态.跳过 ? '' : 'disabled'} title="${动作状态.跳过 ? '受控，本次行动自动待机' : '防御'}" aria-label="${转义(单位.名称)}防御"><i data-lucide="shield"></i></button></div></article>`;
+        return `<article class="角色卡 ${类名}" data-unit="${单位.位置}"><div class="角色卡头"><span class="站位标">${String(单位.位置 + 1).padStart(2, '0')} ${单位.位置 === 0 ? ' / 队长' : ''}</span><button class="图标按钮" data-detail="${单位.位置}" title="${转义(全名)}状态与技能" aria-label="${转义(全名)}状态与技能"><i data-lucide="ellipsis"></i></button></div><div class="角色名行">${职业像(单位.职业, 单位.编号, 全名)}<div><h3 class="角色姓名">${转义(全名)}</h3><div class="角色属性">${转义(属性名(单位.属性))} · ${转义(职业名(单位.职业))} · 羁绊 ${单位.羁绊}</div></div></div><div class="角色血量"><span>${数字(单位.生命)}</span><span class="比例">${百分比.toFixed(0)}%</span></div><div class="生命轨"><div style="width:${百分比}%;${百分比 < 30 ? 'background:var(--红)' : ''}"></div></div><div class="角色参数"><div><span>当前攻击</span><strong>${简数(当前攻击(单位))}</strong></div><div><span>有效护盾</span><strong>${简数(当前护盾(单位))}</strong></div></div><div class="角色状态"><span>${状态条}</span>${单位.冷却剩余 ? `<span>CD ${单位.冷却剩余}</span>` : '<span>必杀就绪</span>'}${单位.计数.守护 ? `<span>守护 ${单位.计数.守护}</span>` : ''}${关卡标记}</div><div class="动作栏"><button data-action="普攻" data-position="${单位.位置}" ${可行动 && 动作状态.可攻击 ? '' : 'disabled'} title="${动作状态.可攻击 ? '普攻' : '受控，无法攻击'}">普攻</button><button data-action="必杀" data-position="${单位.位置}" ${可行动 && 动作状态.可必杀 ? '' : 'disabled'} title="${动作状态.控制.length ? '受控或沉默，无法施放必杀' : 单位.冷却剩余 ? `冷却 ${单位.冷却剩余} 回合` : '必杀'}">${单位.冷却剩余 ? `CD ${单位.冷却剩余}` : '必杀'}</button><button data-action="防御" data-position="${单位.位置}" ${可行动 && !动作状态.跳过 ? '' : 'disabled'} title="${动作状态.跳过 ? '受控，本次行动自动待机' : '防御'}" aria-label="${转义(单位.名称)}防御"><i data-lucide="shield"></i></button></div></article>`;
     }).join('');
     const 结束 = 状态.阶段 === 枚举.结束;
     查('#结局').hidden = !结束;
     if (结束) 查('#结局').textContent = 状态.敌人.every(单位 => 单位.生命 <= 0) ? `${当前关卡(配置).名称}已通关` : 状态.队伍.every(单位 => 单位.生命 <= 0) ? '队伍全灭' : '已到达回合上限';
-    查('#最近日志').innerHTML = 日志行(最近行动分组(状态.日志.filter(项 => !['AI', '系统'].includes(项.类别)), 10));
+    查('#最近日志').innerHTML = 日志行(最近行动分组(状态.日志.filter(项 => ![枚举.AI, 枚举.系统].includes(项.类别)), 10));
     图标刷新();
 }
 
@@ -525,7 +526,7 @@ function 渲染记录() {
     const 类别 = 查('#日志类别').value;
     const 日志 = 状态?.日志 ?? [];
     const 报表 = 状态?.回合报表 ?? [];
-    查('#全部日志').innerHTML = 日志行(最近行动分组(日志.filter(项 => !['AI', '系统'].includes(项.类别) && (!类别 || 项.类别 === 类别)), 60));
+    查('#全部日志').innerHTML = 日志行(最近行动分组(日志.filter(项 => ![枚举.AI, 枚举.系统].includes(项.类别) && (!类别 || 项.类别 === 枚举[类别])), 60));
     查('#报表').innerHTML = 报表.length ? 报表.map(行 => `<tr><td>${行.回合}</td><td>${转义(行动说明(行.技能))}</td>${['伤害', '回复', '理论回复', '护盾生成', '护盾吸收', '承伤'].map(字段 => `<td>${简数(行[字段])}</td>`).join('')}<td>${行.存活}/${状态 ? 状态.队伍.length : 0}</td></tr>`).join('') : '<tr><td colspan="9" class="无记录">尚无已结算回合</td></tr>';
     渲染本场养成();
 }
@@ -727,7 +728,7 @@ function 渲染角色池() {
             const 站位 = 玩家编队.indexOf(养成.编号);
             return `<article class="池角色" data-pool-id="${养成.编号}">
                 ${职业像(档案.职业, 档案.编号, 档案.全名)}
-                <div class="池名称"><h3>${转义(档案.全名)}</h3><small>${养成.编号} · ${转义(档案.职业)} · ${转义(档案.属性)}${站位 >= 0 ? ` · <b class="入队签">编队站位 ${站位 + 1}</b>` : ''}</small></div>
+                <div class="池名称"><h3>${转义(档案.全名)}</h3><small>${养成.编号} · ${转义(职业名(档案.职业))} · ${转义(属性名(档案.属性))}${站位 >= 0 ? ` · <b class="入队签">编队站位 ${站位 + 1}</b>` : ''}</small></div>
                 <div class="池面板"><span>生命<strong>${面板 ? 数字(面板.生命上限) : '--'}</strong></span><span>攻击<strong>${面板 ? 数字(面板.攻击) : '--'}</strong></span></div>
                 <div class="池养成">${转义(养成摘要(养成))}</div>
                 <div class="池工具"><button class="文字按钮" data-pool-join="${养成.编号}" ${站位 >= 0 || 玩家编队.length >= 5 ? 'disabled' : ''} title="${站位 >= 0 ? '已在编队中' : 玩家编队.length >= 5 ? '编队已满5人' : '加入编队'}">编入</button><button class="文字按钮" data-pool-edit="${养成.编号}" title="编辑养成">养成</button><button class="文字按钮" data-pool-del="${养成.编号}" ${站位 >= 0 ? 'disabled title="请先从编队移除"' : 'title="从角色池删除"'}>删除</button></div>
@@ -768,7 +769,7 @@ function 渲染角色编辑表单() {
         <div class="面板结果" data-label="生命"><output data-panel-stat="生命上限" aria-label="生命"></output></div>
         <div class="面板结果" data-label="攻击"><output data-panel-stat="攻击" aria-label="攻击"></output></div>
     </div>
-    <div class="编辑身份"><span><span>职业</span><strong>${转义(档案.职业)}</strong></span><span><span>属性</span><strong>${转义(档案.属性)}</strong></span><button class="文字按钮" data-skill-source="${单位.编号}" title="查看技能"><i data-lucide="book-open"></i>技能</button></div>
+    <div class="编辑身份"><span><span>职业</span><strong>${转义(职业名(档案.职业))}</strong></span><span><span>属性</span><strong>${转义(属性名(档案.属性))}</strong></span><button class="文字按钮" data-skill-source="${单位.编号}" title="查看技能"><i data-lucide="book-open"></i>技能</button></div>
     <div class="潜力养成"><label>潜力<select data-field="潜力等级" aria-label="潜力等级">${Array.from({ length: 12 }, (_, 序) => 序 + 1).map(阶 => `<option ${阶 === 单位.潜力等级 ? 'selected' : ''}>${阶}</option>`).join('')}</select></label><fieldset class="潜力节点"><legend>本阶节点</legend>${Array.from({ length: 6 }, (_, 序) => `<label><input type="checkbox" data-potential="${序}" aria-label="潜力节点${序 + 1}"><span></span></label>`).join('')}</fieldset></div>
     ${ELv选择(单位, '角色编辑')}
     <p class="编辑警告" hidden></p>`;
@@ -786,7 +787,7 @@ function 刷新角色编辑说明() {
             const 序 = Number(输入.dataset.potential);
             const 节点 = 潜力.节点[序];
             输入.checked = 潜力.潜力节点[序];
-            输入.nextElementSibling.textContent = 节点.属性 === 枚举.潜力被动 ? `被动${节点.数值}` : `${节点.属性 === 'HP' ? '生命' : '攻击'} +${节点.数值}%`;
+            输入.nextElementSibling.textContent = 节点.属性 === 枚举.潜力被动 ? `被动${节点.数值}` : `${节点.属性 === 枚举.潜力生命 ? '生命' : '攻击'} +${节点.数值}%`;
         }
         const 突破等级 = 单位.ELV突破等级 ?? 0;
         const 突破技能 = 获取适用ELv技能(单位.编号);
@@ -948,7 +949,7 @@ function 效果数值(效果) {
     // 详情展示整组实际生效数值；0.0454×4应显示18.16%，不能把总加成误标为单层4.5%后仍按四层读取。
     const 数值 = 效果.数值 * (效果.层数 ?? 1);
     if (效果.属性 === 枚举.攻击固定) return 数字(数值);
-    if (['锁血', '嘲讽', '防御', '睡眠', '麻痹', 枚举.封印, '沉默'].includes(效果.属性)) return '生效';
+    if ([枚举.嘲讽, 枚举.睡眠, 枚举.麻痹, 枚举.封印, 枚举.沉默].includes(效果.属性)) return '生效';
     return `${(数值 * 100).toFixed(2)}%`;
 }
 
@@ -978,7 +979,7 @@ function 敌方详情(位置) {
     const 效果 = (单位.效果 || []).map(效果 => {
         const 来源 = [...状态.队伍, ...状态.敌人].find(项 => 项.编号 === 效果.来源);
         const 技能 = 来源 && 效果.来源技能 ? 获取真实技能(来源.编号, 来源.羁绊)?.[效果.来源技能] : null;
-        return `<tr><td>${转义(效果.属性)}</td><td>${效果数值(效果)}</td><td>${效果.层数 ?? 1}</td><td>${效果.剩余 >= 999 ? '常驻' : 效果.剩余 ?? '—'}</td><td>${转义(来源?.名称 || '未知')}${来源 ? `（${来源.位置 + 1}号位）` : ''}</td><td>${转义(技能 ? `${效果.来源技能}：${技能.名称}` : 效果.来源技能 || 效果.名称 || '—')}</td></tr>`;
+        return `<tr><td>${转义(枚举名(效果.属性))}</td><td>${效果数值(效果)}</td><td>${效果.层数 ?? 1}</td><td>${效果.剩余 >= 999 ? '常驻' : 效果.剩余 ?? '—'}</td><td>${转义(来源?.名称 || '未知')}${来源 ? `（${来源.位置 + 1}号位）` : ''}</td><td>${转义(技能 ? `${效果.来源技能}：${技能.名称}` : 效果.来源技能 || 效果.名称 || '—')}</td></tr>`;
     }).join('') + 叠层状态行(单位, true);
     const 夏日字段 = 配置.关卡 === 60155 ? `<dt>夏日层数</dt><dd>${单位.计数?.[原包机制.技能[28788].效果.键] ?? 0}</dd><dt>每回合回血</dt><dd>${(单位.原包触发 || []).some(项 => 项.来源技能 === 28777 && 项.剩余 > 0) ? '2%' : '无'}</dd>` : '';
     const 爱你字段 = 配置.关卡 === 60161 ? `<dt>关卡数据</dt><dd>Stage 60161 · 编组42095 · 技能组422861</dd><dt>阶段AI</dt><dd>${单位.AI状态?.阶段编号 || '待命定之人'}</dd><dt>剩余锁血</dt><dd>${(单位.锁血阈值 || []).map(项 => `${(项.比例 * 100).toFixed(2)}%`).join(' / ') || 枚举.无}</dd>` : '';
@@ -988,7 +989,7 @@ function 敌方详情(位置) {
 function 角色详情(位置) {
     const 单位 = 状态.队伍[位置];
     const 汇总 = ['伤害', '回复', '理论回复', '护盾生成', '护盾吸收', '承伤'].map(名称 => `<dt>${名称}</dt><dd>${数字(单位.统计[名称])}</dd>`).join('');
-    const 效果 = 单位.效果.map(效果 => `<tr><td>${转义(效果.属性)}</td><td>${效果数值(效果)}</td><td>${效果.层数}</td><td>${效果.剩余 >= 999 ? '常驻' : 效果.剩余}</td></tr>`).join('') + 叠层状态行(单位);
+    const 效果 = 单位.效果.map(效果 => `<tr><td>${转义(枚举名(效果.属性))}</td><td>${效果数值(效果)}</td><td>${效果.层数}</td><td>${效果.剩余 >= 999 ? '常驻' : 效果.剩余}</td></tr>`).join('') + 叠层状态行(单位);
     const 可用ELv = 获取适用ELv技能(单位.编号) || [];
     // ELv 目录里的名称只是前缀（如“攻击者：伤害+”），补上说明才能看出具体数值。
     const ELv名 = (单位.ELv技能 || []).map(编号 => { const 项 = 可用ELv.find(条目 => 条目.编号 === 编号); return 项 ? `${项.名称}（${项.校核说明 || 项.说明 || ''}）` : `#${编号}`; }).join('；') || '未选择';
@@ -1048,7 +1049,7 @@ function 角色详情(位置) {
     const 详情 = 事件.target.closest('[data-detail]');
     if (详情) return 角色详情(Number(详情.dataset.detail));
     const 按钮 = 事件.target.closest('[data-action]');
-    if (按钮) 执行({ 类型: 枚举.角色, 位置: Number(按钮.dataset.position), 动作: 按钮.dataset.action, 目标: 攻击目标 });
+    if (按钮) 执行({ 类型: 枚举.角色, 位置: Number(按钮.dataset.position), 动作: 枚举[按钮.dataset.action], 目标: 攻击目标 });
 }));
 查('#撤销').addEventListener('click', 包装(() => {
     if (游标 === 0 || !状态) return;

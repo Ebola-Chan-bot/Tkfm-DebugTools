@@ -65,6 +65,9 @@ export const 枚举 = Object.freeze({
 export const 枚举名覆盖 = Object.freeze({ 600: '==', 601: '!=', 602: '>', 603: '>=', 604: '<', 605: '<=', 520: 'HP≥%', 521: 'HP≤%', 503: '层数<' });
 const 反查 = (() => { const 表 = {}; for (const [名, 码] of Object.entries(枚举)) if (表[码] === undefined) 表[码] = 名; for (const [码, 名] of Object.entries(枚举名覆盖)) 表[码] = 名; return Object.freeze(表); })();
 export const 枚举名 = 码 => 反查[码] ?? String(码);
+// 属性与职业同字面值共码（1火/1攻…），通用反查只能归一族；显示层按字段域选这两个专用反查。
+export const 属性名 = 码 => ['无', '火', '水', '风', '光', '暗'][码] ?? String(码);
+export const 职业名 = 码 => ['无', '攻击者', '守护者', '治疗者', '辅助者', '妨碍者'][码] ?? String(码);
 
 // ── 易伤族/来源易伤 合成键 ──
 export const 易伤基 = 10000;
