@@ -27,6 +27,23 @@ function 取编组表() { return 编组表缓存 ??= (() => {
     return 表;
 })(); }
 export const 原包编组表 = new Proxy({}, { get: (目标, 键) => { const 表 = 取编组表(); const 值 = 表[键]; return typeof 值 === 'function' ? 值.bind(表) : 值; }, has: (目标, 键) => 键 in 取编组表(), ownKeys: () => Reflect.ownKeys(取编组表()), getOwnPropertyDescriptor: () => ({ configurable: true, enumerable: true }) });
+// 原包多队表：MultiteamStage_C.bytes（24B/记录，4B头+18条）。u16@0=活动编号、u16@2=多队编号、@4起5×u16关卡槽（去0得关卡序列），字段序与元数据 TMultiStageData（eventID/multiID/stageID/completeReward）一致。时之裂缝SP四场分组铁证：活动9027多队15209=[15234,15239,15244,15249]（StageStr 四名皆'时-SP/凯萨考验之刻'），15249=第4场；上季活动9026多队15109=[15129,15134,15139,15144] 同构。UI_TimeCrackStageInfo.mMultiId/ClickedLeft/ClickedRight 即消费此分组。
+let 多队表缓存 = null;
+function 取多队表() { return 多队表缓存 ??= (() => {
+    const 表 = new Map();
+    for (let o = 4; o + 24 <= 多队字节.length; o += 24) {
+        const 活动编号 = 多队字节[o] | (多队字节[o + 1] << 8);
+        const 多队编号 = 多队字节[o + 2] | (多队字节[o + 3] << 8);
+        const 关卡序列 = [];
+        for (let i = 0; i < 5; i++) {
+            const 关 = 多队字节[o + 4 + i * 2] | (多队字节[o + 5 + i * 2] << 8);
+            if (关) 关卡序列.push(关);
+        }
+        关卡序列.forEach((关, 序) => 表.set(关, { 活动编号, 多队编号, 场次: 序 + 1, 总场次: 关卡序列.length, 关卡序列 }));
+    }
+    return 表;
+})(); }
+export const 原包多队表 = new Proxy({}, { get: (目标, 键) => { const 表 = 取多队表(); const 值 = 表[键]; return typeof 值 === 'function' ? 值.bind(表) : 值; }, has: (目标, 键) => 键 in 取多队表(), ownKeys: () => Reflect.ownKeys(取多队表()), getOwnPropertyDescriptor: () => ({ configurable: true, enumerable: true }) });
 // 原包运行时.mjs —— 浏览器端加载原包二进制表并解析为原包机制结构；Node 环境自动回退 node:fs 读取，供优化器等工具在无浏览器时复用同一份数据链路。
 import { 解析原包机制, 敌方组推导, 关卡编号组 } from './原包数据.mjs';
 export { 关卡编号组 };
@@ -53,7 +70,7 @@ export async function 读取原包文件(文件名, 转文本 = false) {
     }
 }
 
-const [技能字节, 技能组字节, 技能文本字节, 角色字节, 解放字节, 文本名字节, 潜力字节, 关卡字节, 编组字节, 关卡名字节] = await Promise.all([
+const [技能字节, 技能组字节, 技能文本字节, 角色字节, 解放字节, 文本名字节, 潜力字节, 关卡字节, 编组字节, 关卡名字节, 多队字节] = await Promise.all([
     读取原包文件('Skill_C.bytes'),
     读取原包文件('SkillGroup.bytes'),
     读取原包文件('SkillStr_sc.bytes'),
@@ -64,6 +81,7 @@ const [技能字节, 技能组字节, 技能文本字节, 角色字节, 解放�
     读取原包文件('Stage_C.bytes'),
     读取原包文件('MonsterGroup.bytes'),
     读取原包文件('StageStr_sc.bytes'),
+    读取原包文件('MultiteamStage_C.bytes'),
 ]);
 // 原包文本：语言包技能说明（SkillStr 文本池）编号→[名称,说明]。ELv技能（405xx）等未入技能字典的孤岛记录从这里取显示文本。
 // 技能文本表=SkillStr_sc.bytes 解析（[u32条数][键u32][u16长+文本]×2，33093 条整文件解完；40501 等逐条与旧JSON 33093 条对照一致）。同构 [{分表:0,编号,文本:[名称,说明]}] 供下游原样消费，替代旧 技能说明.json（7MB JSON→3.3MB 原包 bytes）。

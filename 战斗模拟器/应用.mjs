@@ -12,8 +12,16 @@ const 数字 = 数值 => Math.floor(数值).toLocaleString('zh-CN');
 const 简数 = 数值 => Math.abs(数值) >= 1e8 ? `${(数值 / 1e8).toFixed(2)} 亿` : Math.abs(数值) >= 1e4 ? `${(数值 / 1e4).toFixed(2)} 万` : 数字(数值);
 const 角色头像地址 = 编号 => `./角色头像/cs${编号}_0_0.webp`;
 const 职业像 = (职业, 编号, 名称 = 职业) => `<img class="职业像 ${转义(职业)}" src="${角色头像地址(编号)}" width="34" height="38" alt="${转义(名称)}" title="${转义(名称)}" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="职业像 头像回退 ${转义(职业)}" hidden aria-label="${转义(名称)}">${转义(String(名称).slice(0, 1))}</span>`;
-const 存档键 = '颠倒镜-战斗存档';
-const 关卡存档键 = 关卡 => ({ 夏日尾声: '夏日尾声-战斗存档', 爱你至死不渝SP: '爱你至死不渝SP-战斗存档' }[关卡] || 存档键);
+const 关卡存档键 = 关卡 => `${关卡}-战斗存档`;
+// 旧名称键迁移：名称 value 时代三个关卡共用/按名存盘，数字编号协议后一律按编号键；旧记录按其内容里的配置.关卡归位（共用槽可能存的是任意关卡的记录），目标键已有内容则不覆盖
+for (const 旧键 of ['颠倒镜-战斗存档', '夏日尾声-战斗存档', '爱你至死不渝SP-战斗存档']) {
+    const 旧文 = localStorage.getItem(旧键);
+    if (旧文 === null) continue;
+    let 编号 = null;
+    try { 编号 = JSON.parse(旧文)?.配置?.关卡 ?? null; } catch {}
+    if (!Number.isInteger(编号)) 编号 = { '颠倒镜-战斗存档': 15249, '夏日尾声-战斗存档': 60155, '爱你至死不渝SP-战斗存档': 60161 }[旧键];
+    if (localStorage.getItem(关卡存档键(编号)) === null) localStorage.setItem(关卡存档键(编号), 旧文);
+}
 const 角色池存档键 = 'TKFM-玩家角色池';
 const 玩家编队存档键 = 'TKFM-玩家编队';
 let 玩家角色池 = [];
@@ -21,10 +29,10 @@ let 玩家编队 = [];
 let 角色编辑草稿 = null;
 let 新增角色中 = false;
 let 玩家数据就绪 = false;
-let 配置 = 创建关卡配置();
+let 配置 = 创建关卡配置(Number(localStorage.getItem('TKFM-当前关卡')) || 15249);
 let 操作列表 = [];
 let 游标 = 0;
-let 状态 = 新建战斗(配置);
+let 状态 = null; // 未开始；顶层不建战斗（配置只含关卡事实，可调数值须由设置表单/存档提供），载入记录或应用编队后才有状态
 let 提示计时器;
 let 安装事件;
 let 运行中 = false;
@@ -392,7 +400,7 @@ function 渲染关卡() {
     const 爱你 = 关卡.编号 === 60161;
     查('#关卡选择').value = 关卡.编号;
     查('#关卡名称').textContent = 关卡.名称;
-    查('#关卡标签').textContent = 关卡.标签;
+    查('#关卡标签').textContent = 关卡.标签 + (关卡.场次标注 ? ` · ${关卡.场次标注}` : '');
     查('#关卡简称').textContent = 关卡.简称;
     查('#关卡编号').textContent = 夏日 ? '五名敌人' : '首领战';
     document.title = `${关卡.名称} · 战斗模拟器`;
@@ -978,7 +986,7 @@ function 角色详情(位置) {
 全查('[data-open-tab]').forEach(按钮 => 按钮.addEventListener('click', () => 切换视图(按钮.dataset.openTab)));
 全查('[data-close]').forEach(按钮 => 按钮.addEventListener('click', () => 按钮.closest('dialog').close()));
 查('#关卡选择').addEventListener('change', 包装(事件 => {
-    const 关卡 = 事件.target.value;
+    const 关卡 = Number(事件.target.value);
     const 当前队伍 = structuredClone(配置.队伍);
     const 编队标识 = 队伍 => JSON.stringify(队伍.map(单位 => ({
         ...Object.fromEntries(['编号', '羁绊', '星级', '调教', '普通等级', 'ELV突破等级', '潜力等级', '潜力节点', '解放', '技能版本'].map(字段 => [字段, 单位[字段] ?? null])),
@@ -1371,8 +1379,10 @@ window.addEventListener('beforeinstallprompt', 事件 => {
 window.addEventListener('online', () => { 查('#离线状态').textContent = '本地存档'; });
 window.addEventListener('offline', () => { 查('#离线状态').textContent = '离线运行'; });
 
+// 关卡选项按关卡列表（原包 StageStr 推导）运行时生成，value=关卡编号；静态名称 value 与数字编号协议不符会使切换抛'未知关卡'
+查('#关卡选择').innerHTML = 关卡列表.map(项 => `<option value="${项.编号}">${转义(项.简称 ? `${项.简称} · ` : '')}${转义(项.名称)}${项.场次标注 ? `（${转义(项.场次标注)}）` : ''}</option>`).join('');
 try {
-    const 上次关卡 = localStorage.getItem('TKFM-当前关卡') || 15249;
+    const 上次关卡 = Number(localStorage.getItem('TKFM-当前关卡')) || 15249;
     初始化玩家数据(上次关卡);
     载入本地记录(上次关卡);
 } catch (错误) { 通知(`记录未恢复：${用户错误(错误)}`, true); }
