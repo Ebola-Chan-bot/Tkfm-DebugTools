@@ -54,8 +54,6 @@ export function 校验AI配置(配置) {
     for (const [编号, 条件] of Object.entries(配置.AICD条件 || {})) {
         if (!默认CD条件[编号] || ![枚举.最大冷却, 枚举.当前冷却].includes(条件.字段) || !比较方式.includes(条件.比较)) throw new Error(`无效的 AI 条件校准：${编号}`);
     }
-    if (!Number.isInteger(配置.敌方星等) || (配置.敌方星等) < 1 || (配置.敌方星等) > 5) throw new Error('敌方星等须为 1 至 5');
-    if (![枚举.伤害后, 枚举.行动后].includes(配置.AI事件时点)) throw new Error('无效的 AI 事件时点');
 }
 
 function 比较冷却(条件, 单位, 参数) {

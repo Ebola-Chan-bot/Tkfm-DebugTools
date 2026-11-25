@@ -709,7 +709,7 @@
         false,
         false,
         false,
-        false,
+        true,
         false
       ],
       "解放": 0,

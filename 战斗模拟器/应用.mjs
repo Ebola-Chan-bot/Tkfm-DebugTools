@@ -1,9 +1,9 @@
 import { 新建战斗, 结算操作, 重放战斗, 当前攻击, 当前护盾, 加成, 可选敌人, 预览敌方行动 } from './战斗引擎.mjs';
 import { 枚举, 枚举名, 易伤基, 来源易伤基, 易伤键, 来源易伤键, 登记语义名, 语义名, 模型版本, 水光易伤 } from './枚举.mjs';
 import { 原包机制 } from './原包运行时.mjs';
-import { 真实角色目录, 获取真实角色, 获取真实技能, 创建角色, 职业列表, 属性列表, 调教加成, 普通等级最高, ELV突破档位, ELV技能解锁等级, 获取潜力养成, 计算调教面板, 获取适用ELv技能, 提取角色养成 } from './角色数据.mjs';
+import { 真实角色目录, 获取真实角色, 获取真实技能, 创建角色, 职业列表, 属性列表, 调教加成, 普通等级最低, 普通等级最高, ELV突破档位, ELV技能解锁等级, 获取潜力养成, 计算调教面板, 获取适用ELv技能, 提取角色养成 } from './角色数据.mjs';
 import { 更新池角色, 删除池角色, 校验编队引用, 解析角色引用, 生成角色池文件, 解析角色池文件, 合并角色池, 生成引用编队文件, 解析引用编队文件, 新建池角色, 解析Have角色代码, 合并Have角色 } from './玩家角色池.mjs';
-import { 关卡列表, 当前关卡, 创建关卡配置, 敌方技能目录, 敌方技能名称, 敌方名称 } from './关卡数据.mjs';
+import { 关卡列表, 当前关卡, 创建关卡配置, 敌方编组, 敌方技能目录, 敌方技能名称, 敌方名称 } from './关卡数据.mjs';
 
 const 查 = 选择器 => document.querySelector(选择器);
 const 全查 = 选择器 => [...document.querySelectorAll(选择器)];
@@ -32,7 +32,7 @@ let 玩家数据就绪 = false;
 let 配置 = 创建关卡配置(Number(localStorage.getItem('TKFM-当前关卡')) || 15249);
 let 操作列表 = [];
 let 游标 = 0;
-let 状态 = null; // 未开始；顶层不建战斗（配置只含关卡事实，可调数值须由设置表单/存档提供），载入记录或应用编队后才有状态
+let 状态 = null; // 未开始；顶层不建战斗（配置只含原包推导的关卡事实与玩家队伍），载入记录或应用编队后才有状态
 let 提示计时器;
 let 安装事件;
 let 运行中 = false;
@@ -66,9 +66,14 @@ function 包装(函数) {
     };
 }
 
+// 战斗记录只存玩家数据：关卡编号+队伍养成+操作序列+游标+随机种子/手动随机；首领面板/敌人/星等/减伤等关卡事实一律载入时由 创建关卡配置 从原包重算，不落盘。
+function 战斗记录() {
+    return { 关卡: 当前关卡(配置).编号, 队伍: structuredClone(配置.队伍), 操作列表: structuredClone(操作列表), 游标, 未开始: !状态, 随机种子: 配置.随机种子 ?? null, 手动随机: Boolean(配置.手动随机) };
+}
+
 function 存档() {
     try {
-        localStorage.setItem(关卡存档键(当前关卡(配置).编号), JSON.stringify({ 配置, 操作列表, 游标, 未开始: !状态 }));
+        localStorage.setItem(关卡存档键(当前关卡(配置).编号), JSON.stringify(战斗记录()));
         localStorage.setItem('TKFM-当前关卡', 当前关卡(配置).编号);
         查('#保存状态').textContent = '已保存';
     } catch { 查('#保存状态').textContent = '存储不可用'; }
@@ -111,13 +116,13 @@ function 初始化玩家数据(关卡) {
         const 原记录 = Object.fromEntries(关卡列表.map(关卡 => [关卡.编号, localStorage.getItem(关卡存档键(关卡.编号))]).filter(([, 内容]) => 内容));
         if (Object.keys(原记录).length || 原草稿?.length) {
             try { localStorage.setItem(`TKFM-角色池迁移前备份-${Date.now()}`, JSON.stringify({ 原记录, 草稿: 原草稿 })); } catch {}
-            for (const 单位 of 当前存档?.配置?.队伍 || []) {
+            for (const 单位 of 当前存档?.队伍 ?? 当前存档?.配置?.队伍 ?? []) {
                 try { 玩家角色池 = 更新池角色(玩家角色池, 单位); } catch {}
             }
             for (const 内容 of Object.values(原记录)) {
                 let 记录 = null;
                 try { 记录 = JSON.parse(内容); } catch {}
-                for (const 单位 of 记录?.配置?.队伍 || []) if (!玩家角色池.some(项 => 项.编号 === 单位.编号)) {
+                for (const 单位 of 记录?.队伍 ?? 记录?.配置?.队伍 ?? []) if (!玩家角色池.some(项 => 项.编号 === 单位.编号)) {
                     try { 玩家角色池 = 更新池角色(玩家角色池, 单位); } catch {}
                 }
             }
@@ -131,23 +136,38 @@ function 初始化玩家数据(关卡) {
     if (已存引用原文 !== null) {
         try { 已存引用 = 校验编队引用(JSON.parse(已存引用原文), 玩家角色池, true); } catch {}
     }
-    玩家编队 = 已存引用 ?? [...new Set([...(当前存档?.配置?.队伍 || []), ...(原草稿 || [])].map(单位 => 单位?.编号).filter(编号 => Number.isSafeInteger(编号) && 玩家角色池.some(项 => 项.编号 === 编号)))].slice(0, 5);
+    玩家编队 = 已存引用 ?? [...new Set([...(当前存档?.队伍 ?? 当前存档?.配置?.队伍 ?? []), ...(原草稿 || [])].map(单位 => 单位?.编号).filter(编号 => Number.isSafeInteger(编号) && 玩家角色池.some(项 => 项.编号 === 编号)))].slice(0, 5);
     保存玩家数据();
     玩家数据就绪 = true;
     try { sessionStorage.removeItem('TKFM-待迁移角色草稿'); } catch {}
 }
 
-function 导入记录(记录, 自动归档 = false) {
+// 旧记录兼容：名称关卡键映射到编号；旧形状把玩家数据埋在 配置 里，新形状直接平铺。无论哪种，只提取玩家数据，关卡事实一律重算（旧记录的旋钮/自定义敌方面板随之丢弃）。
+const 旧关卡名 = { 颠倒镜: 15249, 夏日尾声: 60155, 爱你至死不渝SP: 60161 };
+function 规范化记录(记录) {
     if (!记录 || typeof 记录 !== 'object' || !Array.isArray(记录.操作列表) || 记录.操作列表.length > 2000) throw new Error('不是有效的战斗记录，或记录过长');
+    const 原配置 = 记录.配置 ?? {};
+    const 原关卡 = 记录.关卡 ?? 原配置.关卡;
+    const 关卡 = 旧关卡名[原关卡] ?? 原关卡;
+    const 队伍 = 记录.队伍 ?? 原配置.队伍 ?? [];
     const 新游标 = 记录.游标 ?? 记录.操作列表.length;
     if (!Number.isInteger(新游标) || 新游标 < 0 || 新游标 > 记录.操作列表.length) throw new Error('记录游标无效');
-    if (记录.未开始 && (记录.操作列表.length || 记录.配置?.队伍?.length)) throw new Error('未开始的战斗记录无效');
-    const 新状态 = 记录.未开始 ? null : 重放战斗(记录.配置, 记录.操作列表.slice(0, 新游标));
+    if (记录.未开始 && (记录.操作列表.length || 队伍.length)) throw new Error('未开始的战斗记录无效');
+    const 新配置 = 创建关卡配置(关卡, 队伍);
+    const 种子 = 记录.随机种子 ?? 原配置.随机种子;
+    if (种子 !== undefined && 种子 !== null) 新配置.随机种子 = 种子 >>> 0;
+    新配置.手动随机 = Boolean(记录.手动随机 ?? 原配置.手动随机);
+    return { 配置: 新配置, 操作列表: 记录.操作列表, 游标: 新游标, 未开始: Boolean(记录.未开始) };
+}
+
+function 导入记录(记录, 自动归档 = false) {
+    const 规范 = 规范化记录(记录);
+    const 新状态 = 规范.未开始 ? null : 重放战斗(规范.配置, 规范.操作列表.slice(0, 规范.游标));
     // 先完成新记录的全部校验和重放，再归档当前战斗，导入失败时不会产生无意义的归档。
     const 已归档 = 自动归档 && 归档当前战斗('导入新记录时自动归档');
-    配置 = structuredClone(记录.配置);
-    操作列表 = structuredClone(记录.操作列表);
-    游标 = 新游标;
+    配置 = 规范.配置;
+    操作列表 = structuredClone(规范.操作列表);
+    游标 = 规范.游标;
     状态 = 新状态;
     return 已归档;
 }
@@ -188,7 +208,7 @@ function 归档当前战斗(原因) {
         保存时间: Date.now(), 原因,
         关卡编号: 当前关卡(配置).编号, 关卡名称: 当前关卡(配置).名称,
         摘要: 战斗摘要(),
-        记录: { 配置: structuredClone(配置), 操作列表: structuredClone(操作列表), 游标, 未开始: !状态 },
+        记录: 战斗记录(),
     };
     const 列表 = 读取归档列表();
     列表.unshift(项);
@@ -199,8 +219,8 @@ function 归档当前战斗(原因) {
 
 function 归档回放(项) {
     if (归档缓存.has(项.id)) return 归档缓存.get(项.id);
-    const 记录 = 项.记录;
-    const 回放 = 记录.未开始 ? null : 重放战斗(记录.配置, 记录.操作列表.slice(0, 记录.游标 ?? 记录.操作列表.length));
+    const 记录 = 规范化记录(项.记录);
+    const 回放 = 记录.未开始 ? null : 重放战斗(记录.配置, 记录.操作列表.slice(0, 记录.游标));
     归档缓存.set(项.id, 回放);
     return 回放;
 }
@@ -238,7 +258,7 @@ function 渲染归档列表() {
     查('#归档列表').innerHTML = 列表.length ? 列表.map(项 => {
         const 摘 = 项.摘要 || {};
         const 时间 = new Date(项.保存时间).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-        const 档潜 = 潜力等级列表(项.记录?.配置?.队伍 || []);
+        const 档潜 = 潜力等级列表(项.记录?.队伍 ?? 项.记录?.配置?.队伍 ?? []);
         const 最高潜 = 档潜.length ? Math.max(...档潜) : 0;
         const 潜力文字 = 档潜.length ? ` · 潜力 ${档潜.join('/')} · 最高 ${最高潜}×${档潜.filter(值 => 值 === 最高潜).length}人` : '';
         return `<article class="归档卡片"><div class="归档信息"><div class="归档标题行"><strong>${转义(项.关卡名称)}</strong><span class="结果签 ${转义(摘.结果 || '')}">${转义(摘.结果 || '未知')}</span><span class="归档原因">${转义(时间)}${项.原因 ? ` · ${转义(项.原因)}` : ''}</span></div><div class="归档元信息">第 ${摘.回合 ?? 0} 回合 · 首领 ${摘.首领生命 === null || 摘.首领生命 === undefined ? '--' : `${简数(摘.首领生命)} / ${简数(摘.首领生命上限)}`} · 存活 ${摘.存活 ?? 0}/${摘.队伍人数 ?? 0} · 操作 ${摘.操作数 ?? 0}${潜力文字}</div></div><div class="归档操作"><button class="文字按钮" data-归档查看="${项.id}"><i data-lucide="eye"></i>查看</button><button class="文字按钮" data-归档恢复="${项.id}"><i data-lucide="rotate-ccw"></i>恢复</button><button class="文字按钮" data-归档导出="${项.id}"><i data-lucide="download"></i>导出</button><button class="文字按钮 危险" data-归档删除="${项.id}"><i data-lucide="trash-2"></i>删除</button></div></article>`;
@@ -256,7 +276,7 @@ function 打开归档面板(id) {
     const 摘 = 项.摘要 || {};
     查('#归档面板标题').textContent = `归档 · ${项.关卡名称}`;
     查('#归档面板摘要').innerHTML = `<div><span>结果</span><strong>${转义(摘.结果 || '未知')}</strong></div><div><span>回合</span><strong>${摘.回合 ?? 0}</strong></div><div><span>首领生命</span><strong>${摘.首领生命 === null || 摘.首领生命 === undefined ? '--' : 简数(摘.首领生命)}</strong></div><div><span>存活</span><strong>${摘.存活 ?? 0}/${摘.队伍人数 ?? 0}</strong></div>`;
-    const 档队 = 项.记录?.配置?.队伍 || [];
+    const 档队 = 项.记录?.队伍 ?? 项.记录?.配置?.队伍 ?? [];
     const 档统计 = 潜力统计文字(档队);
     查('#归档面板养成').innerHTML = (档统计 ? `<div class="养成合计">${转义(档统计)}</div>` : '') + 本场养成HTML(档队, false);
     查('#归档面板养成').hidden = false;
@@ -407,7 +427,7 @@ function 渲染关卡() {
     查('.镜面').src = 关卡.头像;
     查('.镜面').alt = 关卡.头像角色 || 关卡.名称;
     查('#品牌图').src = 关卡.头像;
-    for (const 标识 of ['多敌区域', '夏日面板区域']) 查(`#${标识}`).hidden = !夏日;
+    查('#多敌区域').hidden = !夏日;
     查('#首领详情').hidden = !状态;
     if (!夏日 || !状态) {
         if (夏日) { 查('#当前目标').textContent = '尚未开始'; 查('#敌方队伍').innerHTML = ''; }
@@ -472,7 +492,9 @@ function 渲染战场() {
     const 夏日计数 = 状态.首领.计数?.[原包机制.技能[28788].效果.键] || 0; // 计数键是解析期登记的整数，旧字符串键永远取不到值；改按授予技能 28788 的键读取。
     const 夏日回血 = (状态.首领.原包触发 || []).some(项 => 项.来源技能 === 28777 && 项.剩余 > 0);
     const 夏日蓄力 = 状态.首领.蓄力;
-    查('#首领状态').innerHTML = 配置.关卡 === 60155 ? `<span>夏日 ${夏日计数} / 100</span><span>铃兰攻击 +${(加成(状态.首领, 枚举.攻击比例) * 100).toFixed(1)}%</span><span>回合回血 ${夏日回血 ? '2%' : '已移除'}</span>${夏日蓄力 ? `<span>蓄力 · 命中 ${夏日蓄力.命中 || 0} / ${夏日蓄力.解除次数} · 剩余 ${Math.max(0, (夏日蓄力.持续 || 1) - (状态.回合 - 夏日蓄力.开始回合))} 回合</span>` : ''}` : 配置.关卡 === 60161 ? 爱你状态 : `<span>攻击 +${(加成(状态.首领, 枚举.攻击比例) * 100).toFixed(0)}%</span><span>受盾 −${配置.颠倒规则 ? 配置.受盾降低 * 100 : 0}%</span><span>受疗 −${配置.颠倒规则 ? 配置.受疗降低 * 100 : 0}%</span>${状态.首领.蓄力 ? `<span>蓄力 ${状态.首领.蓄力.命中 || 0} / ${状态.首领.蓄力.解除次数}</span>` : ''}`;
+    // 颠倒镜的受盾/受疗压制读我方队员实际 buff（首领开场22839与被动22826授予），不再读关卡旋钮。
+    const 队员 = 状态.队伍[0];
+    查('#首领状态').innerHTML = 配置.关卡 === 60155 ? `<span>夏日 ${夏日计数} / 100</span><span>铃兰攻击 +${(加成(状态.首领, 枚举.攻击比例) * 100).toFixed(1)}%</span><span>回合回血 ${夏日回血 ? '2%' : '已移除'}</span>${夏日蓄力 ? `<span>蓄力 · 命中 ${夏日蓄力.命中 || 0} / ${夏日蓄力.解除次数} · 剩余 ${Math.max(0, (夏日蓄力.持续 || 1) - (状态.回合 - 夏日蓄力.开始回合))} 回合</span>` : ''}` : 配置.关卡 === 60161 ? 爱你状态 : `<span>攻击 +${(加成(状态.首领, 枚举.攻击比例) * 100).toFixed(0)}%</span><span>受盾 ${(加成(队员, 枚举.受盾变化) * 100).toFixed(0)}%</span><span>受疗 ${(加成(队员, 枚举.受疗增加) * 100).toFixed(0)}%</span>${状态.首领.蓄力 ? `<span>蓄力 ${状态.首领.蓄力.命中 || 0} / ${状态.首领.蓄力.解除次数}</span>` : ''}`;
     查('#总伤害').textContent = 简数(状态.累计伤害);
     查('#本回合回复').textContent = 简数(状态.本回合.回复);
     查('#本回合承伤').textContent = 简数(状态.本回合.承伤);
@@ -494,7 +516,7 @@ function 渲染战场() {
     }).join('');
     const 结束 = 状态.阶段 === 枚举.结束;
     查('#结局').hidden = !结束;
-    if (结束) 查('#结局').textContent = 状态.敌人.every(单位 => 单位.生命 <= 0) ? `${当前关卡(配置).名称}已通关` : 状态.队伍.every(单位 => 单位.生命 <= 0) ? '队伍全灭' : '已到达设定的回合上限';
+    if (结束) 查('#结局').textContent = 状态.敌人.every(单位 => 单位.生命 <= 0) ? `${当前关卡(配置).名称}已通关` : 状态.队伍.every(单位 => 单位.生命 <= 0) ? '队伍全灭' : '已到达回合上限';
     查('#最近日志').innerHTML = 日志行(最近行动分组(状态.日志.filter(项 => !['AI', '系统'].includes(项.类别)), 10));
     图标刷新();
 }
@@ -820,21 +842,13 @@ function 读取角色编辑输入() {
 }
 
 function 渲染设置() {
-    const 表单 = 查('#模型表单');
     查('#手动随机').checked = Boolean(配置.手动随机);
     const 夏日 = 配置.关卡 === 60155;
-    const 百分比 = ['首领减伤', '防御减伤', '受疗降低', '受盾降低'];
-    for (const 名称 of ['首领生命', '首领攻击', '回合上限', ...百分比, '敌方星等', 'AI初始冷却', 'AI事件时点', '颠倒规则']) {
-        const 输入 = 表单.elements.namedItem(名称);
-        if (!输入) continue;
-        const 专属 = ['首领生命', '首领攻击', '受疗降低', '受盾降低', '颠倒规则'].includes(名称);
-        输入.disabled = 夏日 && 专属;
-        输入.closest('label').hidden = 夏日 && 专属;
-        if (输入.type === 'checkbox') 输入.checked = Boolean(配置[名称]);
-        else 输入.value = 配置[名称] === undefined || 配置[名称] === null ? '' : (百分比.includes(名称) ? 配置[名称] * 100 : 配置[名称]);
-    }
-    查('#敌方面板').innerHTML = 夏日 ? 配置.敌人.map((单位, 位置) => `<div class="敌方面板行" data-enemy-stats="${位置}"><strong>${转义(敌方名称(单位.编号))}</strong><label>生命上限<input data-enemy-field="生命上限" type="number" min="1" value="${单位.生命上限}" required></label><label>攻击力<input data-enemy-field="攻击" type="number" min="1" value="${单位.攻击}" required></label></div>`).join('') : '';
-    const 目录 = 夏日 ? 配置.敌人.flatMap((单位, 位置) => 敌方技能目录(单位.编号).filter(项 => 项[1]).map(([名称, 编号, 描述]) => [`${敌方名称(单位.编号)} · ${名称}`, 编号, 描述])) : 敌方技能目录(配置.首领编号).filter(项 => 项[1]);
+    // 设置页只展示原包直读的关卡事实（等级/星等/计算面板）与引擎常量（回合上限50/防御基准减伤50%），不再提供任何可调数值输入；减伤/受疗受盾压制由首领技能buff在战斗中生效。
+    const 敌 = 敌方编组(配置.关卡);
+    const 面板行 = 敌.map(单位 => `<div class="敌方面板行"><strong>${转义(敌方名称(单位.编号))}</strong><span>生命 ${数字(单位.生命上限)}</span><span>攻击 ${数字(单位.攻击)}</span></div>`).join('');
+    查('#关卡事实').innerHTML = `<div class="敌方面板行"><strong>关卡事实</strong><span>等级 ${配置.等级}</span><span>星等 ${配置.敌方星等}</span><span>回合上限 50</span><span>防御基准减伤 50%</span></div>${面板行}`;
+    const 目录 = 夏日 ? 敌.flatMap(单位 => 敌方技能目录(单位.编号).filter(项 => 项[1]).map(([名称, 编号, 描述]) => [`${敌方名称(单位.编号)} · ${名称}`, 编号, 描述])) : 敌方技能目录(配置.首领编号).filter(项 => 项[1]);
     查('#技能目录').innerHTML = 目录.filter(([, , 描述]) => !/目标未解|校准|推定/.test(描述)).map(([名称, 编号, 描述]) => `<div><strong>${转义(名称)}</strong><span>${转义(描述)}</span></div>`).join('');
 }
 
@@ -1291,28 +1305,11 @@ function 角色详情(位置) {
 });
 查('#模型表单').addEventListener('submit', 包装(事件 => {
     事件.preventDefault();
-    const 表单 = 事件.currentTarget;
-    const 新配置 = structuredClone(配置);
-    for (const 输入 of 表单.elements) {
-        if (!输入.name || 输入.disabled) continue;
-        if (输入.type === 'checkbox') 新配置[输入.name] = 输入.checked;
-        else if (输入.tagName === 'SELECT') 新配置[输入.name] = Number(输入.value);
-        else 新配置[输入.name] = Number(输入.value) / (['首领减伤', 枚举.防御减伤, '受疗降低', '受盾降低'].includes(输入.name) ? 100 : 1);
-    }
-    if (配置.关卡 === 60155) {
-        新配置.敌人 = 配置.敌人.map((单位, 位置) => {
-            const 行 = 查(`[data-enemy-stats="${位置}"]`);
-            const 生命上限 = Number(行.querySelector('[data-enemy-field="生命上限"]').value);
-            const 攻击 = Number(行.querySelector('[data-enemy-field="攻击"]').value);
-            return { ...单位, 生命上限, 攻击, 自定义校准: 单位.自定义校准 || 生命上限 !== 单位.生命上限 || 攻击 !== 单位.攻击 };
-        });
-        新配置.首领生命 = 新配置.敌人[0].生命上限;
-        新配置.首领攻击 = 新配置.敌人[0].攻击;
-    }
-    应用新配置(新配置);
-    通知('战斗设置已应用');
+    // 关卡事实全部从原包重算，仅保留玩家队伍与随机种子/手动随机；提交即按当前编队重新开始本场。
+    应用新配置({ ...创建关卡配置(配置.关卡, 配置.队伍), 随机种子: 配置.随机种子, 手动随机: 配置.手动随机 });
+    通知('已按原包关卡数据重新开始');
 }));
-查('#导出').addEventListener('click', () => 保存下载(`${当前关卡(配置).名称}-战斗记录.json`, JSON.stringify({ 配置, 操作列表, 游标, 未开始: !状态 }, null, 2)));
+查('#导出').addEventListener('click', () => 保存下载(`${当前关卡(配置).名称}-战斗记录.json`, JSON.stringify(战斗记录(), null, 2)));
 查('#导入').addEventListener('click', () => 查('#导入文件').click());
 查('#导入文件').addEventListener('change', 包装(async 事件 => {
     const 文件 = 事件.target.files[0];

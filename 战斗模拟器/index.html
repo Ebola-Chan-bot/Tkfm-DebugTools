@@ -60,21 +60,8 @@
     </section>
     <section data-view="模型" hidden>
       <form id="模型表单">
-        <div class="段标题"><h2>战斗设置</h2><button type="submit" class="主按钮"><i data-lucide="check"></i>应用并重新开始</button></div>
-        <div class="设置网格">
-          <label>首领生命<input name="首领生命" type="number" min="1" step="1" required></label>
-          <label>首领攻击<input name="首领攻击" type="number" min="1" step="1" required></label>
-          <label>回合上限<input name="回合上限" type="number" min="1" max="100" required></label>
-          <label>首领减伤 %<input name="首领减伤" type="number" min="0" max="200" step="1" required></label>
-          <label>防御减伤 %<input name="防御减伤" type="number" min="0" max="100" step="1" required></label>
-          <label>受疗降低 %<input name="受疗降低" type="number" min="0" max="1000" step="1" required></label>
-          <label>受盾降低 %<input name="受盾降低" type="number" min="0" max="1000" step="1" required></label>
-          <label>敌方星等<input name="敌方星等" type="number" min="1" max="5" required></label>
-          <label>AI 初始冷却<input name="AI初始冷却" type="number" min="0" max="100" required></label>
-          <label>AI 事件时点<select name="AI事件时点" required><option value="832">伤害后</option><option value="40">行动后</option></select></label>
-          <label class="内联标签"><input name="颠倒规则" type="checkbox">颠倒规则</label>
-        </div>
-        <div id="夏日面板区域" hidden><div class="段标题"><h2>敌方属性</h2></div><div id="敌方面板" class="敌方面板"></div></div>
+        <div class="段标题"><h2>战斗设置</h2><button type="submit" class="主按钮"><i data-lucide="rotate-ccw"></i>重新开始</button></div>
+        <div id="关卡事实" class="敌方面板" aria-label="原包直读的关卡事实"></div>
         <div class="段标题"><h2>敌方技能</h2><label class="内联标签"><input id="手动随机" type="checkbox">手动选择随机分支</label></div><div id="技能目录" class="技能目录"></div>
       </form>
     </section>

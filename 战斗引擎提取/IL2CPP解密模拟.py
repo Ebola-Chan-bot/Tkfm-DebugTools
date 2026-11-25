@@ -534,20 +534,21 @@ if os.environ.get('捕获内存故障') == '1':
 if os.environ.get('跟踪目标调用') == '1':
     for 偏移 in (0x9659c, 0x162898, 0x173aa4, 0x1748a0, 0x174934, 0x138a1c, 0x138ca0, 0x137918, 0x137954, 0x137968):
         模拟器.hook_add(UC_HOOK_CODE, 目标函数钩子, begin=基址 + 偏移, end=基址 + 偏移)
+# 写入统计默认开启：它是解密进度的唯一精确指标（已写页数/覆盖范围），纯内存累加无磁盘IO；只在显式跟踪时才逐次写日志
 目标写入摘要 = {'次数': 0, '最小偏移': 映像结束偏移, '最大偏移': 0, '调用点': {}}
+已写页集 = set()
 def 目标写入钩子(引擎, 访问类型, 地址, 大小, 写入值, 用户数据):
-    if IL2CPP基址 <= 地址 < IL2CPP基址 + 映像结束偏移:
-        偏移 = 地址 - IL2CPP基址
-        目标写入摘要['次数'] += 1
-        目标写入摘要['最小偏移'] = min(目标写入摘要['最小偏移'], 偏移)
-        目标写入摘要['最大偏移'] = max(目标写入摘要['最大偏移'], 偏移 + 大小)
+    偏移 = 地址 - IL2CPP基址
+    目标写入摘要['次数'] += 1
+    if 偏移 < 目标写入摘要['最小偏移']: 目标写入摘要['最小偏移'] = 偏移
+    if 偏移 + 大小 > 目标写入摘要['最大偏移']: 目标写入摘要['最大偏移'] = 偏移 + 大小
+    已写页集.add(偏移 >> 12)
+    if os.environ.get('跟踪目标写入') == '1':
         程序计数器 = 引擎.reg_read(UC_ARM64_REG_PC) - 基址
         键 = hex(程序计数器)
         目标写入摘要['调用点'][键] = 目标写入摘要['调用点'].get(键, 0) + 1
-        if os.environ.get('跟踪目标写入') == '1':
-            目标日志.write(f'IL2CPP WRITE addr={偏移:#x} size={大小} value={写入值:#x} pc={程序计数器:#x}\n')
-if os.environ.get('跟踪目标写入') == '1' or os.environ.get('汇总目标写入') == '1':
-    模拟器.hook_add(UC_HOOK_MEM_WRITE, 目标写入钩子, begin=IL2CPP基址, end=IL2CPP基址 + 映像结束偏移)
+        目标日志.write(f'IL2CPP WRITE addr={偏移:#x} size={大小} value={写入值:#x} pc={程序计数器:#x}\n')
+模拟器.hook_add(UC_HOOK_MEM_WRITE, 目标写入钩子, begin=IL2CPP基址, end=IL2CPP基址 + 映像结束偏移)
 
 # 实际打开目标库后补文件读取日志，pread/read 不可混用游标语义
 原始模拟打开 = 命名空间['模拟打开']
@@ -819,7 +820,7 @@ print('SNAPSHOT AND PROBES READY', flush=True)
 目标初始化入口 = IL2CPP基址 + 目标初始偏移
 print('il2cpp DT_INIT @', hex(目标初始化入口), flush=True)
 from ELF工具库 import 启动进度心跳
-启动进度心跳(模拟器, IL2CPP基址, 映像结束偏移, int(os.environ.get('进度间隔秒', '60')))
+启动进度心跳(模拟器, IL2CPP基址, 映像结束偏移, int(os.environ.get('进度间隔秒', '60')), 已写页集=已写页集, 写入摘要=目标写入摘要)
 模拟器.reg_write(UC_ARM64_REG_SP, 栈基址 + 栈大小 - 0x1000)
 模拟器.reg_write(UC_ARM64_REG_LR, 返回地址)
 模拟器.reg_write(UC_ARM64_REG_X0, 0)
