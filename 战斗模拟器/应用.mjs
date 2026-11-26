@@ -513,7 +513,7 @@ function 渲染战场() {
         const 类名 = [单位.已行动 ? '已行动' : '', 单位.生命 <= 0 ? '已倒下' : '', 单位.防御 ? '防御中' : ''].join(' ');
         const 状态条 = 单位.生命 <= 0 ? '倒下' : 动作状态.控制.length ? 动作状态.控制.join(' · ') : 单位.防御 ? '防御中' : 单位.已行动 ? '已行动' : '待行动';
         const 全名 = 单位.全名 || 获取真实角色(单位.编号)?.全名 || 单位.名称;
-        const 关卡标记 = 配置.关卡 === 60161 ? (单位.状态标记 || []).map(项 => `<span>${转义(项.标记)}${项.层数 > 1 ? ` ${项.层数}` : ''}</span>`).join('') : '';
+        const 关卡标记 = 配置.关卡 === 60161 ? (单位.状态标记 || []).map(项 => `<span>${转义(效果文本(项.标记))}${项.层数 > 1 ? ` ${项.层数}` : ''}</span>`).join('') : ''; // 标记是语义码，直接转义会显示裸编号（如100004），须经 效果文本 反查成《命定之人》等语义名。
         return `<article class="角色卡 ${类名}" data-unit="${单位.位置}"><div class="角色卡头"><span class="站位标">${String(单位.位置 + 1).padStart(2, '0')} ${单位.位置 === 0 ? ' / 队长' : ''}</span><button class="图标按钮" data-detail="${单位.位置}" title="${转义(全名)}状态与技能" aria-label="${转义(全名)}状态与技能"><i data-lucide="ellipsis"></i></button></div><div class="角色名行">${职业像(单位.职业, 单位.编号, 全名)}<div><h3 class="角色姓名">${转义(全名)}</h3><div class="角色属性">${转义(属性名(单位.属性))} · ${转义(职业名(单位.职业))} · 羁绊 ${单位.羁绊}</div></div></div><div class="角色血量"><span>${数字(单位.生命)}</span><span class="比例">${百分比.toFixed(0)}%</span></div><div class="生命轨"><div style="width:${百分比}%;${百分比 < 30 ? 'background:var(--红)' : ''}"></div></div><div class="角色参数"><div><span>当前攻击</span><strong>${简数(当前攻击(单位))}</strong></div><div><span>有效护盾</span><strong>${简数(当前护盾(单位))}</strong></div></div><div class="角色状态"><span>${状态条}</span>${单位.冷却剩余 ? `<span>CD ${单位.冷却剩余}</span>` : '<span>必杀就绪</span>'}${单位.计数.守护 ? `<span>守护 ${单位.计数.守护}</span>` : ''}${关卡标记}</div><div class="动作栏"><button data-action="普攻" data-position="${单位.位置}" ${可行动 && 动作状态.可攻击 ? '' : 'disabled'} title="${动作状态.可攻击 ? '普攻' : '受控，无法攻击'}">普攻</button><button data-action="必杀" data-position="${单位.位置}" ${可行动 && 动作状态.可必杀 ? '' : 'disabled'} title="${动作状态.控制.length ? '受控或沉默，无法施放必杀' : 单位.冷却剩余 ? `冷却 ${单位.冷却剩余} 回合` : '必杀'}">${单位.冷却剩余 ? `CD ${单位.冷却剩余}` : '必杀'}</button><button data-action="防御" data-position="${单位.位置}" ${可行动 && !动作状态.跳过 ? '' : 'disabled'} title="${动作状态.跳过 ? '受控，本次行动自动待机' : '防御'}" aria-label="${转义(单位.名称)}防御"><i data-lucide="shield"></i></button></div></article>`;
     }).join('');
     const 结束 = 状态.阶段 === 枚举.结束;
@@ -1000,7 +1000,13 @@ function 叠层状态行(单位, 显示来源 = false) {
         return `<tr><td>${转义(效果文本(名称))}</td><td>—</td><td>${层数文本}</td><td>${剩余文本}</td>${来源列}</tr>`;
     };
     // 计数与状态标记是普通增益之外的独立叠层载体；统一按真实状态输出，不按角色或技能名单特判。
-    const 计数 = Object.entries(单位.计数 || {}).filter(([, 层数]) => 层数 > 0).map(([名称, 层数]) => 行(名称, 层数, 单位.计数上限?.[名称] ?? null)).join('');
+    // 计数键是解析期登记的语义码（≥100000），Object.entries 取出的是字符串键，旧实现直接进 效果文本 字符串分支显示裸编号且无来源列（用户实测枪匠58519键100005《硬芯穿甲弹》触发者未知）；数字键转回整数走语义名反查，来源读引擎登记的 计数来源。
+    const 计数 = Object.entries(单位.计数 || {}).filter(([, 层数]) => 层数 > 0).map(([名称, 层数]) => {
+        const 键 = /^\d+$/.test(名称) ? Number(名称) : 名称;
+        const 显示名 = typeof 键 === 'number' && 键 >= 100000 ? 语义名(键) : 名称;
+        const 源 = 单位.计数来源?.[名称];
+        return 行(显示名, 层数, 单位.计数上限?.[名称] ?? null, null, 源?.来源 ?? null, 源?.来源技能 ?? null);
+    }).join('');
     const 标记 = (单位.状态标记 || []).filter(项 => 项.层数 > 0).map(项 => 行(项.标记, 项.层数, null, 项.剩余, 项.来源, 项.来源技能)).join('');
     return 计数 + 标记;
 }
