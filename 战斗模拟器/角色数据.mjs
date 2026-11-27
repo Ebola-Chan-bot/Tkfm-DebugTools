@@ -71,15 +71,18 @@ export function 计算调教面板(单位) {
     if (!Number.isInteger(解放) || 解放 < 0 || 解放 && !档案?.解放阶段.includes(解放)) throw new Error('角色没有该解放阶段');
     const 等级倍率 = 每级倍率 ** (普通等级 - 1);
     const 原 = 原包角色表.get(单位.编号);
-    // 面板浮点序= battle 面板函数 VA 0x80028eaea8（SetTeamCharData@0x80022ae220 与 TPlayerChar.GetHp 同调）汇编实证：float 链 基础×(1+0.2f×星) 后按 0x80028eb0c0/c8/d0 三条 fmul 的槽位顺序依次乘 调教→潜力→ELV 三个 (1+系数×百分比) 因子，转 double 后 ×1.1^(级-1)（Math.Pow 的 double）再 ×(1+0.01×解放百分比)（解放走 double 支、不进 float 前缀），最后向下取整。乘序定案依据：六乘序×13锚（巴尔/兰/诺/鬼/枪60161生命+伊/圣/兔/枪旧面板）联立筛选仅 调→潜→ELV 与 调→ELV→潜 全过，结合汇编第二因子为 u16 累计（调教%）、第三因子为 u8（潜力%）、第四因子为 call 结果（ELV）唯一定案 调→潜→ELV；系数按百分比×0.01f 表示（与基点×0.0001f 经 fround 等价，全部锚逐位验证）。旧"潜力→调教"序在巴尔10214（4星调3潜8节点TTT ELV9）得2879293、游戏实测面板2879294（最终生命4462905=2879294+floor(2879294×0.55)），调教先乘复现2879294。星级直接乘 (1+0.2f×星)，不做"先×1.6 再除回"的比率近似；圣剑2222473、兔姬1651680、枪匠2870268、伊2057972/464127 等锚逐位不变。
+    // 面板公式=TPlayerChar.GetHp(2参)@0x80028eae28 包装 bl 共享计算函数@0x80028eaea8（GetAtk 同构）汇编实证：float 前缀四乘槽按 0x80028eb0ac/c0/c8/d0 的 fmul 序=基础×潜力基点因子×解放百分比因子×调教百分比因子×ELV基点因子，其中潜力槽函数@0x80028ebd0c 遍历潜力节点表（stride 0x28、type==2 过滤）累加 u16 基点、系数 0.0001f，解放槽函数@0x80028eb8ac 按 char+0x50 三位标志（char+0x48 上限）查表累加 u8 百分比、系数 0.01f，调教槽@0x80028eb9e4 出 u8 百分比、系数 0.01f，ELV槽@0x80028ebf44(char,ELV等级) 出基点、系数 0.0001f（asm 中 s8=s11、s9=s10 为同两静态结构+0x44/+0x2c 各复制两次，故仅 0.0001f/0.01f 两常数）；fcvt d0,s0 转 double 后 ×Math.Pow(1.1double@0x8000c1f778, 级-1)@0x80043e1df0 再 ×星级因子 (1+0.2double@0x8000c1edd0×星)（ucvtf d3→fmul d3,d3,d5→fadd d1,d3,1.0，星级走 double 尾支不进 float 前缀），frintm/fcvtms 向下取整。旧"星→调→潜→ELV float 前缀+解放 double 尾"模型把星级/解放位置与精度都弄反了：达芙妮10184（4星调2潜9节点TTTFFF、ELV0、解放0、60级）旧模型 2385454.9715→2385454，游戏实测 2385455，新模型 2385455.0796→2385455 命中；八锚（达芙妮2385455/兔姬1651680/巴尔2879294/圣剑2222473/枪匠2870268/伊2057972+464127/毛毛3533589/尤妮思2343896）联立全过，满养成188角色仅天使长10007生命-1、偶像10026攻击-1（均无实测锚）。基点=百分比×100 的整数（潜力 u16 基点直接来自节点表累加，ELV/解放同口径），Math.round 还原浮点传输误差。
     const 面板值 = (基础, 属性, 潜力百分比) => {
-        const 百分比f = 百分比 => Math.fround(Math.fround(Math.fround(0.01) * 百分比) + 1);
-        let 积 = Math.fround(Math.fround(基础) * Math.fround(Math.fround(Math.fround(0.2) * 星级) + 1));
-        积 = Math.fround(积 * 百分比f(调教加成[调教]));
-        积 = Math.fround(积 * 百分比f(潜力百分比));
-        积 = Math.fround(积 * 百分比f(ELV突破档位[ELV突破等级][属性]));
-        const 解放百分比 = (档案.解放面板加成[解放] || 0) * 100;
-        return Math.max(1, Math.floor(等级倍率 * 积 * (1 + 0.01 * 解放百分比)));
+        const f01 = 百分比 => Math.fround(Math.fround(Math.fround(0.01) * 百分比) + 1);
+        const f0001 = 基点 => Math.fround(Math.fround(Math.fround(0.0001) * 基点) + 1);
+        const 潜力基点 = Math.round(潜力百分比 * 100);
+        const 解放百分比 = Math.round((档案.解放面板加成[解放] || 0) * 100);
+        const ELV基点 = Math.round(ELV突破档位[ELV突破等级][属性] * 100);
+        let 积 = Math.fround(Math.fround(基础) * f0001(潜力基点));
+        积 = Math.fround(积 * f01(解放百分比));
+        积 = Math.fround(积 * f01(调教加成[调教]));
+        积 = Math.fround(积 * f0001(ELV基点));
+        return Math.max(1, Math.floor(等级倍率 * 积 * (1 + 0.2 * 星级)));
     };
     return { 调教, 星级, 普通等级, ELV突破等级, 潜力等级: 潜力.潜力等级, 潜力节点: 潜力.潜力节点, 生命上限: 面板值(原.基础生命, '生命百分比', 潜力.生命百分比), 攻击: 面板值(原.基础攻击, '攻击百分比', 潜力.攻击百分比) };
 }
