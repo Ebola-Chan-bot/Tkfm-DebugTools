@@ -9,7 +9,7 @@ const 输出 = 路径.join(根目录, 'dist');
 // 构建前清空 dist 整目录重建：防清单移除后旧文件残留（曾致 15MB 原包关卡机制.json 滞留 dist）。
 await 文件系统.rm(输出, { recursive: true, force: true });
 await 文件系统.mkdir(输出, { recursive: true });
-const 文件列表 = ['index.html', '界面.css', '枚举.mjs', '应用.mjs', '战斗引擎.mjs', '战斗数值.mjs', '角色数据.mjs', '玩家角色池.mjs', '编译技能文本.mjs', '原包数据.mjs', '原包运行时.mjs', '角色显示.mjs', '原包数据/Skill_C.bytes', '原包数据/Character_C.bytes', '原包数据/LimitBreak.bytes', '原包数据/CharacterStr_sc.bytes', '原包数据/PotentialUp.bytes', '原包数据/EnemyAI.bytes', '原包数据/Stage_C.bytes', '原包数据/MonsterGroup.bytes', '原包数据/SkillGroup.bytes', '原包数据/SkillStr_sc.bytes', '原包数据/StageStr_sc.bytes', '原包数据/MultiteamStage_C.bytes', '关卡数据.mjs', '敌方行动规则.mjs', 'manifest.webmanifest'];
+const 文件列表 = ['index.html', '界面.css', '枚举.mjs', '应用.mjs', '战斗引擎.mjs', '战斗数值.mjs', '角色数据.mjs', '玩家角色池.mjs', '编译技能文本.mjs', '原包数据.mjs', '原包运行时.mjs', '角色显示.mjs', '原包数据/Skill_C.bytes', '原包数据/Character_C.bytes', '原包数据/LimitBreak.bytes', '原包数据/CharacterStr_sc.bytes', '原包数据/PotentialUp.bytes', '原包数据/EnemyAI.bytes', '原包数据/Stage_C.bytes', '原包数据/MonsterGroup.bytes', '原包数据/SkillGroup.bytes', '原包数据/SkillStr_sc.bytes', '原包数据/StageStr_sc.bytes', '原包数据/MultiteamStage_C.bytes', '原包数据/AssignParty_C.bytes', '原包数据/Battle_C.bytes', '关卡数据.mjs', '敌方行动规则.mjs', 'manifest.webmanifest'];
 for (const 文件 of 文件列表) {
     // 子目录条目（如 原包数据/*.bytes）需先建目录再复制。
     const 目标路径 = 路径.join(输出, 文件);
@@ -27,6 +27,22 @@ for (const 单位 of 角色目录) {
     const 文件名 = `cs${单位.编号}_0_0.webp`;
     await 文件系统.copyFile(路径.join(头像源目录, 文件名), 路径.join(输出, '角色头像', 文件名));
 }
+// 补充头像：不在188角色目录内的敌方登场角色（如SP1海鲜精力汤47359，从原包charpics bundle的Texture2D提取，头像是Texture2D而非Sprite），目录手工维护、整目录拷入dist并参与缓存指纹。
+const 补充目录 = 路径.join(根目录, '角色头像补充');
+const 补充文件 = (await 文件系统.readdir(补充目录).catch(() => [])).filter(文件 => 文件.endsWith('.webp'));
+for (const 文件 of 补充文件) await 文件系统.copyFile(路径.join(补充目录, 文件), 路径.join(输出, '角色头像', 文件));
+// 关卡首领头像自动补拷：关卡列表的登场角色可能不在188玩家目录（如试玩训练人偶10922），此前靠手工放 dist 会被整目录重建删掉致破图；按关卡列表逐关检查，缺的从 tenkaassist 头像库补拷并入缓存指纹，两源都没有则显式报错不静默漏图。
+const { 关卡列表 } = await import('./关卡数据.mjs');
+const 关卡头像文件 = [];
+for (const 关卡 of 关卡列表) {
+    const 文件名 = 路径.basename(关卡.头像 || '');
+    if (!文件名) continue;
+    const 目标 = 路径.join(输出, '角色头像', 文件名);
+    try { await 文件系统.access(目标); } catch {
+        await 文件系统.copyFile(路径.join(头像源目录, 文件名), 目标).catch(() => { throw new Error(`关卡${关卡.编号}首领头像 ${文件名} 在 tenkaassist 头像库与角色头像补充目录均缺失`); });
+    }
+    if (!关卡头像文件.includes(`角色头像/${文件名}`) && !补充文件.includes(文件名) && !角色目录.some(单位 => `cs${单位.编号}_0_0.webp` === 文件名)) 关卡头像文件.push(`角色头像/${文件名}`);
+}
 
 const 镜面 = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
 <defs><linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#122d32"/><stop offset=".48" stop-color="#7ab8b4"/><stop offset=".52" stop-color="#18494b"/><stop offset="1" stop-color="#061a20"/></linearGradient><linearGradient id="metal" x2="1" y2="1"><stop stop-color="#e4cf8c"/><stop offset=".5" stop-color="#9e8654"/><stop offset="1" stop-color="#f3df9c"/></linearGradient></defs>
@@ -43,7 +59,7 @@ const 海岸 = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"
 await 图像(Buffer.from(海岸)).png().toFile(路径.join(输出, '海岸-512.png'));
 const 散列 = 创建散列('sha256');
 const 头像文件 = 角色目录.map(单位 => `角色头像/cs${单位.编号}_0_0.webp`);
-for (const 文件 of [...文件列表, '图标.js', '图标-LICENSE.txt', '镜面-192.png', '镜面-512.png', '海岸-512.png', ...['attacker', 'healer', 'protector', 'supporter', 'obstructer'].map(名称 => `职业图标/${名称}.png`), ...头像文件]) 散列.update(await 文件系统.readFile(路径.join(输出, 文件)));
+for (const 文件 of [...文件列表, '图标.js', '图标-LICENSE.txt', '镜面-192.png', '镜面-512.png', '海岸-512.png', ...['attacker', 'healer', 'protector', 'supporter', 'obstructer'].map(名称 => `职业图标/${名称}.png`), ...头像文件, ...补充文件.map(文件 => `角色头像/${文件}`), ...关卡头像文件]) 散列.update(await 文件系统.readFile(路径.join(输出, 文件)));
 const 工作器 = await 文件系统.readFile(路径.join(根目录, '离线.js'), 'utf8');
 await 文件系统.writeFile(路径.join(输出, '离线.js'), 工作器.replace('__缓存指纹__', 散列.digest('hex').slice(0, 16)), 'utf8');
 console.log(`构建完成：${输出}`);
